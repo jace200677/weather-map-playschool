@@ -15,6 +15,7 @@
       --green: #2f5d50;
       --light: #f7f2e8;
       --accent: #f2b705;
+      --danger: #b91c1c;
     }
 
     * { box-sizing: border-box; }
@@ -77,6 +78,32 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
 
+    /* WEATHER INTENSITY */
+    .intensity {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      margin-bottom: 1.5rem;
+    }
+
+    .score {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .level {
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
     footer {
       background: var(--green);
       color: #fff;
@@ -126,11 +153,21 @@
 </section>
 
 <section id="weather">
-  <h2>Live Weather Map</h2>
-  <p>
-    Outdoor learning adapts to real-time Great Lakes weather conditions.
-  </p>
+  <h2>Weather Safety & Intensity</h2>
 
+  <!-- WEATHER INTENSITY SCORE -->
+  <div class="intensity">
+    <div>
+      <div class="score" id="score">--</div>
+      <div class="level" id="level">Loading…</div>
+      <small>Weather Intensity Score (0–500)</small>
+    </div>
+    <div>
+      <p id="details" style="margin:0;font-size:0.95rem;opacity:0.85;"></p>
+    </div>
+  </div>
+
+  <!-- VENTUSKY MAP -->
   <div style="position:relative;width:100%;padding-bottom:62.5%;height:0;overflow:hidden;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,0.15);">
     <iframe 
       src="https://www.ventusky.com/?p=46.5;-87.0;6&l=temperature"
@@ -154,6 +191,70 @@
 <footer>
   <small>© 2026 Great Lakes Playschool · Learning with water, wind, and wonder 🌊</small>
 </footer>
+
+<script>
+// --- CONFIG ---
+const PWS_API_URL = "https://api.weather.com/v2/pws/observations/current?stationId=KMNMINNE424&format=json&units=e&apiKey=e8c7277e600540cd87277e600500cde7";
+
+// --- HELPERS ---
+function calculateIntensity(obs) {
+  let score = 0;
+
+  // Temperature extremes
+  if (obs.temp >= 90 || obs.temp <= 32) score += 150;
+  else if (obs.temp >= 80 || obs.temp <= 40) score += 75;
+
+  // Windy
+  if (obs.windSpeed >= 25) score += 125;
+  else if (obs.windSpeed >= 15) score += 75;
+
+  // Precipitation
+  if (obs.precipRate > 0) score += 100;
+
+  // Humidity extremes
+  if (obs.humidity >= 90 || obs.humidity <= 20) score += 50;
+
+  return Math.min(score, 500);
+}
+
+function getLevel(score) {
+  if (score >= 350) return "High";
+  if (score >= 200) return "Moderate";
+  return "Low";
+}
+
+// --- FETCH PWS DATA ---
+fetch(PWS_API_URL)
+  .then(r => r.json())
+  .then(d => {
+    const obs = d.observations[0].imperial; // Using imperial units
+    const score = calculateIntensity(obs);
+    const level = getLevel(score);
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("level").textContent = level;
+    document.getElementById("details").textContent =
+      `Temp: ${obs.temp}°F, Wind: ${obs.windSpeed} mph, Humidity: ${obs.humidity}%, Precip: ${obs.precipRate} in/hr`;
+
+    // Color coding
+    const levelEl = document.getElementById("level");
+    const scoreEl = document.getElementById("score");
+
+    if (score >= 350) {
+      levelEl.style.background = "#ef4444";
+      scoreEl.style.color = "#b91c1c";
+    } else if (score >= 200) {
+      levelEl.style.background = "#f59e0b";
+    } else {
+      levelEl.style.background = "#f2b705";
+    }
+  })
+  .catch(() => {
+    document.getElementById("level").textContent = "Unavailable";
+    document.getElementById("score").textContent = "--";
+    document.getElementById("details").textContent = "";
+  });
+</script>
 
 </body>
 </html>
