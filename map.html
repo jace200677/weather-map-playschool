@@ -6,101 +6,38 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
   #map { height: 600px; width: 100%; }
-  #controls { padding: 5px; }
+  #controls {
+    padding: 5px;
+    background: #fff;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  }
+  #variableSelect { margin-left: 5px; }
 </style>
 </head>
 <body>
 
-<h2>Global Custom Weather Forecast</h2>
-<div id="map"></div>
 <div id="controls">
   <button onclick="prevStep()">⏮ Previous</button>
   <button onclick="nextStep()">Next ⏭</button>
   <span id="timeLabel">Time: </span>
+  <label for="variableSelect">Variable:</label>
+  <select id="variableSelect" onchange="drawForecast(currentStep)">
+    <option value="temp" selected>Temperature 2m</option>
+    <option value="precip3h">Precipitation 3h</option>
+    <option value="wind10">Wind 10m</option>
+    <option value="gust1h">Wind Gust 1h</option>
+  </select>
 </div>
+
+<div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/chroma-js@2.1.0/chroma.min.js"></script>
 
 <script>
 // ---------------- INIT MAP ----------------
-const map = L.map('map').setView([0,0],2);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-// ---------------- DATA PLACEHOLDER ----------------
-// If you serve Python data via Flask or other server, replace this with AJAX fetch
-let forecastData = window.PY_FORECAST || [];  // injected by Python
-
-let currentStep = 0;
-let layersGroup = L.layerGroup().addTo(map);
-
-// ---------------- DRAW FORECAST ----------------
-function drawForecast(stepIndex){
-  if(forecastData.length === 0) return;
-  layersGroup.clearLayers();
-  const data = forecastData[stepIndex];
-  data.forEach(d=>{
-    // Temperature 2m
-    const tempColor = chroma.scale(['blue','green','yellow','red']).domain([-30,50])(d.temp).hex();
-    L.circleMarker([d.lat,d.lon],{
-      radius: 5,
-      color: tempColor,
-      fillColor: tempColor,
-      fillOpacity: 0.6
-    }).addTo(layersGroup);
-
-    // Precipitation 3h
-    if(d.precip3h>0){
-      const precipColor = chroma.scale(['#00f','#0044ff']).domain([0,10])(d.precip3h).hex();
-      L.circleMarker([d.lat,d.lon],{
-        radius: 3,
-        color: precipColor,
-        fillColor: precipColor,
-        fillOpacity: 0.5
-      }).addTo(layersGroup);
-    }
-
-    // Wind 10m arrows
-    const arrowLength = d.wind10;
-    const angle = d.wind_dir || Math.random()*360;
-    const rad = angle * Math.PI / 180;
-    const dx = arrowLength * Math.cos(rad);
-    const dy = arrowLength * Math.sin(rad);
-    L.polyline([
-      [d.lat,d.lon],
-      [d.lat+dy*0.05,d.lon+dx*0.05]
-    ], {color:'black', weight:1}).addTo(layersGroup);
-
-    // Gust 1h
-    if(d.gust1h>15){
-      L.circleMarker([d.lat,d.lon],{
-        radius:2,
-        color:'red',
-        fillColor:'red',
-        fillOpacity:0.7
-      }).addTo(layersGroup);
-    }
-  });
-  document.getElementById('timeLabel').innerText = "Time: " + data[0].time;
-}
-
-// ---------------- CONTROLS ----------------
-function nextStep(){
-  if(forecastData.length===0) return;
-  currentStep = (currentStep+1)%forecastData.length;
-  drawForecast(currentStep);
-}
-function prevStep(){
-  if(forecastData.length===0) return;
-  currentStep = (currentStep-1+forecastData.length)%forecastData.length;
-  drawForecast(currentStep);
-}
-
-// ---------------- AUTO PLAY ----------------
-setInterval(nextStep, 1000);
-</script>
-
-</body>
-</html>
+const map = L.map('map').setView([0]()
