@@ -2,6 +2,7 @@ numpy
 pandas
 xarray
 netCDF4
+requests
 matplotlib
 cartopy
 plotly
