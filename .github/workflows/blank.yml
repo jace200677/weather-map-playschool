@@ -22,3 +22,10 @@ jobs:
       - name: Run weather alert
         run: |
           python generate_forecast.py
+      - name: Commit forecast.js
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add forecast.js
+          git commit -m "Update forecast.js via Action" || echo "No changes to commit"
+          git push
