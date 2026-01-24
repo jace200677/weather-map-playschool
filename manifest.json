@@ -1,0 +1,35 @@
+{
+    "short_name": "Ventusky",
+    "name": "playweather.com",
+    "icons": [
+        {
+            "src": "https://cdnstatic.ventusky.com/images_v2/safe-icon-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "https://cdnstatic.ventusky.com/images_v2/safe-icon-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        },
+        {
+            "src": "https://cdnstatic.ventusky.com/images_v2/icon-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "maskable"
+        },
+        {
+            "src": "https://cdnstatic.ventusky.com/images_v2/icon-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        }
+    ],
+    "start_url": "/?source=pwa",
+    "background_color": "#555555",
+    "display": "minimal-ui",
+    "display_override": ["minimal-ui", "standalone"],
+    "scope": "/",
+    "theme_color": "#222e63",
+    "description": "Live Weather Map and Forecast"
+}
