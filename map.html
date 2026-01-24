@@ -40,4 +40,69 @@
 
 <script>
 // ---------------- INIT MAP ----------------
-const map = L.map('map').setView([0]()
+const map = L.map('map').setView([0,0],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// ---------------- DATA PLACEHOLDER ----------------
+let forecastData = window.PY_FORECAST || [];  // Replace with your forecast variable
+let currentStep = 0;
+let layersGroup = L.layerGroup().addTo(map);
+
+// ---------------- VENTUSKY COLORS ----------------
+const ventuskyColors = {
+  temp: chroma.scale(['#08306b','#2171b5','#6baed6','#fee391','#fb6a4a','#cb181d']).domain([-30,50]),
+  precip3h: chroma.scale(['#ffffff','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99']).domain([0,20]),
+  wind10: chroma.scale(['#f7fbff','#6baed6','#2171b5','#08306b']).domain([0,30]),
+  gust1h: chroma.scale(['#fff5f0','#fcae91','#fb6a4a','#cb181d','#67000d']).domain([0,40])
+};
+
+// ---------------- DRAW FORECAST ----------------
+function drawForecast(stepIndex){
+  if(forecastData.length === 0) return;
+  layersGroup.clearLayers();
+  const data = forecastData[stepIndex];
+  const variable = document.getElementById('variableSelect').value;
+
+  data.forEach(d=>{
+    let value = d[variable];
+
+    // Use circle size and color
+    let radius = 5;
+    if(variable === 'precip3h') radius = Math.min(10, Math.max(3,value));
+    if(variable === 'wind10' || variable === 'gust1h') radius = Math.min(8, 2 + value/4);
+
+    L.circleMarker([d.lat,d.lon],{
+      radius: radius,
+      color: ventuskyColors[variable](value).hex(),
+      fillColor: ventuskyColors[variable](value).hex(),
+      fillOpacity: 0.6
+    }).addTo(layersGroup);
+  });
+
+  document.getElementById('timeLabel').innerText = "Time: " + data[0].time + " | Variable: " + variable;
+}
+
+// ---------------- CONTROLS ----------------
+function nextStep(){
+  if(forecastData.length===0) return;
+  currentStep = (currentStep+1)%forecastData.length;
+  drawForecast(currentStep);
+}
+function prevStep(){
+  if(forecastData.length===0) return;
+  currentStep = (currentStep-1+forecastData.length)%forecastData.length;
+  drawForecast(currentStep);
+}
+
+// ---------------- AUTO PLAY ----------------
+setInterval(nextStep, 1000);
+
+// ---------------- INITIAL DRAW ----------------
+drawForecast(currentStep);
+
+</script>
+
+</body>
+</html>
