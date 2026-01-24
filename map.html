@@ -5,9 +5,10 @@
 <title>Global Custom Weather Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
+  body { margin: 0; font-family: Arial, sans-serif; }
   #map { height: 600px; width: 100%; }
   #controls {
-    padding: 5px;
+    padding: 8px;
     background: #fff;
     position: absolute;
     top: 10px;
@@ -23,7 +24,7 @@
 <div id="controls">
   <button onclick="prevStep()">⏮ Previous</button>
   <button onclick="nextStep()">Next ⏭</button>
-  <span id="timeLabel">Time: </span>
+  <span id="timeLabel">Time: --</span>
   <label for="variableSelect">Variable:</label>
   <select id="variableSelect" onchange="drawForecast(currentStep)">
     <option value="temp" selected>Temperature 2m</option>
@@ -38,6 +39,9 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/chroma-js@2.1.0/chroma.min.js"></script>
 
+<!-- Include your forecast.js generated from Python -->
+<script src="forecast.js"></script>
+
 <script>
 // ---------------- INIT MAP ----------------
 const map = L.map('map').setView([0,0],2);
@@ -45,8 +49,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// ---------------- DATA PLACEHOLDER ----------------
-let forecastData = window.PY_FORECAST || [];  // Replace with your forecast variable
+// ---------------- VARIABLES ----------------
+let forecastData = window.PY_FORECAST || [];
 let currentStep = 0;
 let layersGroup = L.layerGroup().addTo(map);
 
@@ -68,11 +72,12 @@ function drawForecast(stepIndex){
   data.forEach(d=>{
     let value = d[variable];
 
-    // Use circle size and color
+    // Circle size based on variable intensity
     let radius = 5;
-    if(variable === 'precip3h') radius = Math.min(10, Math.max(3,value));
-    if(variable === 'wind10' || variable === 'gust1h') radius = Math.min(8, 2 + value/4);
+    if(variable==='precip3h') radius = Math.min(10, Math.max(3,value));
+    if(variable==='wind10' || variable==='gust1h') radius = Math.min(8, 2 + value/4);
 
+    // Plot circle marker
     L.circleMarker([d.lat,d.lon],{
       radius: radius,
       color: ventuskyColors[variable](value).hex(),
@@ -81,7 +86,8 @@ function drawForecast(stepIndex){
     }).addTo(layersGroup);
   });
 
-  document.getElementById('timeLabel').innerText = "Time: " + data[0].time + " | Variable: " + variable;
+  document.getElementById('timeLabel').innerText = 
+    "Time: " + data[0].time + " | Variable: " + variable;
 }
 
 // ---------------- CONTROLS ----------------
@@ -101,7 +107,6 @@ setInterval(nextStep, 1000);
 
 // ---------------- INITIAL DRAW ----------------
 drawForecast(currentStep);
-
 </script>
 
 </body>
