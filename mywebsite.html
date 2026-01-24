@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Northwoods Playschool – YouTube Weather Stream</title>
+<meta name="description" content="Northwoods Playschool – Weather intensity & YouTube live/Video posting chance based on conditions." />
+
+<style>
+  :root {
+    --green: #1f4d2b;
+    --light: #f6f1e6;
+    --accent: #f5c542;
+    --orange: #f59e0b;
+    --danger: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif; background:var(--light); color:#2a2a2a; line-height:1.6; }
+  header { text-align:center; padding:3rem 1rem 2rem; }
+  header img { max-width:360px; width:100%; }
+  nav { background:var(--green); padding:0.75rem; text-align:center; }
+  nav a { color:#fff; text-decoration:none; margin:0 1rem; font-weight:600; }
+  section { max-width:900px; margin:auto; padding:3rem 1.25rem; }
+  h2 { color:var(--green); margin-top:0; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; }
+  .card { background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.08); }
+  .intensity { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-bottom:1.5rem; }
+  .score { font-size:2.5rem; font-weight:800; color:var(--green); }
+  .level { font-weight:700; padding:0.4rem 0.75rem; border-radius:999px; background:var(--accent); }
+  #advisory { display:none; padding:1rem; margin-bottom:1.5rem; border-radius:16px; background:var(--danger); color:#fff; font-weight:700; text-align:center; }
+  #alerts { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+  #youtubeChance { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); font-weight:700; font-size:1.1rem; text-align:center; }
+  footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="https://jace200677.github.io/cdnstatic.playweather/northwoods.png" alt="Northwoods Playschool Logo" />
+</header>
+
+<nav>
+  <a href="#about">About</a>
+  <a href="#programs">Programs</a>
+  <a href="#weather">Weather</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<section id="about">
+  <h2>About Northwoods Playschool</h2>
+  <p>Northwoods Playschool is a warm, nature-inspired learning environment where children grow through exploration, creativity, and play.</p>
+</section>
+
+<section id="programs">
+  <h2>Our Programs</h2>
+  <div class="cards">
+    <div class="card"><h3>Early Explorers</h3><p>Ages 3–4.</p></div>
+    <div class="card"><h3>Forest Friends</h3><p>Ages 4–5.</p></div>
+    <div class="card"><h3>Kindergarten Prep</h3><p>Confidence and routines.</p></div>
+  </div>
+</section>
+
+<section id="weather">
+  <h2>Weather Safety & Intensity</h2>
+
+  <div id="advisory">⚠️ High Weather Intensity – Outdoor activities may be unsafe</div>
+
+  <!-- WEATHER INTENSITY -->
+  <div class="intensity">
+    <div>
+      <div class="score" id="score">--</div>
+      <div class="level" id="level">Loading…</div>
+      <small>Weather Intensity Score (0–500)</small>
+    </div>
+    <div>
+      <p id="details" style="margin:0;font-size:0.95rem;opacity:0.85;"></p>
+    </div>
+  </div>
+
+  <!-- YOUTUBE VIDEO / LIVE STREAM CHANCE -->
+  <div id="youtubeChance">Calculating video/live stream chance…</div>
+
+  <!-- VENTUSKY MAP -->
+  <div style="position:relative;width:100%;padding-bottom:62.5%;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-top:1rem;">
+    <iframe src="https://www.ventusky.com/?p=47.7;-91.9;7&l=temperature"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+      loading="lazy"></iframe>
+  </div>
+
+  <!-- NWS ALERTS -->
+  <div id="alerts">
+    <h3>National Weather Service Alerts</h3>
+    <ul id="alertsList" style="margin:0;padding-left:1.2rem;"></ul>
+  </div>
+</section>
+
+<section id="contact">
+  <h2>Contact Us</h2>
+  <p>Email: <strong>jacefink17@outlook.com</strong></p>
+</section>
+
+<footer>
+  <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
+</footer>
+
+<script>
+// --- CONFIG ---
+const PWS_API_URL = "https://api.weather.com/v2/pws/observations/current?stationId=KMNBABBI27&format=json&units=e&apiKey=e8c7277e600540cd87277e600500cde7";
+const NWS_ALERTS_URL = "https://api.weather.gov/alerts/active?status=actual";
+
+// --- HELPERS ---
+function calculateIntensity(obs){
+  let score=0;
+  if(obs.temp>=90||obs.temp<=32) score+=150;
+  else if(obs.temp>=80||obs.temp<=40) score+=75;
+  if(obs.windSpeed>=25) score+=125;
+  else if(obs.windSpeed>=15) score+=75;
+  if(obs.precipRate>0) score+=100;
+  if(obs.humidity>=90||obs.humidity<=20) score+=50;
+  return Math.min(score,500);
+}
+function getLevel(score){
+  if(score>=350) return "High";
+  if(score>=200) return "Moderate";
+  return "Low";
+}
+
+// --- Video / Live Stream Chance based on intensity ---
+function getYouTubeChance(score){
+  if(score>=400) return "Yes – Perfect for streaming or posting!";
+  if(score>=300) return "Probably – Good weather for content.";
+  if(score>=150) return "Maybe – Moderate conditions.";
+  return "No / Unlikely – Avoid outdoor content.";
+}
+
+// --- UPDATE WEATHER INTENSITY ---
+function updateWeatherIntensity(){
+  fetch(PWS_API_URL)
+    .then(r=>r.json())
+    .then(d=>{
+      const obs=d.observations[0].imperial;
+      const score=calculateIntensity(obs);
+      const level=getLevel(score);
+
+      document.getElementById("score").textContent=score;
+      document.getElementById("level").textContent=level;
+      document.getElementById("details").textContent=`Temp: ${obs.temp}°F, Wind: ${obs.windSpeed} mph, Humidity: ${obs.humidity}%, Precip: ${obs.precipRate} in/hr`;
+
+      const levelEl=document.getElementById("level");
+      const scoreEl=document.getElementById("score");
+      const advisoryEl=document.getElementById("advisory");
+      const youtubeEl=document.getElementById("youtubeChance");
+
+      youtubeEl.textContent="Video / Live Stream Chance: "+getYouTubeChance(score);
+
+      if(score>=350){
+        levelEl.style.background="#ef4444";
+        scoreEl.style.color="#b91c1c";
+        advisoryEl.style.display="block";
+      } else if(score>=200){
+        levelEl.style.background="#f59e0b";
+        scoreEl.style.color="#b9730f";
+        advisoryEl.style.display="none";
+      } else{
+        levelEl.style.background="#f5c542";
+        scoreEl.style.color="#1f4d2b";
+        advisoryEl.style.display="none";
+      }
+    })
+    .catch(()=>{document.getElementById("level").textContent="Unavailable";document.getElementById("score").textContent="--";document.getElementById("details").textContent="";document.getElementById("advisory").style.display="none";document.getElementById("youtubeChance").textContent="Unable to calculate chance.";});
+}
+
+// --- FETCH NWS ALERTS ---
+function updateNWSAlerts(){
+  fetch(NWS_ALERTS_URL)
+    .then(r=>r.json())
+    .then(data=>{
+      const alertsList=document.getElementById("alertsList");
+      alertsList.innerHTML="";
+      if(data.features&&data.features.length>0){
+        data.features.forEach(alert=>{
+          const li=document.createElement("li");
+          li.textContent=`${alert.properties.areaDesc}: ${alert.properties.headline}`;
+          alertsList.appendChild(li);
+        });
+      } else{
+        const li=document.createElement("li");
+        li.textContent="No active alerts in the USA.";
+        alertsList.appendChild(li);
+      }
+    })
+    .catch(()=>{document.getElementById("alertsList").innerHTML="<li>Unable to fetch alerts.</li>";});
+}
+
+// Initial load
+updateWeatherIntensity();
+updateNWSAlerts();
+
+// Auto-refresh every 5 minutes
+setInterval(()=>{updateWeatherIntensity(); updateNWSAlerts();},300000);
+</script>
+
+</body>
+</html>
