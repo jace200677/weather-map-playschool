@@ -21,7 +21,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run weather alert
         run: |
-          python generate_forecast.py
+          python northwoodspy.py
       - name: Commit forecast.js
         run: |
           git config --local user.name "GitHub Action"
