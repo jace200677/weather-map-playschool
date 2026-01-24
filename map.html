@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
   body { margin:0; font-family: Arial, sans-serif; }
-  #map { height: 600px; width: 100%; }
+  #map { height: 100vh; width: 100%; }
   #controls {
     padding: 8px;
     background: #fff;
@@ -15,6 +15,7 @@
     left: 10px;
     z-index: 1000;
     box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    border-radius: 4px;
   }
   #variableSelect { margin-left:5px; }
 </style>
@@ -38,18 +39,16 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/chroma-js@2.1.0/chroma.min.js"></script>
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
 <!-- ---------------- FORECAST DATA ---------------- -->
 <script>
-/* Example: 50% accurate synthetic forecast for demonstration
-   Replace this with Python-generated forecast_all if using Flask or JS export */
-const PY_FORECAST = [];
-
-// Generate demo 5°x5° grid forecast (simplified for small example)
 const latitudes = [-90,-45,0,45,90];
 const longitudes = [-180,-90,0,90,180];
-const STEPS = 5; // shorter demo, 3-hour intervals
+const STEPS = 5; // demo steps
+const PY_FORECAST = [];
 
+// Generate synthetic forecast
 for(let step=0; step<STEPS; step++){
     const stepData = [];
     for(let lat of latitudes){
@@ -79,7 +78,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 
 let forecastData = PY_FORECAST;
 let currentStep = 0;
-let layersGroup = L.layerGroup().addTo(map);
+let heatLayer = null;
 
 // ---------------- VENTUSKY COLORS ----------------
 const ventuskyColors = {
@@ -92,28 +91,41 @@ const ventuskyColors = {
 // ---------------- DRAW FORECAST ----------------
 function drawForecast(stepIndex){
     if(forecastData.length===0) return;
-    layersGroup.clearLayers();
+
     const data = forecastData[stepIndex];
     const variable = document.getElementById('variableSelect').value;
 
-    data.forEach(d=>{
-        let value = d[variable];
-
-        // Circle size based on variable
-        let radius = 5;
-        if(variable==='precip3h') radius = Math.min(10, Math.max(3,value));
-        if(variable==='wind10' || variable==='gust1h') radius = Math.min(8, 2 + value/4);
-
-        L.circleMarker([d.lat,d.lon],{
-            radius: radius,
-            color: ventuskyColors[variable](value).hex(),
-            fillColor: ventuskyColors[variable](value).hex(),
-            fillOpacity: 0.6
-        }).addTo(layersGroup);
+    // Convert to heat points [lat, lon, intensity]
+    const heatPoints = data.map(d => {
+        let val = d[variable];
+        // normalize to 0-1 for heat intensity
+        let domain = ventuskyColors[variable].domain();
+        let intensity = (val - domain[0])/(domain[1]-domain[0]);
+        intensity = Math.max(0, Math.min(1, intensity));
+        return [d.lat, d.lon, intensity];
     });
+
+    // Remove old layer
+    if(heatLayer) map.removeLayer(heatLayer);
+
+    // Add new heat layer
+    heatLayer = L.heatLayer(heatPoints, {
+        radius: 25,
+        blur: 15,
+        gradient: buildGradient(variable)
+    }).addTo(map);
 
     document.getElementById('timeLabel').innerText =
         "Time: " + data[0].time + " | Variable: " + variable;
+}
+
+// Build gradient object for Leaflet.heat
+function buildGradient(variable){
+    const colors = ventuskyColors[variable].colors();
+    const stops = colors.length;
+    const gradient = {};
+    colors.forEach((c,i) => gradient[i/(stops-1)] = c);
+    return gradient;
 }
 
 // ---------------- CONTROLS ----------------
@@ -129,7 +141,7 @@ function prevStep(){
 }
 
 // ---------------- AUTO PLAY ----------------
-setInterval(nextStep, 1000);
+setInterval(nextStep, 2000);
 
 // ---------------- INITIAL DRAW ----------------
 drawForecast(currentStep);
