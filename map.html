@@ -29,16 +29,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// ---------------- LOAD JSON ----------------
-let forecastData = [];
-fetch('forecast.json')   // Python-generated JSON file
-  .then(resp => resp.json())
-  .then(data => {
-    forecastData = data;
-    drawForecast(currentStep);
-  });
+// ---------------- DATA PLACEHOLDER ----------------
+// If you serve Python data via Flask or other server, replace this with AJAX fetch
+let forecastData = window.PY_FORECAST || [];  // injected by Python
 
-// ---------------- VARIABLES ----------------
 let currentStep = 0;
 let layersGroup = L.layerGroup().addTo(map);
 
@@ -48,7 +42,7 @@ function drawForecast(stepIndex){
   layersGroup.clearLayers();
   const data = forecastData[stepIndex];
   data.forEach(d=>{
-    // Temp 2m: color circles
+    // Temperature 2m
     const tempColor = chroma.scale(['blue','green','yellow','red']).domain([-30,50])(d.temp).hex();
     L.circleMarker([d.lat,d.lon],{
       radius: 5,
@@ -57,7 +51,7 @@ function drawForecast(stepIndex){
       fillOpacity: 0.6
     }).addTo(layersGroup);
 
-    // Precip 3h: blue overlay
+    // Precipitation 3h
     if(d.precip3h>0){
       const precipColor = chroma.scale(['#00f','#0044ff']).domain([0,10])(d.precip3h).hex();
       L.circleMarker([d.lat,d.lon],{
@@ -68,18 +62,18 @@ function drawForecast(stepIndex){
       }).addTo(layersGroup);
     }
 
-    // Wind 10m: arrows (random angle if not in JSON)
+    // Wind 10m arrows
     const arrowLength = d.wind10;
-    const angle = d.wind_dir || Math.random()*360; // optional wind_dir field
+    const angle = d.wind_dir || Math.random()*360;
     const rad = angle * Math.PI / 180;
     const dx = arrowLength * Math.cos(rad);
     const dy = arrowLength * Math.sin(rad);
     L.polyline([
       [d.lat,d.lon],
-      [d.lat+dy*0.05, d.lon+dx*0.05]
+      [d.lat+dy*0.05,d.lon+dx*0.05]
     ], {color:'black', weight:1}).addTo(layersGroup);
 
-    // Gust 1h: red dots for strong gusts
+    // Gust 1h
     if(d.gust1h>15){
       L.circleMarker([d.lat,d.lon],{
         radius:2,
