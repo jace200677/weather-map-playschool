@@ -1,291 +1,140 @@
-<!doctype html>
-<html lang="en-us">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<link rel="dns-prefetch" href="https://static.ventusky.com">
-	<link rel="dns-prefetch" href="https://data.ventusky.com">
-	<link rel="dns-prefetch" href="https://api.ventusky.com">
-	<link rel="dns-prefetch" href="https://webcams.ventusky.com">
-    <link rel="dns-prefetch" href="https://map.ventusky.com">
-        
-    <link rel=stylesheet href="https://jace200677.github.io/weather-map-playschool/style.css">
-
-
-    <title>playschool - Weather Forecast, Radar and Wind Maps | Ventusky</title>
-
-    
-    <meta name="keywords" content="weather, forecast, maps, wind, temperature, precipitation, rain, cloud, pressure, CAPE">
-    <meta name="application-name" content="Ventusky">        
-    <meta name="mobile-web-app-capable" content="yes">    
-    <meta name="theme-color" content="#222e63">
-    <meta name="apple-itunes-app" content="app-id=1280984498">
-    <link rel="manifest" href="https://www.ventusky.com/manifest.json">
-
-    <meta name="description" content="Live wind, rain, radar or temperature maps, more than 50 weather layers, detailed forecast for your place, data from the best weather forecast models." />
-<meta property="og:title" content="Ventusky - Live Weather Forecast & Radar Maps"/>
-<meta property="twitter:title" content="Ventusky - Live Weather Forecast & Radar Maps"/>
-<meta property="og:description" content="See the weather like never before – live weather maps powered by the most accurate models."/>
-<meta property="twitter:description" content="See the weather like never before – live weather maps powered by the most accurate models."/>
-<meta property="og:image" content="https://jace200677.github.io/cdnstatic.playweather/weather.png"/>
-<meta property="twitter:image" content="https://jace200677.github.io/cdnstatic.playweather/weather.png"/>
-   
-        		       
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@Ventuskycom">
-   	 
-    <link rel="canonical" href="https://jace200677.github.io/weather-map-playschool/map.html">	<link rel="shortcut icon" href="https://jace200677.github.io/cdnstatic.playweather/weather.png">
-    <link rel="apple-touch-icon" href="https://jace200677.github.io/cdnstatic.playweather/weather.png">  
-
-    <!-- usa -->
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Northwoods Playschool</title>
+  <meta name="description" content="Northwoods Playschool – nurturing young explorers through play, nature, and learning." />
+  <style>
+    :root {
+      --green: #1f4d2b;
+      --light: #f6f1e6;
+      --accent: #f5c542;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--light);
+      color: #2a2a2a;
+      line-height: 1.6;
+    }
+    header {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+    }
+    header img {
+      max-width: 360px;
+      width: 100%;
+      height: auto;
+    }
+    nav {
+      background: var(--green);
+      padding: 0.75rem;
+      text-align: center;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+    }
+    nav a:hover { text-decoration: underline; }
+    section {
+      max-width: 900px;
+      margin: auto;
+      padding: 3rem 1.25rem;
+    }
+    h2 {
+      color: var(--green);
+      margin-top: 0;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    footer {
+      background: var(--green);
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    footer small { opacity: 0.85; }
+  </style>
 </head>
 <body>
-    <form id="header">
-        <h1><a href="https://jace200677.github.io/weather-map-playschool/map.html">Ventusky</a></h1>
-        <label>
-            <input name="q">
-        </label>
-        <ul>
-            <li class="progress"></li>
-        </ul>
-    </form>
 
-    <div id="no-js">
-     <ul>
-        <li>Temperature</li>
-	    <li>Feels like temperature</li>
-        <li>Precipitation</li>
-	    <li>Radar</li>
-	    <li>Satellite</li>
-        <li>Wind speed</li>
-        <li>Wind gusts</li>
-        <li>Clouds</li>
-        <li>Air pressure</li>
-        <li>CAPE</li>
-        <li>Snow cover</li>
-        <li>Humidity</li>
-	    <li>Sea</li>
-	    <li>Air quality</li>
-     </ul>
-     
-     Wind Animation <br>
-     ECMWF, GFS, ICON, GEM
-	 
-	 
-	</div>
-	
-	<div id="news" data-news="news-39" style="width: 280px;">
-      <a href="https://my.ventusky.com/guide/news/ventusky-now-offers-the-ecmwf-model-in-high-resolution-with-hourly-forecast-steps-60/">
-	    <strong>New: ECMWF model in high resolution with hourly forecast steps</strong>
-	    <img src="https://jace200677.github.io/cdnstatic.playweather/weather.png" alt="ECMWF">        
-      </a>
+<header>
+  <img src="northwoods-logo.png" alt="Northwoods Playschool Logo" />
+</header>
+
+<nav>
+  <a href="#about">About</a>
+  <a href="#programs">Programs</a>
+  <a href="#weather">Weather</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<section id="about">
+  <h2>About Northwoods Playschool</h2>
+  <p>
+    Northwoods Playschool is a warm, nature-inspired learning environment where children grow through exploration, creativity, and play. Our approach emphasizes emotional development, outdoor learning, and curiosity-driven education.
+  </p>
+</section>
+
+<section id="programs">
+  <h2>Our Programs</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Early Explorers</h3>
+      <p>Ages 3–4. Hands-on play, storytelling, and outdoor discovery.</p>
     </div>
+    <div class="card">
+      <h3>Forest Friends</h3>
+      <p>Ages 4–5. Nature-based learning with weather, seasons, and teamwork.</p>
+    </div>
+    <div class="card">
+      <h3>Kindergarten Prep</h3>
+      <p>Building confidence, routines, and early academic skills.</p>
+    </div>
+  </div>
+</section>
 
+<section id="weather">
+  <h2>Live Weather Map (Ventusky)</h2>
+  <p>
+    We use live interactive weather data to help plan outdoor learning safely.
+  </p>
+  <div style="position:relative;width:100%;padding-bottom:62.5%;height:0;overflow:hidden;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+    <iframe 
+      src="https://www.ventusky.com/?p=47.7;-91.9;7&l=temperature"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen>
+    </iframe>
+  </div>
+  <p style="font-size:0.9rem;opacity:0.8;margin-top:0.75rem;">
+    Weather data provided by Ventusky.
+  </p>
+</section>
 
-    <script>
-var MapOptions = {
-  "root": "https://jace200677.github.io/weather-map-playschool/map.html",
-  "lang": "en-us",
-  "lat": 38.889,
-  "lon": -77.013,
-  "zoom": 5,
-  "model": "auto",
-    "now":               Date.UTC(2026, 0, 24, 20, 25),
-  "camTilesUpdated": 1767970032,
+<section id="contact">
+  <h2>Contact Us</h2>
+  <p>Email: <strong>jacefink17@outlook.com</strong></p>
+  <p>Phone: <strong></strong></p>
+</section>
 
-  "icon-deTimelineStart": Date.UTC(2024, 0, 1, 0),
-"icon-deTimelineEnd": Date.UTC(2026, 0, 26, 18),
-"icon-deUpdated": Date.UTC(2026, 0, 24, 18, 0),
-"icon-deAccumulationStart": Date.UTC(2026, 0, 24, 18),
+<footer>
+  <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
+</footer>
 
-"icon-waterTimelineStart": Date.UTC(2017, 6, 1, 0),
-"icon-waterTimelineEnd": Date.UTC(2024, 4, 30, 0),
-"icon-waterUpdated": Date.UTC(2024, 4, 30, 0, 0),
-
-"icon-eu-waterTimelineStart": Date.UTC(2020, 1, 17, 0),
-"icon-eu-waterTimelineEnd": Date.UTC(2026, 0, 27, 18),
-"icon-eu-waterUpdated": Date.UTC(2026, 0, 24, 12, 0),
-
-"gfsTimelineStart": Date.UTC(2018, 0, 1, 0),
-"gfsTimelineEnd": Date.UTC(2026, 1, 7, 12),
-"gfsUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"gfsAccumulationStart": Date.UTC(2026, 0, 24, 15),
-
-"gemTimelineStart": Date.UTC(2025, 0, 1, 0),
-"gemTimelineEnd": Date.UTC(2026, 1, 2, 12),
-"gemUpdated": Date.UTC(2026, 0, 24, 0, 0),
-"gemAccumulationStart": Date.UTC(2026, 0, 24, 3),
-
-"hrrrTimelineStart": Date.UTC(2021, 0, 1, 0),
-"hrrrTimelineEnd": Date.UTC(2026, 0, 26, 18),
-"hrrrUpdated": Date.UTC(2026, 0, 24, 18, 0),
-"hrrrAccumulationStart": Date.UTC(2026, 0, 24, 18),
-
-"nbmTimelineStart": Date.UTC(2025, 0, 1, 0),
-"nbmTimelineEnd": Date.UTC(2026, 0, 26, 6),
-"nbmUpdated": Date.UTC(2026, 0, 24, 19, 0),
-"nbmAccumulationStart": Date.UTC(2026, 0, 24, 19),
-
-"euradTimelineStart": Date.UTC(2019, 0, 1, 0),
-"euradTimelineEnd": Date.UTC(2026, 0, 24, 21),
-"euradUpdated": Date.UTC(2026, 0, 24, 21, 50),
-
-"eurad_hresTimelineStart": Date.UTC(2023, 7, 27, 0),
-"eurad_hresTimelineEnd": Date.UTC(2026, 0, 24, 20),
-"eurad_hresUpdated": Date.UTC(2026, 0, 24, 21, 50),
-
-"usradTimelineStart": Date.UTC(2019, 0, 1, 0),
-"usradTimelineEnd": Date.UTC(2026, 0, 24, 21),
-"usradUpdated": Date.UTC(2026, 0, 24, 21, 50),
-
-"earadTimelineStart": Date.UTC(2024, 4, 5, 0),
-"earadTimelineEnd": Date.UTC(2026, 0, 24, 21),
-"earadUpdated": Date.UTC(2026, 0, 24, 21, 50),
-
-"woradTimelineStart": Date.UTC(2019, 0, 1, 0),
-"woradTimelineEnd": Date.UTC(2026, 0, 24, 20),
-"woradUpdated": Date.UTC(2026, 0, 24, 21, 50),
-
-"worad_hresTimelineStart": Date.UTC(2025, 7, 23, 0),
-"worad_hresTimelineEnd": Date.UTC(2026, 0, 24, 21),
-"worad_hresUpdated": Date.UTC(2026, 0, 24, 21, 50),
-
-"silamTimelineStart": Date.UTC(2020, 1, 15, 0),
-"silamTimelineEnd": Date.UTC(2026, 0, 29, 0),
-"silamUpdated": Date.UTC(2026, 0, 24, 0, 0),
-
-"silam-euTimelineStart": Date.UTC(2020, 1, 15, 0),
-"silam-euTimelineEnd": Date.UTC(2026, 0, 29, 0),
-"silam-euUpdated": Date.UTC(2026, 0, 24, 3, 0),
-
-"goesTimelineStart": Date.UTC(2022, 0, 1, 0),
-"goesTimelineEnd": Date.UTC(2026, 0, 24, 20),
-"goesUpdated": Date.UTC(2026, 0, 24, 20, 20),
-
-"rtofsTimelineStart": Date.UTC(2021, 5, 28, 0),
-"rtofsTimelineEnd": Date.UTC(2026, 1, 1, 0),
-"rtofsUpdated": Date.UTC(2026, 0, 24, 0, 0),
-
-"ovationTimelineStart": Date.UTC(2021, 3, 1, 0),
-"ovationTimelineEnd": Date.UTC(2026, 0, 24, 20),
-"ovationUpdated": Date.UTC(2026, 0, 24, 20, 0),
-
-"aromeTimelineStart": Date.UTC(2024, 0, 1, 0),
-"aromeTimelineEnd": Date.UTC(2026, 0, 26, 15),
-"aromeUpdated": Date.UTC(2026, 0, 24, 15, 0),
-"aromeAccumulationStart": Date.UTC(2026, 0, 24, 15),
-
-"ukmoTimelineStart": Date.UTC(2022, 4, 24, 0),
-"ukmoTimelineEnd": Date.UTC(2026, 0, 25, 12),
-"ukmoUpdated": Date.UTC(2026, 0, 24, 12, 0),
-
-"ukmo-ukTimelineStart": Date.UTC(2023, 2, 1, 0),
-"ukmo-ukUpdated": Date.UTC(2026, 0, 24, 10, 0),
-"ukmo-uk3hStart": Date.UTC(2026, 0, 26, 15),
-"ukmo-ukTimelineEnd": Date.UTC(2026, 0, 29, 3),
-"ukmo-ukAccumulationStart": Date.UTC(2026, 0, 24, 10),
-
-"iconTimelineStart": Date.UTC(2018, 0, 1, 0),
-"iconUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"icon3hStart": Date.UTC(2026, 0, 27, 18),
-"iconTimelineEnd": Date.UTC(2026, 1, 1, 0),
-"iconAccumulationStart": Date.UTC(2026, 0, 24, 12),
-
-"icon-euTimelineStart": Date.UTC(2018, 10, 0, 0),
-"icon-euUpdated": Date.UTC(2026, 0, 24, 15, 0),
-"icon-eu3hStart": Date.UTC(2026, 0, 27, 18),
-"icon-euTimelineEnd": Date.UTC(2026, 0, 29, 12),
-"icon-euAccumulationStart": Date.UTC(2026, 0, 24, 15),
-
-"mepsTimelineStart": Date.UTC(2023, 3, 8, 0),
-"mepsTimelineEnd": Date.UTC(2026, 0, 27, 9),
-"mepsUpdated": Date.UTC(2026, 0, 24, 15, 0),
-"mepsAccumulationStart": Date.UTC(2026, 0, 24, 15),
-
-"wavewatch-noTimelineStart": Date.UTC(2023, 4, 15, 0),
-"wavewatch-noTimelineEnd": Date.UTC(2026, 0, 27, 6),
-"wavewatch-noUpdated": Date.UTC(2026, 0, 24, 6, 0),
-
-"stofsTimelineStart": Date.UTC(2016, 4, 1, 12),
-"stofsTimelineEnd": Date.UTC(2026, 0, 31, 23),
-"stofsUpdated": Date.UTC(2026, 0, 24, 7, 0),
-
-"smocTimelineStart": Date.UTC(2016, 4, 1, 12),
-"smocTimelineEnd": Date.UTC(2026, 0, 31, 23),
-"smocUpdated": Date.UTC(2026, 0, 24, 0, 0),
-
-"mfwamTimelineStart": Date.UTC(2024, 3, 14, 0),
-"mfwamTimelineEnd": Date.UTC(2026, 1, 3, 0),
-"mfwamUpdated": Date.UTC(2026, 0, 24, 3, 0),
-
-"ecmwf-mresTimelineStart": Date.UTC(2024, 3, 21, 0),
-"ecmwf-mresUpdated": Date.UTC(2026, 0, 24, 6, 0),
-"ecmwf-mres6hStart": Date.UTC(2026, 0, 30, 0),
-"ecmwf-mresTimelineEnd": Date.UTC(2026, 1, 7, 12),
-"ecmwf-mresAccumulationStart": Date.UTC(2026, 0, 24, 6),
-
-"ecmwf-hresTimelineStart": Date.UTC(2025, 11, 5, 0),
-"ecmwf-hresUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"ecmwf-hres3hStart": Date.UTC(2026, 0, 28, 6),
-"ecmwf-hres6hStart": Date.UTC(2026, 0, 30, 12),
-"ecmwf-hresTimelineEnd": Date.UTC(2026, 1, 7, 12),
-"ecmwf-hresAccumulationStart": Date.UTC(2026, 0, 24, 12),
-
-"aladinTimelineStart": Date.UTC(2024, 5, 23, 0),
-"aladinTimelineEnd": Date.UTC(2026, 0, 27, 12),
-"aladinUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"aladinAccumulationStart": Date.UTC(2026, 0, 24, 12),
-
-"kma_umTimelineStart": Date.UTC(2024, 9, 19, 0),
-"kma_umUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"kma_um6hStart": Date.UTC(2026, 0, 28, 0),
-"kma_umTimelineEnd": Date.UTC(2026, 1, 5, 12),
-"kma_umAccumulationStart": Date.UTC(2026, 0, 24, 12),
-
-"harmonie_euTimelineStart": Date.UTC(2025, 1, 9, 0),
-"harmonie_euTimelineEnd": Date.UTC(2026, 0, 27, 4),
-"harmonie_euUpdated": Date.UTC(2026, 0, 24, 16, 0),
-"harmonie_euAccumulationStart": Date.UTC(2026, 0, 24, 16),
-
-"harmonie_carTimelineStart": Date.UTC(2025, 1, 9, 0),
-"harmonie_carTimelineEnd": Date.UTC(2026, 0, 27, 3),
-"harmonie_carUpdated": Date.UTC(2026, 0, 24, 15, 0),
-"harmonie_carAccumulationStart": Date.UTC(2026, 0, 24, 15),
-
-"nam_usTimelineStart": Date.UTC(2025, 1, 15, 0),
-"nam_usTimelineEnd": Date.UTC(2026, 0, 27, 0),
-"nam_usUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"nam_usAccumulationStart": Date.UTC(2026, 0, 24, 12),
-
-"nam_hawaiTimelineStart": Date.UTC(2025, 1, 15, 0),
-"nam_hawaiTimelineEnd": Date.UTC(2026, 0, 27, 0),
-"nam_hawaiUpdated": Date.UTC(2026, 0, 24, 12, 0),
-"nam_hawaiAccumulationStart": Date.UTC(2026, 0, 24, 12),
-
-"camsTimelineStart": Date.UTC(2025, 4, 15, 0),
-"camsTimelineEnd": Date.UTC(2026, 0, 28, 11),
-"camsUpdated": Date.UTC(2026, 0, 23, 12, 0),
-
-"icon-chTimelineStart": Date.UTC(2025, 5, 25, 0),
-"icon-chTimelineEnd": Date.UTC(2026, 0, 29, 12),
-"icon-chUpdated": Date.UTC(2026, 0, 24, 12, 0),
-
-  
-  "ukmo-ukUpdated": Date.UTC(2026, 0, 24, 18, 0), //overrides non-radar version
- 
-  "ecmwfTimelineStart": Date.UTC(1979, 5, 1, 0),
-  "ecmwfTimelineEnd":   Date.UTC(2020, 9, 31, 21),
-  "ecmwfUpdated":       Date.UTC(2021, 0, 29, 0, 0),    
-               
-  "hurricanesUpdated":  Date.UTC(2026, 0, 24, 18, 40)
-};
-    </script>
-
-    <script src="https://jace200677.github.io/static.playweather/script.js"></script>
-    
-
-     
- 
 </body>
 </html>
