@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Great Lakes Playschool</title>
+  <meta name="description" content="Great Lakes Playschool – learning through play, water, weather, and nature." />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://your-domain.com/great-lakes-logo.png">
+
+  <style>
+    :root {
+      --blue: #2f6f95;
+      --green: #2f5d50;
+      --light: #f7f2e8;
+      --accent: #f2b705;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--light);
+      color: #2a2a2a;
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+    }
+
+    header img {
+      max-width: 360px;
+      width: 100%;
+      height: auto;
+    }
+
+    nav {
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+    }
+
+    nav a:hover { text-decoration: underline; }
+
+    section {
+      max-width: 900px;
+      margin: auto;
+      padding: 3rem 1.25rem;
+    }
+
+    h2 {
+      color: var(--blue);
+      margin-top: 0;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    footer {
+      background: var(--green);
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    footer small { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="https://your-domain.com/greatlakes.png" alt="Great Lakes Playschool Logo" />
+</header>
+
+<nav>
+  <a href="#about">About</a>
+  <a href="#programs">Programs</a>
+  <a href="#weather">Weather</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<section id="about">
+  <h2>About Great Lakes Playschool</h2>
+  <p>
+    Great Lakes Playschool is inspired by the water, forests, and changing weather of the Great Lakes region. Children learn through hands-on play, outdoor exploration, and curiosity-led discovery in a safe and nurturing environment.
+  </p>
+</section>
+
+<section id="programs">
+  <h2>Our Programs</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Little Mariners</h3>
+      <p>Ages 3–4. Creative play, movement, stories, and social learning.</p>
+    </div>
+    <div class="card">
+      <h3>Lake Explorers</h3>
+      <p>Ages 4–5. Nature, weather, seasons, and hands-on discovery.</p>
+    </div>
+    <div class="card">
+      <h3>Harbor Prep</h3>
+      <p>Kindergarten readiness with confidence, routines, and early academics.</p>
+    </div>
+  </div>
+</section>
+
+<section id="weather">
+  <h2>Live Weather Map</h2>
+  <p>
+    Outdoor learning adapts to real-time Great Lakes weather conditions.
+  </p>
+
+  <div style="position:relative;width:100%;padding-bottom:62.5%;height:0;overflow:hidden;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+    <iframe 
+      src="https://www.ventusky.com/?p=46.5;-87.0;6&l=temperature"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+      loading="lazy"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <p style="font-size:0.9rem;opacity:0.8;margin-top:0.75rem;">
+    Weather visualization powered by Ventusky.
+  </p>
+</section>
+
+<section id="contact">
+  <h2>Contact Us</h2>
+  <p>Email: <strong>info@greatlakesplayschool.com</strong></p>
+  <p>Phone: <strong>(555) 123-4567</strong></p>
+</section>
+
+<footer>
+  <small>© 2026 Great Lakes Playschool · Learning with water, wind, and wonder 🌊</small>
+</footer>
+
+</body>
+</html>
