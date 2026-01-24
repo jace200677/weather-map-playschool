@@ -152,27 +152,66 @@
 </footer>
 
 <script>
-/*
-  This fetches a Python-generated weather intensity score
-  similar to Ryan Hall–style composite severity metrics.
-*/
+// --- CONFIG ---
+const PWS_API_URL = "https://api.weather.com/v2/pws/observations/current?stationId=KMNBABBI27&format=json&units=e&apiKey=YOUR_KEY";
 
-fetch("https://YOUR-SERVER/weather_intensity")
+// --- HELPERS ---
+function calculateIntensity(obs) {
+  let score = 0;
+
+  // Temperature extremes
+  if (obs.temp >= 90 || obs.temp <= 32) score += 150; // 30 → 150
+  else if (obs.temp >= 80 || obs.temp <= 40) score += 75; // 15 → 75
+
+  // Windy
+  if (obs.windSpeed >= 25) score += 125; // 25 → 125
+  else if (obs.windSpeed >= 15) score += 75; // 15 → 75
+
+  // Precipitation
+  if (obs.precipRate > 0) score += 100; // 20 → 100
+
+  // Humidity extremes
+  if (obs.humidity >= 90 || obs.humidity <= 20) score += 50; // 10 → 50
+
+  return Math.min(score, 500); // Max 500
+}
+
+function getLevel(score) {
+  if (score >= 350) return "High";
+  if (score >= 200) return "Moderate";
+  return "Low";
+}
+
+// --- FETCH PWS DATA ---
+fetch(PWS_API_URL)
   .then(r => r.json())
   .then(d => {
-    document.getElementById("score").textContent = d.score;
-    document.getElementById("level").textContent = d.level;
-    document.getElementById("details").textContent = d.summary;
+    const obs = d.observations[0].imperial;
+    const score = calculateIntensity(obs);
+    const level = getLevel(score);
 
-    if (d.score >= 70) {
-      document.getElementById("level").style.background = "#ef4444";
-      document.getElementById("score").style.color = "#b91c1c";
-    } else if (d.score >= 40) {
-      document.getElementById("level").style.background = "#f59e0b";
+    document.getElementById("score").textContent = score;
+    document.getElementById("level").textContent = level;
+    document.getElementById("details").textContent =
+      `Temp: ${obs.temp}°F, Wind: ${obs.windSpeed} mph, Humidity: ${obs.humidity}%, Precip: ${obs.precipRate} in/hr`;
+
+    // Color coding
+    const levelEl = document.getElementById("level");
+    const scoreEl = document.getElementById("score");
+
+    if (score >= 70) {
+      levelEl.style.background = "#ef4444";
+      scoreEl.style.color = "#b91c1c";
+    } else if (score >= 40) {
+      levelEl.style.background = "#f59e0b";
+    } else {
+      levelEl.style.background = "#f5c542";
     }
   })
   .catch(() => {
     document.getElementById("level").textContent = "Unavailable";
+    document.getElementById("score").textContent = "--";
+    document.getElementById("details").textContent = "";
   });
 </script>
 
