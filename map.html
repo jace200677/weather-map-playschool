@@ -5,7 +5,7 @@
 <title>Global Custom Weather Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
-  body { margin: 0; font-family: Arial, sans-serif; }
+  body { margin:0; font-family: Arial, sans-serif; }
   #map { height: 600px; width: 100%; }
   #controls {
     padding: 8px;
@@ -16,7 +16,7 @@
     z-index: 1000;
     box-shadow: 0 0 5px rgba(0,0,0,0.3);
   }
-  #variableSelect { margin-left: 5px; }
+  #variableSelect { margin-left:5px; }
 </style>
 </head>
 <body>
@@ -39,8 +39,36 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/chroma-js@2.1.0/chroma.min.js"></script>
 
-<!-- Include your forecast.js generated from Python -->
-<script src="forecast.js"></script>
+<!-- ---------------- FORECAST DATA ---------------- -->
+<script>
+/* Example: 50% accurate synthetic forecast for demonstration
+   Replace this with Python-generated forecast_all if using Flask or JS export */
+const PY_FORECAST = [];
+
+// Generate demo 5°x5° grid forecast (simplified for small example)
+const latitudes = [-90,-45,0,45,90];
+const longitudes = [-180,-90,0,90,180];
+const STEPS = 5; // shorter demo, 3-hour intervals
+
+for(let step=0; step<STEPS; step++){
+    const stepData = [];
+    for(let lat of latitudes){
+        for(let lon of longitudes){
+            stepData.push({
+                lat: lat,
+                lon: lon,
+                temp: Math.round((15*Math.sin(lat*Math.PI/180) + Math.random()*15)*100)/100,
+                precip3h: Math.round(Math.random()*3*100)/100,
+                wind10: Math.round((2+Math.random()*10)*100)/100,
+                gust1h: Math.round((2+Math.random()*12)*100)/100,
+                wind_dir: Math.round(Math.random()*360),
+                time: new Date(Date.UTC(2026,0,24,12 + step*3)).toISOString()
+            });
+        }
+    }
+    PY_FORECAST.push(stepData);
+}
+</script>
 
 <script>
 // ---------------- INIT MAP ----------------
@@ -49,8 +77,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// ---------------- VARIABLES ----------------
-let forecastData = window.PY_FORECAST || [];
+let forecastData = PY_FORECAST;
 let currentStep = 0;
 let layersGroup = L.layerGroup().addTo(map);
 
@@ -64,42 +91,41 @@ const ventuskyColors = {
 
 // ---------------- DRAW FORECAST ----------------
 function drawForecast(stepIndex){
-  if(forecastData.length === 0) return;
-  layersGroup.clearLayers();
-  const data = forecastData[stepIndex];
-  const variable = document.getElementById('variableSelect').value;
+    if(forecastData.length===0) return;
+    layersGroup.clearLayers();
+    const data = forecastData[stepIndex];
+    const variable = document.getElementById('variableSelect').value;
 
-  data.forEach(d=>{
-    let value = d[variable];
+    data.forEach(d=>{
+        let value = d[variable];
 
-    // Circle size based on variable intensity
-    let radius = 5;
-    if(variable==='precip3h') radius = Math.min(10, Math.max(3,value));
-    if(variable==='wind10' || variable==='gust1h') radius = Math.min(8, 2 + value/4);
+        // Circle size based on variable
+        let radius = 5;
+        if(variable==='precip3h') radius = Math.min(10, Math.max(3,value));
+        if(variable==='wind10' || variable==='gust1h') radius = Math.min(8, 2 + value/4);
 
-    // Plot circle marker
-    L.circleMarker([d.lat,d.lon],{
-      radius: radius,
-      color: ventuskyColors[variable](value).hex(),
-      fillColor: ventuskyColors[variable](value).hex(),
-      fillOpacity: 0.6
-    }).addTo(layersGroup);
-  });
+        L.circleMarker([d.lat,d.lon],{
+            radius: radius,
+            color: ventuskyColors[variable](value).hex(),
+            fillColor: ventuskyColors[variable](value).hex(),
+            fillOpacity: 0.6
+        }).addTo(layersGroup);
+    });
 
-  document.getElementById('timeLabel').innerText = 
-    "Time: " + data[0].time + " | Variable: " + variable;
+    document.getElementById('timeLabel').innerText =
+        "Time: " + data[0].time + " | Variable: " + variable;
 }
 
 // ---------------- CONTROLS ----------------
 function nextStep(){
-  if(forecastData.length===0) return;
-  currentStep = (currentStep+1)%forecastData.length;
-  drawForecast(currentStep);
+    if(forecastData.length===0) return;
+    currentStep = (currentStep+1)%forecastData.length;
+    drawForecast(currentStep);
 }
 function prevStep(){
-  if(forecastData.length===0) return;
-  currentStep = (currentStep-1+forecastData.length)%forecastData.length;
-  drawForecast(currentStep);
+    if(forecastData.length===0) return;
+    currentStep = (currentStep-1+forecastData.length)%forecastData.length;
+    drawForecast(currentStep);
 }
 
 // ---------------- AUTO PLAY ----------------
