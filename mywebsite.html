@@ -1,276 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Northwoods Playschool – YouTube Weather Stream</title>
-<meta name="description" content="Northwoods Playschool – Weather intensity & YouTube live/Video posting chance based on NWS conditions." />
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/r-fav.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-:root {
-  --green: #1f4d2b;
-  --light: #f6f1e6;
-  --accent: #f5c542;
-  --orange: #f59e0b;
-  --danger: #b91c1c;
-  --brown: #7c2d12;
-}
-* { box-sizing: border-box; }
-body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif; background:var(--light); color:#2a2a2a; line-height:1.6; }
-header { text-align:center; padding:3rem 1rem 2rem; }
-header img { max-width:360px; width:100%; }
-nav { background:var(--green); padding:0.75rem; text-align:center; }
-nav a { color:#fff; text-decoration:none; margin:0 1rem; font-weight:600; }
-section { max-width:900px; margin:auto; padding:3rem 1.25rem; }
-h2 { color:var(--green); margin-top:0; }
-.intensity { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-bottom:1.5rem; }
-.score { font-size:2.5rem; font-weight:800; color:var(--green); }
-.level { font-weight:700; padding:0.4rem 0.75rem; border-radius:999px; background:var(--accent); }
-#advisory { display:none; padding:1rem; margin-bottom:0.75rem; border-radius:16px; background:var(--danger); color:#fff; font-weight:700; text-align:center; }
-#activeLocation {
-  display:none;
-  margin-bottom:1.5rem;
-  padding:0.75rem 1rem;
-  border-radius:12px;
-  background:#fff3cd;
-  font-weight:700;
-  color:#92400e;
-  text-align:center;
-}
-.funLabel {
-  text-align:center;
-  font-weight:800;
-  font-size:1.05rem;
-  margin-bottom:0.5rem;
-  color:var(--brown);
-}
-.funCard {
-  background:#fff;
-  padding:1.25rem;
-  border-radius:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.12);
-  margin-top:0.5rem;
-  border:2px dashed var(--brown);
-}
-.funScore {
-  font-size:2.2rem;
-  font-weight:900;
-  color:var(--brown);
-}
-#alerts { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
-#youtubeChance { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); font-weight:700; font-size:1.1rem; text-align:center; }
-footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1rem; }
-</style>
-</head>
+    <!-- Preconnect to external domains for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://public.yallsoft.app" crossorigin />
+    <link rel="preconnect" href="https://storage.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://i.ytimg.com" crossorigin />
+    <!-- Google Fonts with display=swap for non-blocking text rendering -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Rajdhani:wght@500;600;700&display=swap" />
+    <title>Ryan Hall, Y'all | Severe Weather Coverage &amp; Forecasts</title>
+    <meta
+      name="description"
+      content="Official home of Ryan Hall, Y'all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates from Ryan Hall."
+    />
+    <meta name="author" content="Ryan Hall" />
+    <meta name="keywords" content="Ryan Hall Y'all, Ryan Hall, weather forecast, severe weather updates, live radar, storm tracking, meteorologist" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0b1f3a" />
+    <link rel="canonical" href="https://ryanhallyall.com/" />
 
-<body>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ryanhallyall.com/" />
+    <meta property="og:title" content="Ryan Hall, Y'all | Severe Weather Coverage &amp; Forecasts" />
+    <meta property="og:description" content="Official home of Ryan Hall, Y'all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates from Ryan Hall." />
+    <meta property="og:image" content="https://ryanhallyall.com/og-image.png" />
+    <meta property="og:image:alt" content="Ryan Hall, Y'all severe weather coverage" />
+    <meta property="og:site_name" content="Ryan Hall, Y'all" />
+    <meta property="og:locale" content="en_US" />
 
-<header>
-  <img src="https://jace200677.github.io/cdnstatic.playweather/northwoods.png" alt="Northwoods Playschool Logo" />
-</header>
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://ryanhallyall.com/" />
+    <meta property="twitter:title" content="Ryan Hall, Y'all | Severe Weather Coverage &amp; Forecasts" />
+    <meta property="twitter:description" content="Official home of Ryan Hall, Y'all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates from Ryan Hall." />
+    <meta property="twitter:image" content="https://ryanhallyall.com/og-image.png" />
+    <meta property="twitter:site" content="@ryanhallyall" />
+    <meta property="twitter:creator" content="@ryanhallyall" />
 
-<nav>
-  <a href="#about">About</a>
-  <a href="#weather">Weather</a>
-  <a href="#contact">Contact</a>
-</nav>
-
-<section id="about">
-  <h2>About Northwoods Playschool</h2>
-  <p>Northwoods Playschool is a warm, nature-inspired learning environment where children grow through exploration, creativity, and play.</p>
-</section>
-
-<section id="weather">
-  <h2>Weather Safety & Intensity</h2>
-
-  <div id="advisory">⚠️ Severe Weather Active in the United States</div>
-  <div id="activeLocation"></div>
-
-  <div class="intensity">
-    <div>
-      <div class="score" id="score">--</div>
-      <div class="level" id="level">Loading…</div>
-      <small>Weather Intensity Score (0–500)</small>
-    </div>
-    <div>
-      <p id="details" style="margin:0;font-size:0.95rem;opacity:0.85;"></p>
-    </div>
-  </div>
-
-  <div id="youtubeChance">Calculating video/live stream chance…</div>
-
-  <!-- 💩 FUN METER WITH LABEL -->
-  <div class="funLabel">💩 Poop / Fart Intensity Meter limited time only until 2/2/2026 at 5pm</div>
-  <div class="funCard">
-    <div class="funScore" id="poopScore">--</div>
-    <strong id="poopLevel">Loading…</strong>
-    <p style="margin:0.5rem 0 0;font-size:0.9rem;opacity:0.8;">
-      Poop / Fart Intensity Index (0–2026) · Includes current Weather Score 😄
-    </p>
-  </div>
-
-  <div id="alerts">
-    <h3>National Weather Service Alerts (USA)</h3>
-    <ul id="alertsList" style="margin:0;padding-left:1.2rem;"></ul>
-  </div>
-</section>
-
-<section id="contact">
-  <h2>Contact Us</h2>
-  <p>Email: <strong>jacefink17@outlook.com</strong></p>
-</section>
-
-<footer>
-  <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
-</footer>
-
-<script>
-// ---------------- CONFIG ----------------
-const LAT = 44.9778;
-const LON = -93.2650;
-const NWS_POINTS = `https://api.weather.gov/points/${LAT},${LON}`;
-const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
-
-window.NATIONAL_ALERT_SCORE = 0;
-
-// ---------------- SCORING ----------------
-function calculateLocalIntensity(temp, wind, humidity, precip){
-  let score = 0;
-  if(temp >= 90 || temp <= 32) score += 150;
-  else if(temp >= 80 || temp <= 40) score += 75;
-  if(wind >= 25) score += 125;
-  else if(wind >= 15) score += 75;
-  if(precip > 0) score += 100;
-  if(humidity >= 90 || humidity <= 20) score += 50;
-  return Math.min(score, 500);
-}
-
-// 💩 POOP / FART INTENSITY (FUN)
-function calculatePoopIntensity(temp, wind, weatherScore){
-  let base = weatherScore * 3;      // include weather score immediately
-  base += temp > 85 ? 300 : 0;
-  base += wind > 15 ? 200 : 0;
-  base += Math.random() * 400;      // chaos factor
-  return Math.min(Math.round(base), 2026);
-}
-
-function poopLevel(score){
-  if(score > 1600) return "🚨 DEFCON GAS";
-  if(score > 1200) return "💨 Severe Fart Risk";
-  if(score > 700) return "😬 Noticeable";
-  if(score > 300) return "🙂 Mild";
-  return "😌 All Clear";
-}
-
-function getLevel(score){
-  if(score >= 350) return "High";
-  if(score >= 200) return "Moderate";
-  return "Low";
-}
-
-function getYouTubeChance(score){
-  if(score >= 400) return "Yes – Perfect for streaming or posting!";
-  if(score >= 300) return "Probably – Good weather for content.";
-  if(score >= 150) return "Maybe – Moderate conditions.";
-  return "No / Unlikely – Avoid outdoor content.";
-}
-
-// ---------------- WEATHER ----------------
-async function fetchLocalWeather(){
-  try{
-    const p = await fetch(NWS_POINTS).then(r=>r.json());
-    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
-    const id = stations.features[0].properties.stationIdentifier;
-    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
-    const d = obs.properties;
-    return {
-      temp: d.temperature.value * 9/5 + 32,
-      wind: d.windSpeed.value * 2.23694,
-      humidity: d.relativeHumidity.value,
-      precip: (d.precipitationLastHour.value || 0) * 0.03937
-    };
-  } catch {
-    return {temp:70, wind:0, humidity:50, precip:0};
-  }
-}
-
-// ---------------- ALERTS ----------------
-function getAlertSeverityScore(alert){
-  const e = alert.properties.event.toLowerCase();
-  if(e.includes("tornado") || e.includes("hurricane")) return 500;
-  if(e.includes("blizzard") || e.includes("ice storm")) return 400;
-  if(e.includes("severe thunderstorm")) return 300;
-  if(e.includes("flood") || e.includes("high wind")) return 200;
-  if(e.includes("advisory")) return 100;
-  return 0;
-}
-
-async function updateNWSAlerts(){
-  try{
-    const data = await fetch(NWS_ALERTS).then(r=>r.json());
-    const list = document.getElementById("alertsList");
-    const locationBox = document.getElementById("activeLocation");
-
-    list.innerHTML = "";
-    locationBox.style.display = "none";
-
-    let maxScore = 0;
-    let focusAlert = null;
-
-    if(data.features.length){
-      data.features.forEach(a=>{
-        const score = getAlertSeverityScore(a);
-        if(score > maxScore){
-          maxScore = score;
-          focusAlert = a;
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Ryan Hall, Y'all",
+        "url": "https://ryanhallyall.com/",
+        "logo": "https://ryanhallyall.com/og-image.png",
+        "description": "Official home of Ryan Hall, Y'all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates from Ryan Hall.",
+        "sameAs": [
+          "https://www.youtube.com/@RyanHallYall",
+          "https://x.com/ryanhallyall",
+          "https://www.facebook.com/ryanhallyall",
+          "https://www.instagram.com/ryanhallyall/"
+        ],
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "email": "info@ryanhallyall.com",
+            "contactType": "customer service"
+          }
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "PO Box 2668",
+          "addressLocality": "Pikeville",
+          "addressRegion": "KY",
+          "postalCode": "41501",
+          "addressCountry": "US"
+        },
+        "founder": {
+          "@type": "Person",
+          "name": "Ryan Hall"
         }
-        const li = document.createElement("li");
-        li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
-        list.appendChild(li);
-      });
-    } else {
-      list.innerHTML = "<li>No active alerts in the USA.</li>";
-    }
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-CGMClAOr.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-C-0J8HPx.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-ui-ChKirxi5.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-query-2oCPVP0F.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-eFnCCulY.css">
+  </head>
 
-    window.NATIONAL_ALERT_SCORE = maxScore;
-
-    if(focusAlert && maxScore >= 200){
-      locationBox.style.display = "block";
-      locationBox.textContent =
-        `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
-    }
-
-  } catch {
-    window.NATIONAL_ALERT_SCORE = 0;
-  }
-}
-
-// ---------------- UPDATE UI ----------------
-async function updateWeather(){
-  const obs = await fetchLocalWeather();
-  const local = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
-  const score = Math.max(local, window.NATIONAL_ALERT_SCORE);
-
-  // Weather UI
-  document.getElementById("score").textContent = score;
-  document.getElementById("level").textContent = getLevel(score);
-  document.getElementById("details").textContent =
-    `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
-
-  document.getElementById("youtubeChance").textContent =
-    "Video / Live Stream Chance: " + getYouTubeChance(score);
-
-  // 💩 Poop / Fart UI with weather score included
-  const poop = calculatePoopIntensity(obs.temp, obs.wind, score);
-  document.getElementById("poopScore").textContent = poop;
-  document.getElementById("poopLevel").textContent = poopLevel(poop);
-}
-
-// ---------------- INIT ----------------
-updateNWSAlerts();
-updateWeather();
-setInterval(()=>{ updateNWSAlerts(); updateWeather(); }, 300000);
-</script>
-
-</body>
+  <body>
+    <div id="root"></div>
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </body>
 </html>
