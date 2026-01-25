@@ -261,42 +261,58 @@ function generateForecast(currentScore){
 const API_KEY="AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace
 const CHANNEL_ID="UC-hy6rl"; // your channel
 
-async function fetchYouTubeData(){
-  try{
-    const channel=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
-    const uploadsId=channel.items[0].contentDetails.relatedPlaylists.uploads;
-    const title=channel.items[0].snippet.title;
+async function fetchYouTubeLiveOrUploads() {
+  try {
+    const liveData = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`
+    ).then(r => r.json());
 
-    // LIVE STREAM
-    const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
-    const liveDiv=document.getElementById("ytLive");
-    liveDiv.innerHTML="";
-    if(liveData.items.length>0){
-      liveData.items.forEach(v=>{
-        const iframe=document.createElement("iframe");
-        iframe.src=`https://www.youtube.com/embed/${v.id.videoId}?autoplay=1`;
-        liveDiv.appendChild(iframe);
+    const container = document.getElementById("ytLive");
+    container.innerHTML = "";
+
+    if (liveData.items && liveData.items.length > 0) {
+      // Live stream exists → show only live streams
+      liveData.items.forEach(video => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${video.id.videoId}?autoplay=1`;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
       });
-    } else liveDiv.innerHTML="<p>No live streams currently.</p>";
+    } else {
+      // No live → show latest uploads
+      const channel = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`
+      ).then(r => r.json());
+      const uploadsId = channel.items[0].contentDetails.relatedPlaylists.uploads;
 
-    // LATEST UPLOADS
-    const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
-    const uploadDiv=document.getElementById("ytUploads");
-    uploadDiv.innerHTML="";
-    uploads.items.forEach(v=>{
-      const iframe=document.createElement("iframe");
-      iframe.src=`https://www.youtube.com/embed/${v.snippet.resourceId.videoId}`;
-      uploadDiv.appendChild(iframe);
-    });
+      const uploads = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`
+      ).then(r => r.json());
 
-  }catch(e){console.error(e);}
+      uploads.items.forEach(video => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${video.snippet.resourceId.videoId}`;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById("ytLive").innerHTML = "<p>Error loading YouTube videos.</p>";
+  }
 }
+
+// Call on page load and every 5 minutes
+fetchYouTubeLiveOrUploads();
+setInterval(fetchYouTubeLiveOrUploads, 300000);
 
 // ---------------- INIT ----------------
 updateNWSAlerts();
 updateWeather();
 fetchYouTubeData();
-setInterval(()=>{updateNWSAlerts();updateWeather();fetchYouTubeData();},300000);
+setInterval(()=>{updateNWSAlerts();updateWeather();},300000);
 setTimeout(()=>location.reload(),120000);
 </script>
 
