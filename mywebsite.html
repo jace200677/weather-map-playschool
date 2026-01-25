@@ -13,6 +13,7 @@
   --accent: #f5c542;
   --orange: #f59e0b;
   --danger: #b91c1c;
+  --brown: #7c2d12;
 }
 * { box-sizing: border-box; }
 body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif; background:var(--light); color:#2a2a2a; line-height:1.6; }
@@ -35,6 +36,19 @@ h2 { color:var(--green); margin-top:0; }
   font-weight:700;
   color:#92400e;
   text-align:center;
+}
+.funCard {
+  background:#fff;
+  padding:1.25rem;
+  border-radius:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.12);
+  margin-top:1.5rem;
+  border:2px dashed var(--brown);
+}
+.funScore {
+  font-size:2.2rem;
+  font-weight:900;
+  color:var(--brown);
 }
 #alerts { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
 #youtubeChance { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); font-weight:700; font-size:1.1rem; text-align:center; }
@@ -78,10 +92,13 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
 
   <div id="youtubeChance">Calculating video/live stream chance…</div>
 
-  <div style="position:relative;width:100%;padding-bottom:62.5%;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-top:1rem;">
-    <iframe src="https://www.ventusky.com/?p=47.7;-91.9;7&l=temperature"
-      style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-      loading="lazy"></iframe>
+  <!-- 💩 FUN METER -->
+  <div class="funCard">
+    <div class="funScore" id="poopScore">--</div>
+    <strong id="poopLevel">Loading…</strong>
+    <p style="margin:0.5rem 0 0;font-size:0.9rem;opacity:0.8;">
+      Poop / Fart Intensity Index (0–2026) · For entertainment purposes only 😄
+    </p>
   </div>
 
   <div id="alerts">
@@ -120,14 +137,21 @@ function calculateLocalIntensity(temp, wind, humidity, precip){
   return Math.min(score, 500);
 }
 
-function getAlertSeverityScore(alert){
-  const e = alert.properties.event.toLowerCase();
-  if(e.includes("tornado") || e.includes("hurricane")) return 500;
-  if(e.includes("blizzard") || e.includes("ice storm")) return 400;
-  if(e.includes("severe thunderstorm")) return 300;
-  if(e.includes("flood") || e.includes("high wind")) return 200;
-  if(e.includes("advisory")) return 100;
-  return 0;
+// 💩 POOP / FART INTENSITY (FUN)
+function calculatePoopIntensity(temp, wind, weatherScore){
+  let base = weatherScore * 3;
+  base += temp > 85 ? 300 : 0;
+  base += wind > 15 ? 200 : 0;
+  base += Math.random() * 400; // chaos factor
+  return Math.min(Math.round(base), 2026);
+}
+
+function poopLevel(score){
+  if(score > 1600) return "🚨 DEFCON GAS";
+  if(score > 1200) return "💨 Severe Fart Risk";
+  if(score > 700) return "😬 Noticeable";
+  if(score > 300) return "🙂 Mild";
+  return "😌 All Clear";
 }
 
 function getLevel(score){
@@ -162,47 +186,6 @@ async function fetchLocalWeather(){
   }
 }
 
-// ---------------- ALERTS ----------------
-async function updateNWSAlerts(){
-  try{
-    const data = await fetch(NWS_ALERTS).then(r=>r.json());
-    const list = document.getElementById("alertsList");
-    const locationBox = document.getElementById("activeLocation");
-
-    list.innerHTML = "";
-    locationBox.style.display = "none";
-
-    let maxScore = 0;
-    let focusAlert = null;
-
-    if(data.features.length){
-      data.features.forEach(a=>{
-        const score = getAlertSeverityScore(a);
-        if(score > maxScore){
-          maxScore = score;
-          focusAlert = a;
-        }
-        const li = document.createElement("li");
-        li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
-        list.appendChild(li);
-      });
-    } else {
-      list.innerHTML = "<li>No active alerts in the USA.</li>";
-    }
-
-    window.NATIONAL_ALERT_SCORE = maxScore;
-
-    if(focusAlert && maxScore >= 200){
-      locationBox.style.display = "block";
-      locationBox.textContent =
-        `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
-    }
-
-  } catch {
-    window.NATIONAL_ALERT_SCORE = 0;
-  }
-}
-
 // ---------------- UPDATE UI ----------------
 async function updateWeather(){
   const obs = await fetchLocalWeather();
@@ -212,24 +195,23 @@ async function updateWeather(){
   document.getElementById("score").textContent = score;
   document.getElementById("level").textContent = getLevel(score);
   document.getElementById("details").textContent =
-    `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}% · Precip ${obs.precip.toFixed(2)} in/hr`;
+    `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
 
   document.getElementById("youtubeChance").textContent =
     "Video / Live Stream Chance: " + getYouTubeChance(score);
 
-  document.getElementById("advisory").style.display =
-    score >= 350 ? "block" : "none";
+  // 💩 update fun meter
+  const poop = calculatePoopIntensity(obs.temp, obs.wind, score);
+  document.getElementById("poopScore").textContent = poop;
+  document.getElementById("poopLevel").textContent = poopLevel(poop);
 }
 
 // ---------------- INIT ----------------
-updateNWSAlerts();
 updateWeather();
-setInterval(()=>{ updateNWSAlerts(); updateWeather(); }, 300000);
+setInterval(updateWeather, 300000);
 
 // 🔁 AUTO PAGE REFRESH EVERY 2 MINUTES
-setTimeout(() => {
-  location.reload();
-}, 120000);
+setTimeout(() => location.reload(), 120000);
 </script>
 
 </body>
