@@ -22,17 +22,26 @@ nav { background:var(--green); padding:0.75rem; text-align:center; }
 nav a { color:#fff; text-decoration:none; margin:0 1rem; font-weight:600; }
 section { max-width:900px; margin:auto; padding:3rem 1.25rem; }
 h2 { color:var(--green); margin-top:0; }
-.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; }
-.card { background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.08); }
 .intensity { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-bottom:1.5rem; }
 .score { font-size:2.5rem; font-weight:800; color:var(--green); }
 .level { font-weight:700; padding:0.4rem 0.75rem; border-radius:999px; background:var(--accent); }
-#advisory { display:none; padding:1rem; margin-bottom:1.5rem; border-radius:16px; background:var(--danger); color:#fff; font-weight:700; text-align:center; }
+#advisory { display:none; padding:1rem; margin-bottom:0.75rem; border-radius:16px; background:var(--danger); color:#fff; font-weight:700; text-align:center; }
+#activeLocation {
+  display:none;
+  margin-bottom:1.5rem;
+  padding:0.75rem 1rem;
+  border-radius:12px;
+  background:#fff3cd;
+  font-weight:700;
+  color:#92400e;
+  text-align:center;
+}
 #alerts { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
 #youtubeChance { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); font-weight:700; font-size:1.1rem; text-align:center; }
 footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1rem; }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -54,6 +63,7 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
   <h2>Weather Safety & Intensity</h2>
 
   <div id="advisory">⚠️ Severe Weather Active in the United States</div>
+  <div id="activeLocation"></div>
 
   <div class="intensity">
     <div>
@@ -137,8 +147,7 @@ function getYouTubeChance(score){
 async function fetchLocalWeather(){
   try{
     const p = await fetch(NWS_POINTS).then(r=>r.json());
-    const station = p.properties.observationStations;
-    const stations = await fetch(station).then(r=>r.json());
+    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
     const id = stations.features[0].properties.stationIdentifier;
     const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
     const d = obs.properties;
@@ -158,12 +167,21 @@ async function updateNWSAlerts(){
   try{
     const data = await fetch(NWS_ALERTS).then(r=>r.json());
     const list = document.getElementById("alertsList");
+    const locationBox = document.getElementById("activeLocation");
+
     list.innerHTML = "";
+    locationBox.style.display = "none";
+
     let maxScore = 0;
+    let focusAlert = null;
 
     if(data.features.length){
       data.features.forEach(a=>{
-        maxScore = Math.max(maxScore, getAlertSeverityScore(a));
+        const score = getAlertSeverityScore(a);
+        if(score > maxScore){
+          maxScore = score;
+          focusAlert = a;
+        }
         const li = document.createElement("li");
         li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
         list.appendChild(li);
@@ -173,6 +191,13 @@ async function updateNWSAlerts(){
     }
 
     window.NATIONAL_ALERT_SCORE = maxScore;
+
+    if(focusAlert && maxScore >= 200){
+      locationBox.style.display = "block";
+      locationBox.textContent =
+        `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
+    }
+
   } catch {
     window.NATIONAL_ALERT_SCORE = 0;
   }
