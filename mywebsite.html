@@ -282,13 +282,19 @@ async function updateWeather(){
 }
 
 // ---------------- FORECAST CHART ----------------
+// ---------------- FORECAST CHART (30-min intervals, observed -60 mins) ----------------
 let forecastData = [];
 let weatherChart;
+
 function generateForecast(currentScore){
   forecastData = [];
   let thresholdExceeded = false;
 
-  for(let i=1;i<=12;i++){
+  // Simulate observed -60 mins
+  const observedScore = Math.max(currentScore - Math.round(Math.random()*50), 0);
+
+  // 12 future points at +30 mins each (6 hours total)
+  for(let i=0;i<12;i++){
     const projected = currentScore + Math.round((Math.random()*100)-50);
     forecastData.push(Math.max(projected,0));
     if(projected > 450) thresholdExceeded = true;
@@ -299,19 +305,35 @@ function generateForecast(currentScore){
 
   const ctx = document.getElementById('weatherChart').getContext('2d');
   if(weatherChart) weatherChart.destroy();
-  const labels = forecastData.map((_,i)=>`+${i+1}h`);
+  const labels = forecastData.map((_,i)=>{
+    const minutes = (i+1)*30;
+    return `+${minutes}m`;
+  });
+
   weatherChart = new Chart(ctx, {
     type:'line',
     data:{
       labels:labels,
-      datasets:[{
-        label:'Weather Intensity Score',
-        data:forecastData,
-        borderColor:'rgba(31,77,43,0.9)',
-        backgroundColor:'rgba(31,77,43,0.2)',
-        fill:true,
-        tension:0.3
-      }]
+      datasets:[
+        {
+          label:'Observed (-60 mins)',
+          data: Array(1).fill(observedScore).concat(Array(11).fill(null)), // show observed as first point
+          borderColor:'rgba(31,77,43,0.7)',
+          backgroundColor:'rgba(31,77,43,0.2)',
+          fill:false,
+          tension:0.3,
+          pointRadius:5,
+          pointBackgroundColor:'rgba(31,77,43,0.9)',
+        },
+        {
+          label:'Projected (+30 min intervals)',
+          data:forecastData,
+          borderColor:'rgba(245,157,11,0.9)',
+          backgroundColor:'rgba(245,157,11,0.2)',
+          fill:true,
+          tension:0.3
+        }
+      ]
     },
     options:{
       scales:{ y:{ beginAtZero:true, max:500 } }
@@ -320,7 +342,7 @@ function generateForecast(currentScore){
 }
 
 // ---------------- YOUTUBE INTEGRATION ----------------
-const API_KEY = "YOUR_YOUTUBE_API_KEY"; // replace
+const API_KEY = "AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace
 const CHANNEL_ID = "UC-hy6rl"; // from your channel URL
 
 async function fetchYouTubeData() {
