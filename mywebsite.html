@@ -105,7 +105,7 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
     <div class="funScore" id="poopScore">--</div>
     <strong id="poopLevel">Loading…</strong>
     <p style="margin:0.5rem 0 0;font-size:0.9rem;opacity:0.8;">
-      Poop / Fart Intensity Index (0–2026) · For entertainment purposes only 😄
+      Poop / Fart Intensity Index (0–2026) · Includes current Weather Score 😄
     </p>
   </div>
 
@@ -147,10 +147,10 @@ function calculateLocalIntensity(temp, wind, humidity, precip){
 
 // 💩 POOP / FART INTENSITY (FUN)
 function calculatePoopIntensity(temp, wind, weatherScore){
-  let base = weatherScore * 3;
+  let base = weatherScore * 3;      // include weather score immediately
   base += temp > 85 ? 300 : 0;
   base += wind > 15 ? 200 : 0;
-  base += Math.random() * 400; // chaos factor
+  base += Math.random() * 400;      // chaos factor
   return Math.min(Math.round(base), 2026);
 }
 
@@ -251,6 +251,7 @@ async function updateWeather(){
   const local = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
   const score = Math.max(local, window.NATIONAL_ALERT_SCORE);
 
+  // Weather UI
   document.getElementById("score").textContent = score;
   document.getElementById("level").textContent = getLevel(score);
   document.getElementById("details").textContent =
@@ -259,7 +260,7 @@ async function updateWeather(){
   document.getElementById("youtubeChance").textContent =
     "Video / Live Stream Chance: " + getYouTubeChance(score);
 
-  // 💩 update fun meter
+  // 💩 Poop / Fart UI with weather score included
   const poop = calculatePoopIntensity(obs.temp, obs.wind, score);
   document.getElementById("poopScore").textContent = poop;
   document.getElementById("poopLevel").textContent = poopLevel(poop);
@@ -269,8 +270,6 @@ async function updateWeather(){
 updateNWSAlerts();
 updateWeather();
 setInterval(()=>{ updateNWSAlerts(); updateWeather(); }, 300000);
-
-// 🔁 AUTO PAGE REFRESH EVERY 2 MINUTES
 setTimeout(() => location.reload(), 120000);
 </script>
 
