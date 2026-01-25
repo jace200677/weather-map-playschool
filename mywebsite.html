@@ -50,12 +50,10 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
   <p>Northwoods Playschool is a warm, nature-inspired learning environment where children grow through exploration, creativity, and play.</p>
 </section>
 
-
-
 <section id="weather">
   <h2>Weather Safety & Intensity</h2>
 
-  <div id="advisory">⚠️ High Weather Intensity – Outdoor activities may be unsafe</div>
+  <div id="advisory">⚠️ Severe Weather Active in the United States</div>
 
   <div class="intensity">
     <div>
@@ -77,7 +75,7 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
   </div>
 
   <div id="alerts">
-    <h3>National Weather Service Alerts</h3>
+    <h3>National Weather Service Alerts (USA)</h3>
     <ul id="alertsList" style="margin:0;padding-left:1.2rem;"></ul>
   </div>
 </section>
@@ -92,106 +90,116 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
 </footer>
 
 <script>
-// --- CONFIG ---
-const LAT = 44.9778;  // change to your location
+// ---------------- CONFIG ----------------
+const LAT = 44.9778;
 const LON = -93.2650;
-const NWS_OBS_URL = `https://api.weather.gov/points/${LAT},${LON}/stations`;
-const NWS_ALERTS_URL = "https://api.weather.gov/alerts/active?status=actual";
+const NWS_POINTS = `https://api.weather.gov/points/${LAT},${LON}`;
+const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
 
-// --- HELPERS ---
-function calculateIntensity(temp, wind, humidity, precip){
+window.NATIONAL_ALERT_SCORE = 0;
+
+// ---------------- SCORING ----------------
+function calculateLocalIntensity(temp, wind, humidity, precip){
   let score = 0;
-  if(temp >= 90 || temp <= 32) score+=150;
-  else if(temp >= 80 || temp <= 40) score+=75;
-  if(wind >= 25) score+=125;
-  else if(wind >= 15) score+=75;
-  if(precip>0) score+=100;
-  if(humidity>=90||humidity<=20) score+=50;
-  return Math.min(score,500);
+  if(temp >= 90 || temp <= 32) score += 150;
+  else if(temp >= 80 || temp <= 40) score += 75;
+  if(wind >= 25) score += 125;
+  else if(wind >= 15) score += 75;
+  if(precip > 0) score += 100;
+  if(humidity >= 90 || humidity <= 20) score += 50;
+  return Math.min(score, 500);
 }
+
+function getAlertSeverityScore(alert){
+  const e = alert.properties.event.toLowerCase();
+  if(e.includes("tornado") || e.includes("hurricane")) return 500;
+  if(e.includes("blizzard") || e.includes("ice storm")) return 400;
+  if(e.includes("severe thunderstorm")) return 300;
+  if(e.includes("flood") || e.includes("high wind")) return 200;
+  if(e.includes("advisory")) return 100;
+  return 0;
+}
+
 function getLevel(score){
-  if(score>=350) return "High";
-  if(score>=200) return "Moderate";
+  if(score >= 350) return "High";
+  if(score >= 200) return "Moderate";
   return "Low";
 }
+
 function getYouTubeChance(score){
-  if(score>=400) return "Yes – Perfect for streaming or posting!";
-  if(score>=300) return "Probably – Good weather for content.";
-  if(score>=150) return "Maybe – Moderate conditions.";
+  if(score >= 400) return "Yes – Perfect for streaming or posting!";
+  if(score >= 300) return "Probably – Good weather for content.";
+  if(score >= 150) return "Maybe – Moderate conditions.";
   return "No / Unlikely – Avoid outdoor content.";
 }
 
-// --- FETCH NWS OBSERVATION ---
-async function fetchNWSObservation(){
+// ---------------- WEATHER ----------------
+async function fetchLocalWeather(){
   try{
-    const stationsResp = await fetch(NWS_OBS_URL);
-    const stationsData = await stationsResp.json();
-    const stationId = stationsData.features[0].properties.stationIdentifier;
-    const obsResp = await fetch(`https://api.weather.gov/stations/${stationId}/observations/latest`);
-    const obsData = await obsResp.json();
-    const props = obsData.properties;
-    const temp = props.temperature?.value != null ? props.temperature.value * 9/5 + 32 : 70;
-    const wind = props.windSpeed?.value != null ? props.windSpeed.value * 2.23694 : 0;
-    const humidity = props.relativeHumidity?.value != null ? props.relativeHumidity.value : 50;
-    const precip = props.precipitationLastHour?.value != null ? props.precipitationLastHour.value*0.03937 : 0;
-    return {temp, wind, humidity, precip};
-  } catch(e){
-    console.log("Error fetching NWS observation",e);
+    const p = await fetch(NWS_POINTS).then(r=>r.json());
+    const station = p.properties.observationStations;
+    const stations = await fetch(station).then(r=>r.json());
+    const id = stations.features[0].properties.stationIdentifier;
+    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
+    const d = obs.properties;
+    return {
+      temp: d.temperature.value * 9/5 + 32,
+      wind: d.windSpeed.value * 2.23694,
+      humidity: d.relativeHumidity.value,
+      precip: (d.precipitationLastHour.value || 0) * 0.03937
+    };
+  } catch {
     return {temp:70, wind:0, humidity:50, precip:0};
   }
 }
 
-// --- UPDATE WEATHER ---
-async function updateWeather(){
-  const obs = await fetchNWSObservation();
-  const score = calculateIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
-  const level = getLevel(score);
-
-  document.getElementById("score").textContent = score;
-  document.getElementById("level").textContent = level;
-  document.getElementById("details").textContent = `Temp: ${obs.temp.toFixed(1)}°F, Wind: ${obs.wind.toFixed(1)} mph, Humidity: ${obs.humidity}%, Precip: ${obs.precip.toFixed(2)} in/hr`;
-  document.getElementById("youtubeChance").textContent = "Video / Live Stream Chance: "+getYouTubeChance(score);
-
-  const levelEl = document.getElementById("level");
-  const scoreEl = document.getElementById("score");
-  const advisoryEl = document.getElementById("advisory");
-
-  if(score>=350){
-    levelEl.style.background="#ef4444"; scoreEl.style.color="#b91c1c"; advisoryEl.style.display="block";
-  } else if(score>=200){
-    levelEl.style.background="#f59e0b"; scoreEl.style.color="#b9730f"; advisoryEl.style.display="none";
-  } else{
-    levelEl.style.background="#f5c542"; scoreEl.style.color="#1f4d2b"; advisoryEl.style.display="none";
-  }
-}
-
-// --- FETCH NWS ALERTS ---
+// ---------------- ALERTS ----------------
 async function updateNWSAlerts(){
   try{
-    const resp = await fetch(NWS_ALERTS_URL);
-    const data = await resp.json();
+    const data = await fetch(NWS_ALERTS).then(r=>r.json());
     const list = document.getElementById("alertsList");
-    list.innerHTML="";
-    if(data.features && data.features.length>0){
-      data.features.forEach(alert=>{
-        const li=document.createElement("li");
-        li.textContent=`${alert.properties.areaDesc}: ${alert.properties.headline}`;
+    list.innerHTML = "";
+    let maxScore = 0;
+
+    if(data.features.length){
+      data.features.forEach(a=>{
+        maxScore = Math.max(maxScore, getAlertSeverityScore(a));
+        const li = document.createElement("li");
+        li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
         list.appendChild(li);
       });
-    } else{
-      const li=document.createElement("li");
-      li.textContent="No active alerts in the USA.";
-      list.appendChild(li);
+    } else {
+      list.innerHTML = "<li>No active alerts in the USA.</li>";
     }
-  } catch(e){
-    document.getElementById("alertsList").innerHTML="<li>Unable to fetch alerts.</li>";
+
+    window.NATIONAL_ALERT_SCORE = maxScore;
+  } catch {
+    window.NATIONAL_ALERT_SCORE = 0;
   }
 }
 
-// --- INITIAL LOAD ---
-updateWeather();
+// ---------------- UPDATE UI ----------------
+async function updateWeather(){
+  const obs = await fetchLocalWeather();
+  const local = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
+  const score = Math.max(local, window.NATIONAL_ALERT_SCORE);
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("level").textContent = getLevel(score);
+  document.getElementById("details").textContent =
+    `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}% · Precip ${obs.precip.toFixed(2)} in/hr`;
+
+  document.getElementById("youtubeChance").textContent =
+    "Video / Live Stream Chance: " + getYouTubeChance(score);
+
+  document.getElementById("advisory").style.display =
+    score >= 350 ? "block" : "none";
+}
+
+// ---------------- INIT ----------------
 updateNWSAlerts();
-setInterval(()=>{updateWeather(); updateNWSAlerts();},300000); // every 5 min
+updateWeather();
+setInterval(()=>{ updateNWSAlerts(); updateWeather(); }, 300000);
 </script>
 
 </body>
