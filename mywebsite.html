@@ -37,12 +37,19 @@ h2 { color:var(--green); margin-top:0; }
   color:#92400e;
   text-align:center;
 }
+.funLabel {
+  text-align:center;
+  font-weight:800;
+  font-size:1.05rem;
+  margin-bottom:0.5rem;
+  color:var(--brown);
+}
 .funCard {
   background:#fff;
   padding:1.25rem;
   border-radius:16px;
   box-shadow:0 8px 20px rgba(0,0,0,0.12);
-  margin-top:1.5rem;
+  margin-top:0.5rem;
   border:2px dashed var(--brown);
 }
 .funScore {
@@ -92,7 +99,8 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
 
   <div id="youtubeChance">Calculating video/live stream chance…</div>
 
-  <!-- 💩 FUN METER -->
+  <!-- 💩 FUN METER WITH LABEL -->
+  <div class="funLabel">💩 Poop / Fart Intensity Meter limited time only until 21/2/2026 at 5pm</div>
   <div class="funCard">
     <div class="funScore" id="poopScore">--</div>
     <strong id="poopLevel">Loading…</strong>
@@ -186,6 +194,57 @@ async function fetchLocalWeather(){
   }
 }
 
+// ---------------- ALERTS ----------------
+function getAlertSeverityScore(alert){
+  const e = alert.properties.event.toLowerCase();
+  if(e.includes("tornado") || e.includes("hurricane")) return 500;
+  if(e.includes("blizzard") || e.includes("ice storm")) return 400;
+  if(e.includes("severe thunderstorm")) return 300;
+  if(e.includes("flood") || e.includes("high wind")) return 200;
+  if(e.includes("advisory")) return 100;
+  return 0;
+}
+
+async function updateNWSAlerts(){
+  try{
+    const data = await fetch(NWS_ALERTS).then(r=>r.json());
+    const list = document.getElementById("alertsList");
+    const locationBox = document.getElementById("activeLocation");
+
+    list.innerHTML = "";
+    locationBox.style.display = "none";
+
+    let maxScore = 0;
+    let focusAlert = null;
+
+    if(data.features.length){
+      data.features.forEach(a=>{
+        const score = getAlertSeverityScore(a);
+        if(score > maxScore){
+          maxScore = score;
+          focusAlert = a;
+        }
+        const li = document.createElement("li");
+        li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
+        list.appendChild(li);
+      });
+    } else {
+      list.innerHTML = "<li>No active alerts in the USA.</li>";
+    }
+
+    window.NATIONAL_ALERT_SCORE = maxScore;
+
+    if(focusAlert && maxScore >= 200){
+      locationBox.style.display = "block";
+      locationBox.textContent =
+        `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
+    }
+
+  } catch {
+    window.NATIONAL_ALERT_SCORE = 0;
+  }
+}
+
 // ---------------- UPDATE UI ----------------
 async function updateWeather(){
   const obs = await fetchLocalWeather();
@@ -207,8 +266,9 @@ async function updateWeather(){
 }
 
 // ---------------- INIT ----------------
+updateNWSAlerts();
 updateWeather();
-setInterval(updateWeather, 300000);
+setInterval(()=>{ updateNWSAlerts(); updateWeather(); }, 300000);
 
 // 🔁 AUTO PAGE REFRESH EVERY 2 MINUTES
 setTimeout(() => location.reload(), 120000);
