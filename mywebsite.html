@@ -283,63 +283,76 @@ async function updateWeather(){
 
 // ---------------- FORECAST CHART ----------------
 // ---------------- FORECAST CHART (30-min intervals, observed -60 mins) ----------------
+// ---------------- FORECAST CHART (1-min intervals) ----------------
 let forecastData = [];
+let observedData = [];
 let weatherChart;
 
 function generateForecast(currentScore){
+  observedData = [];
   forecastData = [];
   let thresholdExceeded = false;
 
-  // Simulate observed -60 mins
-  const observedScore = Math.max(currentScore - Math.round(Math.random()*50), 0);
+  // Observed: -60 → 0 mins (61 points)
+  for(let i=-60;i<=0;i++){
+    const obsScore = Math.max(currentScore - Math.round(Math.random()*50),0);
+    observedData.push(obsScore);
+  }
 
-  // 12 future points at +30 mins each (6 hours total)
-  for(let i=0;i<12;i++){
-    const projected = currentScore + Math.round((Math.random()*100)-50);
-    forecastData.push(Math.max(projected,0));
-    if(projected > 450) thresholdExceeded = true;
+  // Projected: 0 → +30 mins (31 points)
+  for(let i=0;i<=30;i++){
+    const projScore = Math.max(currentScore + Math.round((Math.random()*100)-50),0);
+    forecastData.push(projScore);
+    if(projScore > 450) thresholdExceeded = true;
   }
 
   document.getElementById("thresholdNotice").textContent = 
     thresholdExceeded ? "⚠️ Threshold Exceeded in projected forecast!" : "Forecast within safe range.";
 
+  const labels = [];
+  for(let i=-60;i<=30;i++){ labels.push(`${i}m`); } // x-axis labels from -60 → +30
+
+  const mergedObserved = observedData.concat(Array(forecastData.length-1).fill(null)); // skip duplicated 0
+  const mergedProjected = Array(observedData.length-1).fill(null).concat(forecastData);
+
   const ctx = document.getElementById('weatherChart').getContext('2d');
   if(weatherChart) weatherChart.destroy();
-  const labels = forecastData.map((_,i)=>{
-    const minutes = (i+1)*30;
-    return `+${minutes}m`;
-  });
 
-  weatherChart = new Chart(ctx, {
+  weatherChart = new Chart(ctx,{
     type:'line',
     data:{
       labels:labels,
       datasets:[
         {
-          label:'Observed (-60 mins)',
-          data: Array(1).fill(observedScore).concat(Array(11).fill(null)), // show observed as first point
-          borderColor:'rgba(31,77,43,0.7)',
+          label:'Observed (-60 → 0 min)',
+          data:mergedObserved,
+          borderColor:'rgba(31,77,43,0.9)',
           backgroundColor:'rgba(31,77,43,0.2)',
           fill:false,
           tension:0.3,
-          pointRadius:5,
+          pointRadius:2,
           pointBackgroundColor:'rgba(31,77,43,0.9)',
         },
         {
-          label:'Projected (+30 min intervals)',
-          data:forecastData,
+          label:'Projected (0 → +30 min)',
+          data:mergedProjected,
           borderColor:'rgba(245,157,11,0.9)',
           backgroundColor:'rgba(245,157,11,0.2)',
           fill:true,
-          tension:0.3
+          tension:0.3,
+          pointRadius:2,
         }
       ]
     },
     options:{
-      scales:{ y:{ beginAtZero:true, max:500 } }
+      scales:{
+        y:{ beginAtZero:true, max:500 },
+        x:{ ticks:{ maxTicksLimit:20 } } // avoid label overcrowding
+      }
     }
   });
 }
+
 
 // ---------------- YOUTUBE INTEGRATION ----------------
 const API_KEY = "AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace
