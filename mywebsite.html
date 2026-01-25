@@ -3,56 +3,68 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Northwoods Playschool – Weather & YouTube</title>
-<meta name="description" content="Northwoods Playschool – Weather intensity, live streams & latest uploads." />
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Northwoods Playschool – YouTube Weather Stream</title>
+<meta name="description" content="Northwoods Playschool – Weather intensity & YouTube live/Video posting chance based on NWS conditions." />
 
 <style>
 :root {
-  --bg: #0d1117;
-  --card-bg: #161b22;
-  --accent: #f5c542;
   --green: #1f4d2b;
-  --danger: #ff4c4c;
-  --brown: #7c2d12;
-  --light: #c9d1d9;
-  --yellow: #f5c542;
-  --red: #ff4c4c;
+  --light: #f6f1e6;
+  --accent: #f5c542;
   --orange: #f59e0b;
+  --danger: #b91c1c;
+  --brown: #7c2d12;
 }
-* { box-sizing:border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
-body { background: var(--bg); color: var(--light); line-height:1.6; transition: background 0.3s, color 0.3s; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif; background:var(--light); color:#2a2a2a; line-height:1.6; }
 header { text-align:center; padding:3rem 1rem 2rem; }
-header img { max-width:250px; width:100%; }
-nav { display:flex; justify-content:center; gap:2rem; margin-bottom:2rem; }
-nav a { color: var(--light); text-decoration:none; font-weight:600; transition:0.3s; }
-nav a:hover { color: var(--accent); }
-section { max-width:900px; margin:auto; padding:2rem 1rem; }
-h1,h2,h3 { font-weight:800; margin-bottom:1rem; }
-h2 { color: var(--accent); }
-.card { background: var(--card-bg); padding:1.5rem; border-radius:12px; margin-bottom:1.5rem; box-shadow:0 10px 30px rgba(0,0,0,0.4); transition: transform 0.3s, box-shadow 0.3s; }
-.card:hover { transform: translateY(-5px); box-shadow:0 15px 35px rgba(0,0,0,0.5); }
-.intensity { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
-.score { font-size:3rem; font-weight:900; color: var(--accent); transition: all 0.3s; }
-.level { font-weight:700; padding:0.4rem 0.75rem; border-radius:999px; background: var(--green); color:#fff; }
-#advisory { display:none; padding:1rem; margin-bottom:1rem; border-radius:12px; background: var(--danger); text-align:center; font-weight:700; }
-#activeLocation { display:none; padding:0.75rem 1rem; margin-bottom:1rem; border-radius:12px; background:#ffc9c9; color:#7c0000; text-align:center; font-weight:700; }
-.funLabel { text-align:center; font-weight:800; font-size:1.1rem; margin-bottom:0.5rem; color: var(--brown); }
-.funCard { text-align:center; }
-.funScore { font-size:2rem; font-weight:900; color: var(--brown); transition: all 0.3s; }
-#alerts, #youtubeChance, #youtubeUploads { margin-top:1rem; padding:1rem; border-radius:12px; background: var(--card-bg); }
-.youtubeItem { margin-bottom:1rem; }
-.youtubeItem a { color: var(--accent); text-decoration:none; font-weight:600; }
-.youtubeItem a:hover { text-decoration:underline; }
-.youtubeLive { color: var(--red); font-weight:800; }
-footer { text-align:center; padding:2rem 1rem; font-size:0.9rem; color: var(--light); margin-top:3rem; }
-.fade { opacity:0; transform: translateY(10px); transition: all 0.6s; }
-.fade.show { opacity:1; transform: translateY(0); }
-#thresholdMsg { margin-top:0.5rem; font-weight:700; color: var(--yellow); }
+header img { max-width:360px; width:100%; }
+nav { background:var(--green); padding:0.75rem; text-align:center; }
+nav a { color:#fff; text-decoration:none; margin:0 1rem; font-weight:600; }
+section { max-width:900px; margin:auto; padding:3rem 1.25rem; }
+h2 { color:var(--green); margin-top:0; }
+.intensity { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-bottom:1.5rem; }
+.score { font-size:2.5rem; font-weight:800; color:var(--green); }
+.level { font-weight:700; padding:0.4rem 0.75rem; border-radius:999px; background:var(--accent); }
+#advisory { display:none; padding:1rem; margin-bottom:0.75rem; border-radius:16px; background:var(--danger); color:#fff; font-weight:700; text-align:center; }
+#activeLocation {
+  display:none;
+  margin-bottom:1.5rem;
+  padding:0.75rem 1rem;
+  border-radius:12px;
+  background:#fff3cd;
+  font-weight:700;
+  color:#92400e;
+  text-align:center;
+}
+.funLabel {
+  text-align:center;
+  font-weight:800;
+  font-size:1.05rem;
+  margin-bottom:0.5rem;
+  color:var(--brown);
+}
+.funCard {
+  background:#fff;
+  padding:1.25rem;
+  border-radius:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.12);
+  margin-top:0.5rem;
+  border:2px dashed var(--brown);
+}
+.funScore {
+  font-size:2.2rem;
+  font-weight:900;
+  color:var(--brown);
+}
+#alerts { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+#youtubeChance { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); font-weight:700; font-size:1.1rem; text-align:center; }
+#forecastChart { margin-top:2rem; }
+#thresholdNotice { font-weight:700; color:red; margin-top:0.5rem; text-align:center; }
+footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1rem; }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -77,38 +89,45 @@ footer { text-align:center; padding:2rem 1rem; font-size:0.9rem; color: var(--li
   <div id="advisory">⚠️ Severe Weather Active in the United States</div>
   <div id="activeLocation"></div>
 
-  <div class="card intensity fade">
+  <div class="intensity">
     <div>
       <div class="score" id="score">--</div>
       <div class="level" id="level">Loading…</div>
-      <div id="thresholdMsg">Calculating threshold...</div>
       <small>Weather Intensity Score (0–500)</small>
     </div>
     <div>
-      <p id="details" style="opacity:0.75;"></p>
+      <p id="details" style="margin:0;font-size:0.95rem;opacity:0.85;"></p>
     </div>
   </div>
 
-  <div class="card fade">
-    <canvas id="forecastChart" height="150"></canvas>
-  </div>
+  <div id="youtubeChance">Calculating video/live stream chance…</div>
 
-  <div class="funLabel">💩 Poop / Fart Intensity Meter</div>
-  <div class="card funCard fade">
+  <!-- 💩 FUN METER WITH LABEL -->
+  <div class="funLabel">💩 Poop / Fart Intensity Meter limited time only until 2/2/2026 at 5pm</div>
+  <div class="funCard">
     <div class="funScore" id="poopScore">--</div>
     <strong id="poopLevel">Loading…</strong>
-    <p style="opacity:0.7;">Poop / Fart Intensity Index (0–2026) · Includes current Weather Score 😄</p>
+    <p style="margin:0.5rem 0 0;font-size:0.9rem;opacity:0.8;">
+      Poop / Fart Intensity Index (0–2026) · Includes current Weather Score 😄
+    </p>
   </div>
 
-  <div id="alerts" class="card fade">
+  <div id="alerts">
     <h3>National Weather Service Alerts (USA)</h3>
-    <ul id="alertsList" style="padding-left:1.2rem;"></ul>
+    <ul id="alertsList" style="margin:0;padding-left:1.2rem;"></ul>
+  </div>
+
+  <div id="forecastChart">
+    <h2>Projected Weather Score</h2>
+    <canvas id="weatherChart" style="max-width:100%; height:250px;"></canvas>
+    <p id="thresholdNotice"></p>
   </div>
 </section>
 
 <section id="youtube">
-  <h2>Latest YouTube Content</h2>
-  <div id="youtubeUploads" class="card fade">Loading channel data…</div>
+  <h2>Jace's YouTube Channel</h2>
+  <div id="ytStatus" style="margin-bottom:1rem;font-weight:700;"></div>
+  <ul id="ytUploads" style="padding-left:1.2rem;"></ul>
 </section>
 
 <section id="contact">
@@ -120,196 +139,230 @@ footer { text-align:center; padding:2rem 1rem; font-size:0.9rem; color: var(--li
   <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// ---------------- WEATHER & POOP ----------------
-const LAT = 44.9778, LON = -93.2650;
+// ---------------- CONFIG ----------------
+const LAT = 44.9778;
+const LON = -93.2650;
 const NWS_POINTS = `https://api.weather.gov/points/${LAT},${LON}`;
 const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
-let forecastChart = null;
 window.NATIONAL_ALERT_SCORE = 0;
 
-// Local weather intensity calculation
+// ---------------- WEATHER SCORING ----------------
 function calculateLocalIntensity(temp, wind, humidity, precip){
-  let score=0;
-  if(temp>=90||temp<=32) score+=150; else if(temp>=80||temp<=40) score+=75;
-  if(wind>=25) score+=125; else if(wind>=15) score+=75;
-  if(precip>0) score+=100;
-  if(humidity>=90||humidity<=20) score+=50;
-  return Math.min(score,500);
+  let score = 0;
+  if(temp >= 90 || temp <= 32) score += 150;
+  else if(temp >= 80 || temp <= 40) score += 75;
+  if(wind >= 25) score += 125;
+  else if(wind >= 15) score += 75;
+  if(precip > 0) score += 100;
+  if(humidity >= 90 || humidity <= 20) score += 50;
+  return Math.min(score, 500);
 }
 
-function calculatePoopIntensity(temp,wind,weatherScore){
-  let base=weatherScore*3;
-  base+=temp>85?300:0;
-  base+=wind>15?200:0;
-  base+=Math.random()*400;
-  return Math.min(Math.round(base),2026);
+// 💩 POOP / FART INTENSITY (FUN)
+function calculatePoopIntensity(temp, wind, weatherScore){
+  let base = weatherScore * 3;
+  base += temp > 85 ? 300 : 0;
+  base += wind > 15 ? 200 : 0;
+  base += Math.random() * 400;
+  return Math.min(Math.round(base), 2026);
 }
 
 function poopLevel(score){
-  if(score>1600) return "🚨 DEFCON GAS";
-  if(score>1200) return "💨 Severe Fart Risk";
-  if(score>700) return "😬 Noticeable";
-  if(score>300) return "🙂 Mild";
+  if(score > 1600) return "🚨 DEFCON GAS";
+  if(score > 1200) return "💨 Severe Fart Risk";
+  if(score > 700) return "😬 Noticeable";
+  if(score > 300) return "🙂 Mild";
   return "😌 All Clear";
 }
 
-function getLevel(score){return score>=350?"High":score>=200?"Moderate":"Low";}
-function getYouTubeChance(score){return score>=400?"Yes – Perfect for streaming!":score>=300?"Probably – Good for content.":score>=150?"Maybe – Moderate conditions.":"No / Unlikely – Avoid outdoor content.";}
-
-async function fetchLocalWeather(){
-  try{
-    const p=await fetch(NWS_POINTS).then(r=>r.json());
-    const stations=await fetch(p.properties.observationStations).then(r=>r.json());
-    const id=stations.features[0].properties.stationIdentifier;
-    const obs=await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
-    const d=obs.properties;
-    return {temp:d.temperature.value*9/5+32,wind:d.windSpeed.value*2.23694,humidity:d.relativeHumidity.value,precip:(d.precipitationLastHour.value||0)*0.03937};
-  }catch{return {temp:70,wind:0,humidity:50,precip:0};}
+function getLevel(score){
+  if(score >= 350) return "High";
+  if(score >= 200) return "Moderate";
+  return "Low";
 }
 
+function getYouTubeChance(score){
+  if(score >= 400) return "Yes – Perfect for streaming or posting!";
+  if(score >= 300) return "Probably – Good weather for content.";
+  if(score >= 150) return "Maybe – Moderate conditions.";
+  return "No / Unlikely – Avoid outdoor content.";
+}
+
+// ---------------- WEATHER FETCH ----------------
+async function fetchLocalWeather(){
+  try{
+    const p = await fetch(NWS_POINTS).then(r=>r.json());
+    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
+    const id = stations.features[0].properties.stationIdentifier;
+    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
+    const d = obs.properties;
+    return {
+      temp: d.temperature.value * 9/5 + 32,
+      wind: d.windSpeed.value * 2.23694,
+      humidity: d.relativeHumidity.value,
+      precip: (d.precipitationLastHour.value || 0) * 0.03937
+    };
+  } catch {
+    return {temp:70, wind:0, humidity:50, precip:0};
+  }
+}
+
+// ---------------- ALERTS ----------------
 function getAlertSeverityScore(alert){
-  const e=alert.properties.event.toLowerCase();
-  if(e.includes("tornado")||e.includes("hurricane")) return 500;
-  if(e.includes("blizzard")||e.includes("ice storm")) return 400;
+  const e = alert.properties.event.toLowerCase();
+  if(e.includes("tornado") || e.includes("hurricane")) return 500;
+  if(e.includes("blizzard") || e.includes("ice storm")) return 400;
   if(e.includes("severe thunderstorm")) return 300;
-  if(e.includes("flood")||e.includes("high wind")) return 200;
+  if(e.includes("flood") || e.includes("high wind")) return 200;
   if(e.includes("advisory")) return 100;
   return 0;
 }
 
-// NWS alerts
 async function updateNWSAlerts(){
   try{
-    const data=await fetch(NWS_ALERTS).then(r=>r.json());
-    const list=document.getElementById("alertsList");
-    const locationBox=document.getElementById("activeLocation");
-    list.innerHTML="";
-    locationBox.style.display="none";
-    let maxScore=0,focusAlert=null;
+    const data = await fetch(NWS_ALERTS).then(r=>r.json());
+    const list = document.getElementById("alertsList");
+    const locationBox = document.getElementById("activeLocation");
+
+    list.innerHTML = "";
+    locationBox.style.display = "none";
+
+    let maxScore = 0;
+    let focusAlert = null;
+
     if(data.features.length){
       data.features.forEach(a=>{
-        const score=getAlertSeverityScore(a);
-        if(score>maxScore){maxScore=score;focusAlert=a;}
-        const li=document.createElement("li");
-        li.textContent=`${a.properties.event}: ${a.properties.areaDesc}`;
+        const score = getAlertSeverityScore(a);
+        if(score > maxScore){
+          maxScore = score;
+          focusAlert = a;
+        }
+        const li = document.createElement("li");
+        li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
         list.appendChild(li);
       });
-    } else list.innerHTML="<li>No active alerts in the USA.</li>";
-    window.NATIONAL_ALERT_SCORE=maxScore;
-    if(focusAlert && maxScore>=200){
-      locationBox.style.display="block";
-      locationBox.textContent=`Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
+    } else {
+      list.innerHTML = "<li>No active alerts in the USA.</li>";
     }
-  }catch{window.NATIONAL_ALERT_SCORE=0;}
-}
 
-// Dynamic threshold based on forecast
-function getDynamicThreshold(currentScore){
-  const base=300+Math.random()*150; // 300–450
-  const modifier=currentScore/2;
-  return Math.min(Math.round(base+modifier),500);
-}
+    window.NATIONAL_ALERT_SCORE = maxScore;
 
-// Forecast projections (synthetic demo)
-async function fetchForecastProjections(){
-  const projections=[];
-  for(let i=1;i<=6;i++){
-    const temp=50+Math.random()*40;
-    const wind=Math.random()*25;
-    const humidity=30+Math.random()*70;
-    const precip=Math.random()>0.7?Math.random()*2:0;
-    const score=calculateLocalIntensity(temp,wind,humidity,precip);
-    projections.push({hour:i*3,score});
+    if(focusAlert && maxScore >= 200){
+      locationBox.style.display = "block";
+      locationBox.textContent =
+        `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
+    }
+
+  } catch {
+    window.NATIONAL_ALERT_SCORE = 0;
   }
-  return projections;
 }
 
-function updateForecastChart(projections){
-  const labels=projections.map(p=>`${p.hour}h`);
-  const data=projections.map(p=>p.score);
-  const ctx=document.getElementById('forecastChart').getContext('2d');
-  if(forecastChart) forecastChart.destroy();
-  forecastChart=new Chart(ctx,{
+// ---------------- UPDATE UI ----------------
+async function updateWeather(){
+  const obs = await fetchLocalWeather();
+  const local = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
+  const score = Math.max(local, window.NATIONAL_ALERT_SCORE);
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("level").textContent = getLevel(score);
+  document.getElementById("details").textContent =
+    `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
+
+  document.getElementById("youtubeChance").textContent =
+    "Video / Live Stream Chance: " + getYouTubeChance(score);
+
+  const poop = calculatePoopIntensity(obs.temp, obs.wind, score);
+  document.getElementById("poopScore").textContent = poop;
+  document.getElementById("poopLevel").textContent = poopLevel(poop);
+
+  generateForecast(score);
+}
+
+// ---------------- FORECAST CHART ----------------
+let forecastData = [];
+let weatherChart;
+function generateForecast(currentScore){
+  forecastData = [];
+  let thresholdExceeded = false;
+
+  for(let i=1;i<=12;i++){
+    const projected = currentScore + Math.round((Math.random()*100)-50);
+    forecastData.push(Math.max(projected,0));
+    if(projected > 450) thresholdExceeded = true;
+  }
+
+  document.getElementById("thresholdNotice").textContent = 
+    thresholdExceeded ? "⚠️ Threshold Exceeded in projected forecast!" : "Forecast within safe range.";
+
+  const ctx = document.getElementById('weatherChart').getContext('2d');
+  if(weatherChart) weatherChart.destroy();
+  const labels = forecastData.map((_,i)=>`+${i+1}h`);
+  weatherChart = new Chart(ctx, {
     type:'line',
     data:{
       labels:labels,
       datasets:[{
-        label:'Projected Weather Score',
-        data:data,
-        borderColor:'#f5c542',
-        backgroundColor:'rgba(245,197,66,0.2)',
-        tension:0.4,
-        fill:true
+        label:'Weather Intensity Score',
+        data:forecastData,
+        borderColor:'rgba(31,77,43,0.9)',
+        backgroundColor:'rgba(31,77,43,0.2)',
+        fill:true,
+        tension:0.3
       }]
     },
     options:{
-      responsive:true,
-      scales:{y:{beginAtZero:true,max:500, ticks:{color:'#c9d1d9'}}, x:{ticks:{color:'#c9d1d9'}}},
-      plugins:{legend:{display:true,labels:{color:'#c9d1d9'}}},
+      scales:{ y:{ beginAtZero:true, max:500 } }
     }
   });
 }
 
-// Update weather UI
-async function updateWeather(){
-  const obs=await fetchLocalWeather();
-  const local=calculateLocalIntensity(obs.temp,obs.wind,obs.humidity,obs.precip);
-  const score=Math.max(local,window.NATIONAL_ALERT_SCORE);
-  const threshold=getDynamicThreshold(score);
+// ---------------- YOUTUBE INTEGRATION ----------------
+const API_KEY = "YOUR_YOUTUBE_API_KEY"; // replace
+const CHANNEL_ID = "UC-hy6rl"; // from your channel URL
 
-  document.getElementById("score").textContent=score;
-  document.getElementById("level").textContent=getLevel(score);
-  document.getElementById("details").textContent=`Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
+async function fetchYouTubeData() {
+  try {
+    const channel = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${CHANNEL_ID}&key=${API_KEY}`)
+      .then(r => r.json());
 
-  const thresholdMsg=document.getElementById("thresholdMsg");
-  thresholdMsg.textContent=score>threshold?"⚠️ Threshold Exceeded!":"Within Safe Range";
+    const uploadsId = channel.items[0].contentDetails.relatedPlaylists.uploads;
+    const title = channel.items[0].snippet.title;
+    document.getElementById("ytStatus").textContent = `${title} - Latest videos & live`;
 
-  document.getElementById("youtubeChance").textContent="Video / Live Stream Chance: "+getYouTubeChance(score);
+    const uploads = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`)
+      .then(r => r.json());
 
-  const poop=calculatePoopIntensity(obs.temp,obs.wind,score);
-  document.getElementById("poopScore").textContent=poop;
-  document.getElementById("poopLevel").textContent=poopLevel(poop);
-
-  const projections=await fetchForecastProjections();
-  updateForecastChart(projections);
-
-  document.querySelectorAll('.fade').forEach(el=>el.classList.add('show'));
-}
-
-updateNWSAlerts();
-updateWeather();
-setInterval(()=>{updateNWSAlerts(); updateWeather();},300000);
-setTimeout(()=>location.reload(),120000);
-
-// ---------------- YOUTUBE LATEST & LIVE ----------------
-async function fetchYouTubeRSS(){
-  try{
-    const channelId="Jaceschannel-hy6rl";
-    const url=`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-    const res=await fetch(url);
-    const text=await res.text();
-    const parser=new DOMParser();
-    const xml=parser.parseFromString(text,"text/xml");
-    const items=xml.querySelectorAll("entry");
-    const container=document.getElementById("youtubeUploads");
-    container.innerHTML="";
-
-    items.forEach((item,i)=>{
-      if(i>=5) return; // latest 5 uploads
-      const title=item.querySelector("title").textContent;
-      const link=item.querySelector("link").getAttribute("href");
-      const liveText=item.querySelector("yt\\:videoId")?.textContent.includes("live")?"<span class='youtubeLive'>LIVE NOW</span>":"";
-      const div=document.createElement("div");
-      div.className="youtubeItem";
-      div.innerHTML=`<a href="${link}" target="_blank">${title}</a> ${liveText}`;
-      container.appendChild(div);
+    const list = document.getElementById("ytUploads");
+    list.innerHTML = "";
+    uploads.items.forEach(v => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="https://www.youtube.com/watch?v=${v.snippet.resourceId.videoId}" target="_blank">${v.snippet.title}</a>`;
+      list.appendChild(li);
     });
-  }catch{
-    document.getElementById("youtubeUploads").textContent="Failed to load channel data.";
+
+    const liveData = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`)
+      .then(r => r.json());
+    if(liveData.items.length > 0){
+      document.getElementById("ytStatus").textContent += " 🔴 Live Now!";
+    }
+
+  } catch(e){
+    console.error(e);
+    document.getElementById("ytStatus").textContent = "Unable to fetch YouTube data.";
   }
 }
-fetchYouTubeRSS();
+
+// ---------------- INIT ----------------
+updateNWSAlerts();
+updateWeather();
+fetchYouTubeData();
+
+setInterval(()=>{ updateNWSAlerts(); updateWeather(); fetchYouTubeData(); }, 300000);
+setTimeout(() => location.reload(), 120000);
 </script>
+
 </body>
 </html>
