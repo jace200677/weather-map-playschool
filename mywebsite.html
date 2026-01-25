@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Northwoods Playschool – YouTube Weather Stream</title>
-<meta name="description" content="Northwoods Playschool – Weather intensity & YouTube live/Video posting chance based on NWS conditions." />
-
 <style>
 :root {
   --green: #1f4d2b;
@@ -15,56 +13,29 @@
   --danger: #b91c1c;
   --brown: #7c2d12;
 }
-* { box-sizing: border-box; }
-body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif; background:var(--light); color:#2a2a2a; line-height:1.6; }
-header { text-align:center; padding:3rem 1rem 2rem; }
-header img { max-width:360px; width:100%; }
-nav { background:var(--green); padding:0.75rem; text-align:center; }
-nav a { color:#fff; text-decoration:none; margin:0 1rem; font-weight:600; }
-section { max-width:900px; margin:auto; padding:3rem 1.25rem; }
-h2 { color:var(--green); margin-top:0; }
-.intensity { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-bottom:1.5rem; }
-.score { font-size:2.5rem; font-weight:800; color:var(--green); }
-.level { font-weight:700; padding:0.4rem 0.75rem; border-radius:999px; background:var(--accent); }
-#advisory { display:none; padding:1rem; margin-bottom:0.75rem; border-radius:16px; background:var(--danger); color:#fff; font-weight:700; text-align:center; }
-#activeLocation {
-  display:none;
-  margin-bottom:1.5rem;
-  padding:0.75rem 1rem;
-  border-radius:12px;
-  background:#fff3cd;
-  font-weight:700;
-  color:#92400e;
-  text-align:center;
-}
-.funLabel {
-  text-align:center;
-  font-weight:800;
-  font-size:1.05rem;
-  margin-bottom:0.5rem;
-  color:var(--brown);
-}
-.funCard {
-  background:#fff;
-  padding:1.25rem;
-  border-radius:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.12);
-  margin-top:0.5rem;
-  border:2px dashed var(--brown);
-}
-.funScore {
-  font-size:2.2rem;
-  font-weight:900;
-  color:var(--brown);
-}
-#alerts { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
-#youtubeChance { margin-top:1rem; background:#fff; padding:1rem; border-radius:16px; box-shadow:0 5px 15px rgba(0,0,0,0.1); font-weight:700; font-size:1.1rem; text-align:center; }
-#forecastChart { margin-top:2rem; }
-#thresholdNotice { font-weight:700; color:red; margin-top:0.5rem; text-align:center; }
-footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1rem; }
+body { margin:0; font-family:system-ui, sans-serif; background:var(--light); color:#2a2a2a; line-height:1.6; }
+header{text-align:center;padding:3rem 1rem 2rem;}
+header img{max-width:360px;width:100%;}
+nav{background:var(--green);padding:0.75rem;text-align:center;}
+nav a{color:#fff;text-decoration:none;margin:0 1rem;font-weight:600;}
+section{max-width:900px;margin:auto;padding:3rem 1.25rem;}
+h2{color:var(--green);margin-top:0;}
+.intensity{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#fff;padding:1.5rem;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.15);margin-bottom:1.5rem;}
+.score{font-size:2.5rem;font-weight:800;color:var(--green);}
+.level{font-weight:700;padding:0.4rem 0.75rem;border-radius:999px;background:var(--accent);}
+#advisory{display:none;padding:1rem;margin-bottom:0.75rem;border-radius:16px;background:var(--danger);color:#fff;font-weight:700;text-align:center;}
+#activeLocation{display:none;margin-bottom:1.5rem;padding:0.75rem 1rem;border-radius:12px;background:#fff3cd;font-weight:700;color:#92400e;text-align:center;}
+.funLabel{text-align:center;font-weight:800;font-size:1.05rem;margin-bottom:0.5rem;color:var(--brown);}
+.funCard{background:#fff;padding:1.25rem;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.12);margin-top:0.5rem;border:2px dashed var(--brown);}
+.funScore{font-size:2.2rem;font-weight:900;color:var(--brown);}
+#alerts{margin-top:1rem;background:#fff;padding:1rem;border-radius:16px;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+#youtubeChance{margin-top:1rem;background:#fff;padding:1rem;border-radius:16px;box-shadow:0 5px 15px rgba(0,0,0,0.1);font-weight:700;font-size:1.1rem;text-align:center;}
+#forecastChart{margin-top:2rem;}
+#thresholdNotice{font-weight:700;color:red;margin-top:0.5rem;text-align:center;}
+footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
+.youtube-section iframe{width:100%;max-width:560px;height:315px;margin-bottom:1rem;border:none;border-radius:12px;}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -102,14 +73,11 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
 
   <div id="youtubeChance">Calculating video/live stream chance…</div>
 
-  <!-- 💩 FUN METER WITH LABEL -->
   <div class="funLabel">💩 Poop / Fart Intensity Meter limited time only until 2/2/2026 at 5pm</div>
   <div class="funCard">
     <div class="funScore" id="poopScore">--</div>
     <strong id="poopLevel">Loading…</strong>
-    <p style="margin:0.5rem 0 0;font-size:0.9rem;opacity:0.8;">
-      Poop / Fart Intensity Index (0–2026) · Includes current Weather Score 😄
-    </p>
+    <p style="margin:0.5rem 0 0;font-size:0.9rem;opacity:0.8;">Poop / Fart Intensity Index (0–2026) · Includes current Weather Score 😄</p>
   </div>
 
   <div id="alerts">
@@ -126,8 +94,8 @@ footer { background:var(--green); color:#fff; text-align:center; padding:2rem 1r
 
 <section id="youtube">
   <h2>Jace's YouTube Channel</h2>
-  <div id="ytStatus" style="margin-bottom:1rem;font-weight:700;"></div>
-  <ul id="ytUploads" style="padding-left:1.2rem;"></ul>
+  <div id="ytLive" class="youtube-section"></div>
+  <div id="ytUploads" class="youtube-section"></div>
 </section>
 
 <section id="contact">
@@ -148,267 +116,188 @@ const NWS_POINTS = `https://api.weather.gov/points/${LAT},${LON}`;
 const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
 window.NATIONAL_ALERT_SCORE = 0;
 
-// ---------------- WEATHER SCORING ----------------
+// ---------------- WEATHER FUNCTIONS ----------------
 function calculateLocalIntensity(temp, wind, humidity, precip){
-  let score = 0;
-  if(temp >= 90 || temp <= 32) score += 150;
-  else if(temp >= 80 || temp <= 40) score += 75;
-  if(wind >= 25) score += 125;
-  else if(wind >= 15) score += 75;
-  if(precip > 0) score += 100;
-  if(humidity >= 90 || humidity <= 20) score += 50;
-  return Math.min(score, 500);
+  let score=0;
+  if(temp>=90||temp<=32) score+=150;
+  else if(temp>=80||temp<=40) score+=75;
+  if(wind>=25) score+=125;
+  else if(wind>=15) score+=75;
+  if(precip>0) score+=100;
+  if(humidity>=90||humidity<=20) score+=50;
+  return Math.min(score,500);
 }
-
-// 💩 POOP / FART INTENSITY (FUN)
 function calculatePoopIntensity(temp, wind, weatherScore){
-  let base = weatherScore * 3;
-  base += temp > 85 ? 300 : 0;
-  base += wind > 15 ? 200 : 0;
-  base += Math.random() * 400;
-  return Math.min(Math.round(base), 2026);
+  let base=weatherScore*3;
+  base+=temp>85?300:0;
+  base+=wind>15?200:0;
+  base+=Math.random()*400;
+  return Math.min(Math.round(base),2026);
 }
-
 function poopLevel(score){
-  if(score > 1600) return "🚨 DEFCON GAS";
-  if(score > 1200) return "💨 Severe Fart Risk";
-  if(score > 700) return "😬 Noticeable";
-  if(score > 300) return "🙂 Mild";
-  return "😌 All Clear";
+  if(score>1600)return"🚨 DEFCON GAS";
+  if(score>1200)return"💨 Severe Fart Risk";
+  if(score>700)return"😬 Noticeable";
+  if(score>300)return"🙂 Mild";
+  return"😌 All Clear";
 }
-
 function getLevel(score){
-  if(score >= 350) return "High";
-  if(score >= 200) return "Moderate";
-  return "Low";
+  if(score>=350)return"High";
+  if(score>=200)return"Moderate";
+  return"Low";
 }
-
 function getYouTubeChance(score){
-  if(score >= 400) return "Yes – Perfect for streaming or posting!";
-  if(score >= 300) return "Probably – Good weather for content.";
-  if(score >= 150) return "Maybe – Moderate conditions.";
-  return "No / Unlikely – Avoid outdoor content.";
+  if(score>=400)return"Yes – Perfect for streaming or posting!";
+  if(score>=300)return"Probably – Good weather for content.";
+  if(score>=150)return"Maybe – Moderate conditions.";
+  return"No / Unlikely – Avoid outdoor content.";
 }
 
 // ---------------- WEATHER FETCH ----------------
 async function fetchLocalWeather(){
   try{
-    const p = await fetch(NWS_POINTS).then(r=>r.json());
-    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
-    const id = stations.features[0].properties.stationIdentifier;
-    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
-    const d = obs.properties;
+    const p=await fetch(NWS_POINTS).then(r=>r.json());
+    const stations=await fetch(p.properties.observationStations).then(r=>r.json());
+    const id=stations.features[0].properties.stationIdentifier;
+    const obs=await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
+    const d=obs.properties;
     return {
-      temp: d.temperature.value * 9/5 + 32,
-      wind: d.windSpeed.value * 2.23694,
-      humidity: d.relativeHumidity.value,
-      precip: (d.precipitationLastHour.value || 0) * 0.03937
+      temp:d.temperature.value*9/5+32,
+      wind:d.windSpeed.value*2.23694,
+      humidity:d.relativeHumidity.value,
+      precip:(d.precipitationLastHour.value||0)*0.03937
     };
-  } catch {
-    return {temp:70, wind:0, humidity:50, precip:0};
-  }
+  }catch{return {temp:70,wind:0,humidity:50,precip:0};}
 }
 
 // ---------------- ALERTS ----------------
 function getAlertSeverityScore(alert){
-  const e = alert.properties.event.toLowerCase();
-  if(e.includes("tornado") || e.includes("hurricane")) return 500;
-  if(e.includes("blizzard") || e.includes("ice storm")) return 400;
+  const e=alert.properties.event.toLowerCase();
+  if(e.includes("tornado")||e.includes("hurricane")) return 500;
+  if(e.includes("blizzard")||e.includes("ice storm")) return 400;
   if(e.includes("severe thunderstorm")) return 300;
-  if(e.includes("flood") || e.includes("high wind")) return 200;
+  if(e.includes("flood")||e.includes("high wind")) return 200;
   if(e.includes("advisory")) return 100;
   return 0;
 }
-
 async function updateNWSAlerts(){
   try{
-    const data = await fetch(NWS_ALERTS).then(r=>r.json());
-    const list = document.getElementById("alertsList");
-    const locationBox = document.getElementById("activeLocation");
-
-    list.innerHTML = "";
-    locationBox.style.display = "none";
-
-    let maxScore = 0;
-    let focusAlert = null;
-
+    const data=await fetch(NWS_ALERTS).then(r=>r.json());
+    const list=document.getElementById("alertsList");
+    const locationBox=document.getElementById("activeLocation");
+    list.innerHTML="";
+    locationBox.style.display="none";
+    let maxScore=0;
+    let focusAlert=null;
     if(data.features.length){
       data.features.forEach(a=>{
-        const score = getAlertSeverityScore(a);
-        if(score > maxScore){
-          maxScore = score;
-          focusAlert = a;
-        }
-        const li = document.createElement("li");
-        li.textContent = `${a.properties.event}: ${a.properties.areaDesc}`;
+        const score=getAlertSeverityScore(a);
+        if(score>maxScore){maxScore=score;focusAlert=a;}
+        const li=document.createElement("li");
+        li.textContent=`${a.properties.event}: ${a.properties.areaDesc}`;
         list.appendChild(li);
       });
-    } else {
-      list.innerHTML = "<li>No active alerts in the USA.</li>";
+    }else list.innerHTML="<li>No active alerts in the USA.</li>";
+    window.NATIONAL_ALERT_SCORE=maxScore;
+    if(focusAlert&&maxScore>=200){
+      locationBox.style.display="block";
+      locationBox.textContent=`Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
     }
-
-    window.NATIONAL_ALERT_SCORE = maxScore;
-
-    if(focusAlert && maxScore >= 200){
-      locationBox.style.display = "block";
-      locationBox.textContent =
-        `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
-    }
-
-  } catch {
-    window.NATIONAL_ALERT_SCORE = 0;
-  }
+  }catch{window.NATIONAL_ALERT_SCORE=0;}
 }
 
 // ---------------- UPDATE UI ----------------
 async function updateWeather(){
-  const obs = await fetchLocalWeather();
-  const local = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
-  const score = Math.max(local, window.NATIONAL_ALERT_SCORE);
-
-  document.getElementById("score").textContent = score;
-  document.getElementById("level").textContent = getLevel(score);
-  document.getElementById("details").textContent =
-    `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
-
-  document.getElementById("youtubeChance").textContent =
-    "Video / Live Stream Chance: " + getYouTubeChance(score);
-
-  const poop = calculatePoopIntensity(obs.temp, obs.wind, score);
-  document.getElementById("poopScore").textContent = poop;
-  document.getElementById("poopLevel").textContent = poopLevel(poop);
-
+  const obs=await fetchLocalWeather();
+  const local=calculateLocalIntensity(obs.temp,obs.wind,obs.humidity,obs.precip);
+  const score=Math.max(local,window.NATIONAL_ALERT_SCORE);
+  document.getElementById("score").textContent=score;
+  document.getElementById("level").textContent=getLevel(score);
+  document.getElementById("details").textContent=`Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
+  document.getElementById("youtubeChance").textContent="Video / Live Stream Chance: "+getYouTubeChance(score);
+  const poop=calculatePoopIntensity(obs.temp,obs.wind,score);
+  document.getElementById("poopScore").textContent=poop;
+  document.getElementById("poopLevel").textContent=poopLevel(poop);
   generateForecast(score);
 }
 
 // ---------------- FORECAST CHART ----------------
-// ---------------- FORECAST CHART (30-min intervals, observed -60 mins) ----------------
-// ---------------- FORECAST CHART (1-min intervals) ----------------
-// ---------------- FORECAST CHART (1-min intervals, formatted time) ----------------
-let forecastData = [];
-let observedData = [];
-let weatherChart;
-
+let forecastData=[],observedData=[],weatherChart;
 function generateForecast(currentScore){
-  observedData = [];
-  forecastData = [];
-  let thresholdExceeded = false;
-
-  const now = new Date();
-
-  // Observed: -60 → 0 mins (61 points)
+  observedData=[];forecastData=[];let thresholdExceeded=false;
+  const now=new Date();
   for(let i=-60;i<=0;i++){
-    const obsScore = Math.max(currentScore - Math.round(Math.random()*50),0);
+    const obsScore=Math.max(currentScore-Math.round(Math.random()*50),0);
     observedData.push(obsScore);
   }
-
-  // Projected: 0 → +30 mins (31 points)
   for(let i=0;i<=30;i++){
-    const projScore = Math.max(currentScore + Math.round((Math.random()*100)-50),0);
+    const projScore=Math.max(currentScore+Math.round((Math.random()*100)-50),0);
     forecastData.push(projScore);
-    if(projScore > 450) thresholdExceeded = true;
+    if(projScore>450) thresholdExceeded=true;
   }
-
-  document.getElementById("thresholdNotice").textContent = 
-    thresholdExceeded ? "⚠️ Threshold Exceeded in projected forecast!" : "Forecast within safe range.";
-
-  // Generate labels as h:mm am/pm
-  const labels = [];
+  document.getElementById("thresholdNotice").textContent=thresholdExceeded?"⚠️ Threshold Exceeded in projected forecast!":"Forecast within safe range.";
+  const labels=[];
   for(let i=-60;i<=30;i++){
-    const time = new Date(now.getTime() + i*60000); // i minutes offset
-    let hours = time.getHours();
-    const minutes = time.getMinutes().toString().padStart(2,'0');
-    const ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    if(hours === 0) hours = 12;
-    labels.push(`${hours}:${minutes} ${ampm}`);
+    const time=new Date(now.getTime()+i*60000);
+    let h=time.getHours();const m=time.getMinutes().toString().padStart(2,'0');const ampm=h>=12?'pm':'am';
+    h=h%12;if(h===0)h=12;
+    labels.push(`${h}:${m} ${ampm}`);
   }
-
-  const mergedObserved = observedData.concat(Array(forecastData.length-1).fill(null)); // skip duplicated 0
-  const mergedProjected = Array(observedData.length-1).fill(null).concat(forecastData);
-
-  const ctx = document.getElementById('weatherChart').getContext('2d');
-  if(weatherChart) weatherChart.destroy();
-
-  weatherChart = new Chart(ctx,{
+  const mergedObserved=observedData.concat(Array(forecastData.length-1).fill(null));
+  const mergedProjected=Array(observedData.length-1).fill(null).concat(forecastData);
+  const ctx=document.getElementById('weatherChart').getContext('2d');
+  if(weatherChart)weatherChart.destroy();
+  weatherChart=new Chart(ctx,{
     type:'line',
-    data:{
-      labels:labels,
-      datasets:[
-        {
-          label:'Observed (past 60 min)',
-          data:mergedObserved,
-          borderColor:'rgba(31,77,43,0.9)',
-          backgroundColor:'rgba(31,77,43,0.2)',
-          fill:false,
-          tension:0.3,
-          pointRadius:2,
-          pointBackgroundColor:'rgba(31,77,43,0.9)',
-        },
-        {
-          label:'Projected (next 30 min)',
-          data:mergedProjected,
-          borderColor:'rgba(245,157,11,0.9)',
-          backgroundColor:'rgba(245,157,11,0.2)',
-          fill:true,
-          tension:0.3,
-          pointRadius:2,
-        }
-      ]
-    },
-    options:{
-      scales:{
-        y:{ beginAtZero:true, max:500 },
-        x:{ ticks:{ maxTicksLimit:20 } } // limit labels to avoid overcrowding
-      }
-    }
+    data:{labels:labels,datasets:[
+      {label:'Observed (past 60 min)',data:mergedObserved,borderColor:'rgba(31,77,43,0.9)',backgroundColor:'rgba(31,77,43,0.2)',fill:false,tension:0.3,pointRadius:2,pointBackgroundColor:'rgba(31,77,43,0.9)'},
+      {label:'Projected (next 30 min)',data:mergedProjected,borderColor:'rgba(245,157,11,0.9)',backgroundColor:'rgba(245,157,11,0.2)',fill:true,tension:0.3,pointRadius:2}
+    ]},
+    options:{scales:{y:{beginAtZero:true,max:500},x:{ticks:{maxTicksLimit:20}}}}
   });
 }
 
+// ---------------- YOUTUBE LIVE + UPLOADS ----------------
+const API_KEY="AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace
+const CHANNEL_ID="UC-hy6rl"; // your channel
 
-// ---------------- YOUTUBE INTEGRATION ----------------
-const API_KEY = "AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace
-const CHANNEL_ID = "UC-hy6rl"; // from your channel URL
+async function fetchYouTubeData(){
+  try{
+    const channel=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
+    const uploadsId=channel.items[0].contentDetails.relatedPlaylists.uploads;
+    const title=channel.items[0].snippet.title;
 
-async function fetchYouTubeData() {
-  try {
-    const channel = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${CHANNEL_ID}&key=${API_KEY}`)
-      .then(r => r.json());
+    // LIVE STREAM
+    const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
+    const liveDiv=document.getElementById("ytLive");
+    liveDiv.innerHTML="";
+    if(liveData.items.length>0){
+      liveData.items.forEach(v=>{
+        const iframe=document.createElement("iframe");
+        iframe.src=`https://www.youtube.com/embed/${v.id.videoId}?autoplay=1`;
+        liveDiv.appendChild(iframe);
+      });
+    } else liveDiv.innerHTML="<p>No live streams currently.</p>";
 
-    const uploadsId = channel.items[0].contentDetails.relatedPlaylists.uploads;
-    const title = channel.items[0].snippet.title;
-    document.getElementById("ytStatus").textContent = `${title} - Latest videos & live`;
-
-    const uploads = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`)
-      .then(r => r.json());
-
-    const list = document.getElementById("ytUploads");
-    list.innerHTML = "";
-    uploads.items.forEach(v => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="https://www.youtube.com/watch?v=${v.snippet.resourceId.videoId}" target="_blank">${v.snippet.title}</a>`;
-      list.appendChild(li);
+    // LATEST UPLOADS
+    const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
+    const uploadDiv=document.getElementById("ytUploads");
+    uploadDiv.innerHTML="";
+    uploads.items.forEach(v=>{
+      const iframe=document.createElement("iframe");
+      iframe.src=`https://www.youtube.com/embed/${v.snippet.resourceId.videoId}`;
+      uploadDiv.appendChild(iframe);
     });
 
-    const liveData = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`)
-      .then(r => r.json());
-    if(liveData.items.length > 0){
-      document.getElementById("ytStatus").textContent += " 🔴 Live Now!";
-    }
-
-  } catch(e){
-    console.error(e);
-    document.getElementById("ytStatus").textContent = "Unable to fetch YouTube data.";
-  }
+  }catch(e){console.error(e);}
 }
 
 // ---------------- INIT ----------------
 updateNWSAlerts();
 updateWeather();
 fetchYouTubeData();
-
-setInterval(()=>{ updateNWSAlerts(); updateWeather(); fetchYouTubeData(); }, 300000);
-setTimeout(() => location.reload(), 120000);
+setInterval(()=>{updateNWSAlerts();updateWeather();fetchYouTubeData();},300000);
+setTimeout(()=>location.reload(),120000);
 </script>
 
 </body>
