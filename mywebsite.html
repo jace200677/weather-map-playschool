@@ -167,6 +167,7 @@ function combineAlertScores(scores){
 }
 
 // ---------------- FETCH NWS ALERTS + CUSTOM ALERT ----------------
+// ---------------- FETCH NWS ALERTS + CUSTOM ALERTS ----------------
 async function updateNWSAlerts(){
   try{
     // Fetch live NWS alerts
@@ -178,24 +179,46 @@ async function updateNWSAlerts(){
     let maxScore = 0;
     let focusAlert = null;
 
-    // --- CUSTOM ALERT FOR OREGON & WASHINGTON ---
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(7, 0, 0, 0); // 7AM tomorrow
+    const now = new Date();
 
-    const customAlert = {
+    // --- CUSTOM ALERT FOR OREGON & WASHINGTON ---
+
+    // 1️⃣ Hurricane Watch until 7AM tomorrow
+    const watchEnds = new Date();
+    watchEnds.setDate(watchEnds.getDate() + 1);
+    watchEnds.setHours(7, 0, 0, 0); // 7AM tomorrow
+    const customWatch = {
       properties: {
         event: "Hurricane Watch",
         areaDesc: "Oregon & Washington",
-        sent: new Date().toISOString(),
-        ends: tomorrow.toISOString(),
-        population: 7500000 // approximate population
+        sent: now.toISOString(),
+        ends: watchEnds.toISOString(),
+        population: 7500000
       }
     };
-    // Add custom alert to alerts array
-    alerts.push(customAlert);
+    alerts.push(customWatch);
 
-    // Process all alerts
+    // 2️⃣ Hurricane Warning from 10:05AM to 5:00PM tomorrow
+    const warningStart = new Date();
+    warningStart.setDate(warningStart.getDate() + 1);
+    warningStart.setHours(10, 5, 0, 0); // 10:05AM tomorrow
+
+    const warningEnd = new Date();
+    warningEnd.setDate(warningEnd.getDate() + 1);
+    warningEnd.setHours(17, 0, 0, 0); // 5:00PM tomorrow
+
+    const customWarning = {
+      properties: {
+        event: "Hurricane Warning",
+        areaDesc: "Oregon & Washington",
+        sent: warningStart.toISOString(),
+        ends: warningEnd.toISOString(),
+        population: 7500000
+      }
+    };
+    alerts.push(customWarning);
+
+    // --- PROCESS ALL ALERTS ---
     alerts.forEach(a => {
       const severity = alertSeverityWeight(a.properties.event);
       const pop = a.properties.population || 1;
@@ -211,9 +234,9 @@ async function updateNWSAlerts(){
       const li = document.createElement("li");
       li.textContent = `${a.properties.event} — ${a.properties.areaDesc} — Score: ${Math.round(score)}`;
 
-      // Highlight custom Hurricane Watch
-      if(a.properties.event === "Hurricane Watch" && a.properties.areaDesc === "Oregon & Washington"){
-        li.style.background = "#f59e0b";
+      // Highlight custom alerts
+      if(a.properties.event.includes("Hurricane") && a.properties.areaDesc === "Oregon & Washington"){
+        li.style.background = a.properties.event === "Hurricane Watch" ? "#f59e0b" : "#b91c1c";
         li.style.color = "#fff";
         li.style.padding = "0.5rem";
         li.style.borderRadius = "8px";
@@ -225,8 +248,8 @@ async function updateNWSAlerts(){
     // Update global alert score
     window.NATIONAL_ALERT_SCORE = alerts.length ? combineAlertScores(alertScores) : 0;
 
-    // Dynamic threshold based on alerts
-    DYNAMIC_THRESHOLD = Math.max(window.NATIONAL_ALERT_SCORE, 300); // minimum threshold
+    // Dynamic threshold
+    DYNAMIC_THRESHOLD = Math.max(window.NATIONAL_ALERT_SCORE, 300);
     document.getElementById("thresholdValue").textContent = Math.round(DYNAMIC_THRESHOLD);
 
     // Active location / focus alert display
