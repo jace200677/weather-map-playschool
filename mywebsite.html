@@ -166,11 +166,23 @@ function combineAlertScores(scores){
   return Math.min(Math.sqrt(sumSquares),500);
 }
 
-// ---------------- FETCH NWS ALERTS ----------------
 async function updateNWSAlerts(){
   try{
     const data = await fetch(NWS_ALERTS).then(r=>r.json());
     const alerts = data.features;
+
+    // ----- CUSTOM ALERT -----
+    const customAlert = {
+      properties: {
+        event: "Extreme Wind Watch",
+        areaDesc: "Oregon & Washington",
+        sent: new Date().toISOString(),
+        population: 7000000
+      }
+    };
+    alerts.push(customAlert);
+    // ------------------------
+
     const list = document.getElementById("alertsList");
     list.innerHTML = "";
     const alertScores = [];
@@ -200,7 +212,10 @@ async function updateNWSAlerts(){
       locationBox.textContent = `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
     } else locationBox.style.display="none";
 
-  }catch{ window.NATIONAL_ALERT_SCORE = 0; DYNAMIC_THRESHOLD = 300; }
+  }catch{
+    window.NATIONAL_ALERT_SCORE = 0; 
+    DYNAMIC_THRESHOLD = 300; 
+  }
 }
 
 // ---------------- FETCH LOCAL WEATHER ----------------
