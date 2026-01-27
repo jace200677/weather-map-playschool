@@ -446,11 +446,47 @@ async function fetchYouTubeLiveOrUploads() {
 // ---------------- MAP ----------------
 let map, oregonLayer, washingtonLayer;
 function initMap() {
-  map = L.map('alertMap').setView([45, -120], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  map = L.map('alertMap').setView([45, -100], 5); // Center adjusted to show all states
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-  oregonLayer = L.polygon([[46.2920, -124.5662],[46.2920, -116.4630],[42.0016, -116.4630],[42.0016, -124.5662]],{color:'transparent',fillOpacity:0.4}).addTo(map);
-  washingtonLayer = L.polygon([[49.0024, -124.8489],[49.0024, -116.9169],[45.5435, -116.9169],[45.5435, -124.8489]],{color:'transparent',fillOpacity:0.4}).addTo(map);
+  // ---------------- WEST COAST ----------------
+  oregonLayer = L.polygon([
+    [46.2920, -124.5662],
+    [46.2920, -116.4630],
+    [42.0016, -116.4630],
+    [42.0016, -124.5662]
+  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
+
+  washingtonLayer = L.polygon([
+    [49.0024, -124.8489],
+    [49.0024, -116.9169],
+    [45.5435, -116.9169],
+    [45.5435, -124.8489]
+  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
+
+  // ---------------- HIGH WIND STATES ----------------
+  southDakotaLayer = L.polygon([
+    [45.9454, -104.0573],
+    [45.9454, -96.4361],
+    [42.4797, -96.4361],
+    [42.4797, -104.0573]
+  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
+
+  minnesotaLayer = L.polygon([
+    [49.3845, -97.2391],
+    [49.3845, -89.4891],
+    [43.4999, -89.4891],
+    [43.4999, -97.2391]
+  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
+
+  northDakotaLayer = L.polygon([
+    [49.0000, -104.0489],
+    [49.0000, -96.5546],
+    [45.9351, -96.5546],
+    [45.9351, -104.0489]
+  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
 }
 function updateMapHighlights() {
   const now = new Date();
