@@ -360,45 +360,48 @@ function initMap() {
 function updateMapHighlights() {
   const now = new Date();
 
-  // Reset colors
-  oregonLayer.setStyle({ fillColor: 'transparent' });
-  washingtonLayer.setStyle({ fillColor: 'transparent' });
+  // Reset all states to transparent first
+  allStatesLayers.forEach(layer => layer.setStyle({ fillColor: 'transparent' }));
 
-  // ----- Custom Hurricane Watch / Warning -----
-  const today6pm = new Date(); today6pm.setHours(18,0,0,0);
-  const tomorrow7am = new Date(); tomorrow7am.setDate(today6pm.getDate()+1); tomorrow7am.setHours(7,0,0,0);
-  if(now >= today6pm && now <= tomorrow7am) {
+  // ----- Hurricane Watch/Warning for Oregon & Washington -----
+  const today6pm = new Date(); today6pm.setHours(18, 0, 0, 0);
+  const tomorrow7am = new Date(); tomorrow7am.setDate(today6pm.getDate() + 1); tomorrow7am.setHours(7, 0, 0, 0);
+  if (now >= today6pm && now <= tomorrow7am) {
     oregonLayer.setStyle({ fillColor: 'orange' });
     washingtonLayer.setStyle({ fillColor: 'orange' });
   }
 
-  const tomorrow = new Date(); tomorrow.setDate(now.getDate()+1);
-  const warningStart = new Date(tomorrow); warningStart.setHours(10,5,0,0);
-  const warningEnd = new Date(tomorrow); warningEnd.setHours(18,0,0,0);
-  if(now >= warningStart && now <= warningEnd) {
+  const tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1);
+  const warningStart = new Date(tomorrow); warningStart.setHours(10, 5, 0, 0);
+  const warningEnd = new Date(tomorrow); warningEnd.setHours(18, 0, 0, 0);
+  if (now >= warningStart && now <= warningEnd) {
     oregonLayer.setStyle({ fillColor: 'red' });
     washingtonLayer.setStyle({ fillColor: 'red' });
   }
 
-  // ----- NWS Alerts Highlighting -----
+  // ----- Highlight other areas based on NWS alert severity -----
   fetch(NWS_ALERTS)
     .then(r => r.json())
     .then(data => {
-      const alerts = data.features.filter(a => {
-        const area = a.properties.areaDesc.toLowerCase();
-        return area.includes("oregon") || area.includes("washington");
-      });
+      const alerts = data.features || [];
 
       alerts.forEach(a => {
-        const severity = a.properties.severity?.toLowerCase() || "unknown";
-        let color = 'transparent';
-        if(severity === 'mild') color = 'blue';
-        else if(severity === 'moderate') color = 'yellow';
-        else if(severity === 'severe') color = 'orange';
-        else if(severity === 'extreme') color = 'red';
+        const areaName = a.properties.areaDesc;
+        const severity = (a.properties.severity || "").toLowerCase();
 
-        if(a.properties.areaDesc.toLowerCase().includes('oregon')) oregonLayer.setStyle({ fillColor: color });
-        if(a.properties.areaDesc.toLowerCase().includes('washington')) washingtonLayer.setStyle({ fillColor: color });
+        let color = 'transparent';
+        if (severity === 'mild') color = 'blue';
+        else if (severity === 'moderate') color = 'yellow';
+        else if (severity === 'severe') color = 'orange';
+        else if (severity === 'extreme') color = 'red';
+
+        // Apply only to areas OTHER than Oregon & Washington
+        allStatesLayers.forEach(layer => {
+          if (!['oregon', 'washington'].includes(layer.options.name.toLowerCase()) &&
+              areaName.toLowerCase().includes(layer.options.name.toLowerCase())) {
+            layer.setStyle({ fillColor: color });
+          }
+        });
       });
     })
     .catch(err => console.error("Error fetching NWS alerts for map:", err));
