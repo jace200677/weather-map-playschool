@@ -177,8 +177,8 @@ function combineAlertScores(scores){
 }
 
 // ---------------- FETCH NWS ALERTS + CUSTOM ----------------
-async function updateNWSAlerts(){
-  try{
+async function updateNWSAlerts() {
+  try {
     const data = await fetch(NWS_ALERTS).then(r => r.json());
     let alerts = data.features || [];
     const list = document.getElementById("alertsList");
@@ -190,20 +190,20 @@ async function updateNWSAlerts(){
     const now = new Date();
 
     // ---------------- CUSTOM ALERTS ----------------
-    const tomorrow = new Date(); 
-    tomorrow.setDate(now.getDate()+1);
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
 
     // --- Hurricane Watch: 6 PM today → 7 AM tomorrow ---
     const today6pm = new Date(); today6pm.setHours(18,0,0,0);
     const tomorrow7am = new Date(); tomorrow7am.setDate(today6pm.getDate()+1); tomorrow7am.setHours(7,0,0,0);
-    if(now >= today6pm && now <= tomorrow7am){
+    if (now >= today6pm && now <= tomorrow7am) {
       alerts.push({
-        properties:{
+        properties: {
           event:"Hurricane Watch",
           areaDesc:"Oregon & Washington",
-          sent:today6pm.toISOString(),
-          ends:tomorrow7am.toISOString(),
-          population:7500000
+          sent: today6pm.toISOString(),
+          ends: tomorrow7am.toISOString(),
+          population: 7500000
         }
       });
     }
@@ -211,14 +211,14 @@ async function updateNWSAlerts(){
     // --- Hurricane Warning: 10:05 AM → 12:30 PM ---
     const hurricaneStart = new Date(tomorrow); hurricaneStart.setHours(10,5,0,0);
     const hurricaneEnd   = new Date(tomorrow); hurricaneEnd.setHours(12,30,0,0);
-    if(now >= hurricaneStart && now <= hurricaneEnd){
+    if (now >= hurricaneStart && now <= hurricaneEnd) {
       alerts.push({
-        properties:{
+        properties: {
           event:"Hurricane Warning",
           areaDesc:"Oregon & Washington",
-          sent:hurricaneStart.toISOString(),
-          ends:hurricaneEnd.toISOString(),
-          population:7500000
+          sent: hurricaneStart.toISOString(),
+          ends: hurricaneEnd.toISOString(),
+          population: 7500000
         }
       });
     }
@@ -226,51 +226,82 @@ async function updateNWSAlerts(){
     // --- Extreme Wind Warning: 12:30 PM → 6 PM ---
     const windStart = new Date(tomorrow); windStart.setHours(12,30,0,0);
     const windEnd   = new Date(tomorrow); windEnd.setHours(18,0,0,0);
-    if(now >= windStart && now <= windEnd){
+    if (now >= windStart && now <= windEnd) {
       alerts.push({
-        properties:{
+        properties: {
           event:"Extreme Wind Warning",
           areaDesc:"Oregon & Washington",
-          sent:windStart.toISOString(),
-          ends:windEnd.toISOString(),
-          population:7500000
+          sent: windStart.toISOString(),
+          ends: windEnd.toISOString(),
+          population: 7500000
         }
       });
     }
 
-    // ---------------- FILTER TO OREGON & WASHINGTON ----------------
-    alerts = alerts.filter(a=>{
+    // --- High Wind Watch: 8:30 PM 1/26/2026 → 10 AM 1/27/2026 ---
+    const hwWatchStart = new Date(2026,0,26,20,30); // Month is 0-based
+    const hwWatchEnd   = new Date(2026,0,27,10,0);
+    if (now >= hwWatchStart && now <= hwWatchEnd) {
+      ["South Dakota","Minnesota","North Dakota"].forEach(state => {
+        alerts.push({
+          properties: {
+            event: "High Wind Watch",
+            areaDesc: state,
+            sent: hwWatchStart.toISOString(),
+            ends: hwWatchEnd.toISOString(),
+            population: 1000000
+          }
+        });
+      });
+    }
+
+    // --- High Wind Warning: 10:25 AM 1/27/2026 → 11 PM 1/27/2026 ---
+    const hwWarnStart = new Date(2026,0,27,10,25);
+    const hwWarnEnd   = new Date(2026,0,27,23,0);
+    if (now >= hwWarnStart && now <= hwWarnEnd) {
+      ["South Dakota","Minnesota","North Dakota"].forEach(state => {
+        alerts.push({
+          properties: {
+            event: "High Wind Warning",
+            areaDesc: state,
+            sent: hwWarnStart.toISOString(),
+            ends: hwWarnEnd.toISOString(),
+            population: 1000000
+          }
+        });
+      });
+    }
+
+    // ---------------- FILTER TO RELEVANT STATES ----------------
+    alerts = alerts.filter(a => {
       const area = a.properties.areaDesc.toLowerCase();
-      return area.includes("oregon")||area.includes("washington");
+      return area.includes("oregon") || area.includes("washington") || 
+             area.includes("south dakota") || area.includes("north dakota") || area.includes("minnesota");
     });
 
     // ---------------- CALCULATE ALERT SCORES ----------------
-    alerts.forEach(a=>{
+    alerts.forEach(a => {
       const severity = alertSeverityWeight(a.properties.event);
-      const pop = a.properties.population||1;
+      const pop = a.properties.population || 1;
       const decay = timeDecayScore(a.properties.sent);
-      const score = severity*50*populationFactor(pop)*decay;
+      const score = severity * 50 * populationFactor(pop) * decay;
       alertScores.push(score);
 
-      // track highest score alert for active location
-      if(score>maxScore){maxScore=score;focusAlert=a;}
+      if(score > maxScore){ maxScore = score; focusAlert = a; }
 
       // create list item
       const li = document.createElement("li");
       li.textContent = `${a.properties.event} — ${a.properties.areaDesc} — Score: ${Math.round(score)}`;
 
-      // highlight specific alerts
+      // highlight
       if(a.properties.event.includes("Hurricane")) {
-        li.style.background="#f59e0b"; // orange
-        li.style.color="#fff";
-        li.style.padding="0.5rem";
-        li.style.borderRadius="8px";
+        li.style.background="#f59e0b"; li.style.color="#fff"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
       }
       if(a.properties.event.includes("Extreme Wind")) {
-        li.style.background="#b91c1c"; // red
-        li.style.color="#fff";
-        li.style.padding="0.5rem";
-        li.style.borderRadius="8px";
+        li.style.background="#b91c1c"; li.style.color="#fff"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
+      }
+      if(a.properties.event.includes("High Wind")) {
+        li.style.background="yellow"; li.style.color="#000"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
       }
 
       list.appendChild(li);
@@ -283,14 +314,14 @@ async function updateNWSAlerts(){
 
     // ---------------- UPDATE FOCUS ALERT ----------------
     const locationBox = document.getElementById("activeLocation");
-    if(focusAlert && maxScore >=200){
-      locationBox.style.display="block";
-      locationBox.textContent=`Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
+    if(focusAlert && maxScore >= 200){
+      locationBox.style.display = "block";
+      locationBox.textContent = `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
     } else {
-      locationBox.style.display="none";
+      locationBox.style.display = "none";
     }
 
-  }catch(err){
+  } catch(err){
     console.error(err);
     window.NATIONAL_ALERT_SCORE = 0;
     DYNAMIC_THRESHOLD = 300;
@@ -421,15 +452,19 @@ function initMap() {
   oregonLayer = L.polygon([[46.2920, -124.5662],[46.2920, -116.4630],[42.0016, -116.4630],[42.0016, -124.5662]],{color:'transparent',fillOpacity:0.4}).addTo(map);
   washingtonLayer = L.polygon([[49.0024, -124.8489],[49.0024, -116.9169],[45.5435, -116.9169],[45.5435, -124.8489]],{color:'transparent',fillOpacity:0.4}).addTo(map);
 }
-function updateMapHighlights(){
+function updateMapHighlights() {
   const now = new Date();
+
+  // Reset existing layers
   oregonLayer.setStyle({fillColor:'transparent'});
   washingtonLayer.setStyle({fillColor:'transparent'});
+  southDakotaLayer.setStyle({fillColor:'transparent'});
+  minnesotaLayer.setStyle({fillColor:'transparent'});
+  northDakotaLayer.setStyle({fillColor:'transparent'});
 
+  // ---------------- HURRICANE ALERTS ----------------
   const today6pm = new Date(); today6pm.setHours(18,0,0,0);
   const tomorrow7am = new Date(); tomorrow7am.setDate(today6pm.getDate()+1); tomorrow7am.setHours(7,0,0,0);
-  
-  // Hurricane Watch: 6 PM today → 7 AM tomorrow
   if(now >= today6pm && now <= tomorrow7am){
     oregonLayer.setStyle({fillColor:'orange'});
     washingtonLayer.setStyle({fillColor:'orange'});
@@ -437,7 +472,6 @@ function updateMapHighlights(){
 
   const tomorrow = new Date(); tomorrow.setDate(now.getDate()+1);
 
-  // Hurricane Warning: 10:05 AM → 12:30 PM
   const hurricaneStart = new Date(tomorrow); hurricaneStart.setHours(10,5,0,0);
   const hurricaneEnd   = new Date(tomorrow); hurricaneEnd.setHours(12,30,0,0);
   if(now >= hurricaneStart && now <= hurricaneEnd){
@@ -445,12 +479,28 @@ function updateMapHighlights(){
     washingtonLayer.setStyle({fillColor:'orange'});
   }
 
-  // Extreme Wind Warning: 12:30 PM → 6 PM
   const windStart = new Date(tomorrow); windStart.setHours(12,30,0,0);
   const windEnd   = new Date(tomorrow); windEnd.setHours(18,0,0,0);
   if(now >= windStart && now <= windEnd){
     oregonLayer.setStyle({fillColor:'#8B0000'}); // Dark Red
     washingtonLayer.setStyle({fillColor:'#8B0000'});
+  }
+
+  // ---------------- HIGH WIND ALERTS ----------------
+  const hwWatchStart = new Date(2026,0,26,20,30); // Jan=0
+  const hwWatchEnd   = new Date(2026,0,27,10,0);
+  if(now >= hwWatchStart && now <= hwWatchEnd){
+    southDakotaLayer.setStyle({fillColor:'yellow'});
+    minnesotaLayer.setStyle({fillColor:'yellow'});
+    northDakotaLayer.setStyle({fillColor:'yellow'});
+  }
+
+  const hwWarnStart = new Date(2026,0,27,10,25);
+  const hwWarnEnd   = new Date(2026,0,27,23,0);
+  if(now >= hwWarnStart && now <= hwWarnEnd){
+    southDakotaLayer.setStyle({fillColor:'red'});
+    minnesotaLayer.setStyle({fillColor:'red'});
+    northDakotaLayer.setStyle({fillColor:'red'});
   }
 }
 
