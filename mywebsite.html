@@ -166,55 +166,82 @@ function combineAlertScores(scores){
   return Math.min(Math.sqrt(sumSquares),500);
 }
 
+// ---------------- FETCH NWS ALERTS + CUSTOM ALERT ----------------
 async function updateNWSAlerts(){
   try{
-    const data = await fetch(NWS_ALERTS).then(r=>r.json());
-    const alerts = data.features;
-
-    // ----- CUSTOM ALERT -----
-    const customAlert = {
-      properties: {
-        event: "Extreme Wind Watch",
-        areaDesc: "Oregon & Washington",
-        sent: new Date().toISOString(),
-        population: 7000000
-      }
-    };
-    alerts.push(customAlert);
-    // ------------------------
-
+    // Fetch live NWS alerts
+    const data = await fetch(NWS_ALERTS).then(r => r.json());
+    const alerts = data.features || [];
     const list = document.getElementById("alertsList");
     list.innerHTML = "";
     const alertScores = [];
     let maxScore = 0;
     let focusAlert = null;
 
-    alerts.forEach(a=>{
+    // --- CUSTOM ALERT FOR OREGON & WASHINGTON ---
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(7, 0, 0, 0); // 7AM tomorrow
+
+    const customAlert = {
+      properties: {
+        event: "Hurricane Watch",
+        areaDesc: "Oregon & Washington",
+        sent: new Date().toISOString(),
+        ends: tomorrow.toISOString(),
+        population: 7500000 // approximate population
+      }
+    };
+    // Add custom alert to alerts array
+    alerts.push(customAlert);
+
+    // Process all alerts
+    alerts.forEach(a => {
       const severity = alertSeverityWeight(a.properties.event);
       const pop = a.properties.population || 1;
       const decay = timeDecayScore(a.properties.sent);
-      const score = severity*50*populationFactor(pop)*decay;
+      const score = severity * 50 * populationFactor(pop) * decay;
       alertScores.push(score);
-      if(score>maxScore){maxScore=score; focusAlert=a;}
+
+      if(score > maxScore){
+        maxScore = score;
+        focusAlert = a;
+      }
 
       const li = document.createElement("li");
       li.textContent = `${a.properties.event} — ${a.properties.areaDesc} — Score: ${Math.round(score)}`;
+
+      // Highlight custom Hurricane Watch
+      if(a.properties.event === "Hurricane Watch" && a.properties.areaDesc === "Oregon & Washington"){
+        li.style.background = "#f59e0b";
+        li.style.color = "#fff";
+        li.style.padding = "0.5rem";
+        li.style.borderRadius = "8px";
+      }
+
       list.appendChild(li);
     });
 
+    // Update global alert score
     window.NATIONAL_ALERT_SCORE = alerts.length ? combineAlertScores(alertScores) : 0;
+
+    // Dynamic threshold based on alerts
     DYNAMIC_THRESHOLD = Math.max(window.NATIONAL_ALERT_SCORE, 300); // minimum threshold
     document.getElementById("thresholdValue").textContent = Math.round(DYNAMIC_THRESHOLD);
 
+    // Active location / focus alert display
     const locationBox = document.getElementById("activeLocation");
     if(focusAlert && maxScore >= 200){
-      locationBox.style.display="block";
+      locationBox.style.display = "block";
       locationBox.textContent = `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
-    } else locationBox.style.display="none";
+    } else {
+      locationBox.style.display = "none";
+    }
 
-  }catch{
-    window.NATIONAL_ALERT_SCORE = 0; 
-    DYNAMIC_THRESHOLD = 300; 
+  } catch (err){
+    console.error("Error fetching NWS alerts:", err);
+    window.NATIONAL_ALERT_SCORE = 0;
+    DYNAMIC_THRESHOLD = 300;
   }
 }
 
