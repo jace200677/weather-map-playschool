@@ -238,8 +238,8 @@ async function updateNWSAlerts() {
     }
 
     // --- High Wind Watch: 8:30 PM 1/26/2026 → 10 AM 1/27/2026 ---
-    const hwWatchStart = new Date(2026,0,26,20,30); // Month is 0-based
-    const hwWatchEnd   = new Date(2026,0,27,10,0);
+    const hwWatchStart = new Date(2026,0,27,20,30); // Month is 0-based
+    const hwWatchEnd   = new Date(2026,0,28,10,0);
     if (now >= hwWatchStart && now <= hwWatchEnd) {
       ["South Dakota","Minnesota","North Dakota"].forEach(state => {
         alerts.push({
@@ -255,8 +255,8 @@ async function updateNWSAlerts() {
     }
 
     // --- High Wind Warning: 10:25 AM 1/27/2026 → 11 PM 1/27/2026 ---
-    const hwWarnStart = new Date(2026,0,27,10,25);
-    const hwWarnEnd   = new Date(2026,0,27,23,0);
+    const hwWarnStart = new Date(2026,0,28,10,25);
+    const hwWarnEnd   = new Date(2026,0,28,23,0);
     if (now >= hwWarnStart && now <= hwWarnEnd) {
       ["South Dakota","Minnesota","North Dakota"].forEach(state => {
         alerts.push({
