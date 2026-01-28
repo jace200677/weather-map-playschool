@@ -191,11 +191,10 @@ async function updateNWSAlerts() {
 
     // ---------------- CUSTOM ALERTS ----------------
     const tomorrow = new Date(2026,0,28,0,0);
-    tomorrow.setDate(now.getDate() + 1);
 
     // --- Hurricane Watch: 6 PM today → 7 AM tomorrow ---
-    const today6pm = new Date(); today6pm.setHours(18,0,0,0);
-    const tomorrow7am = new Date(); tomorrow7am.setDate(today6pm.getDate()+1); tomorrow7am.setHours(7,0,0,0);
+    const today6pm = new Date(2026,0,27,18,0);
+    const tomorrow7am = new Date(2026,0,28,7,0);
     if (now >= today6pm && now <= tomorrow7am) {
       alerts.push({
         properties: {
@@ -209,8 +208,8 @@ async function updateNWSAlerts() {
     }
 
     // --- Hurricane Warning: 10:05 AM → 12:30 PM ---
-    const hurricaneStart = new Date(tomorrow); hurricaneStart.setHours(10,5,0,0);
-    const hurricaneEnd   = new Date(tomorrow); hurricaneEnd.setHours(12,30,0,0);
+    const hurricaneStart = new Date(2026,0,28,10,5)
+    const hurricaneEnd   = new Date(2026,0,28,12,30)
     if (now >= hurricaneStart && now <= hurricaneEnd) {
       alerts.push({
         properties: {
@@ -224,8 +223,8 @@ async function updateNWSAlerts() {
     }
 
     // --- Extreme Wind Warning: 12:30 PM → 6 PM ---
-    const windStart = new Date(tomorrow); windStart.setHours(12,30,0,0);
-    const windEnd   = new Date(tomorrow); windEnd.setHours(18,0,0,0);
+    const windStart = new Date(2026,0,28,12,30)
+    const windEnd   = new Date(2026,0,28,18,0)
     if (now >= windStart && now <= windEnd) {
       alerts.push({
         properties: {
@@ -506,7 +505,7 @@ function updateMapHighlights() {
     washingtonLayer.setStyle({fillColor:'orange'});
   }
 
-  const tomorrow = new Date(); tomorrow.setDate(now.getDate()+1);
+  const tomorrow = new Date(2026,0,28,0,0);
 
   const hurricaneStart = new Date(2026,0,28,10,05);
   const hurricaneEnd   = new Date(2026,0,28,12,30);
