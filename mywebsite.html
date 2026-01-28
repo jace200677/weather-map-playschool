@@ -190,7 +190,7 @@ async function updateNWSAlerts() {
     const now = new Date();
 
     // ---------------- CUSTOM ALERTS ----------------
-    const tomorrow = new Date();
+    const tomorrow = new Date(2026,0,28,0,0);
     tomorrow.setDate(now.getDate() + 1);
 
     // --- Hurricane Watch: 6 PM today → 7 AM tomorrow ---
@@ -350,8 +350,8 @@ async function updateWeather(){
   let finalScore = Math.min(localScore*0.6+nwsScore*0.4,500);
 
   const now = new Date();
-  const tomorrow10am = new Date(); tomorrow10am.setDate(now.getDate()+1); tomorrow10am.setHours(10,0,0,0);
-  const tomorrow10_03am = new Date(); tomorrow10_03am.setDate(now.getDate()+1); tomorrow10_03am.setHours(10,3,0,0);
+  const tomorrow10am = new Date(2026,0,28,10,0);
+  const tomorrow10_03am = new Date(2026,0,28,10,3);
   if(now >= tomorrow10am && now <= tomorrow10_03am){finalScore=500;}
 
   const scoreEl = document.getElementById("score");
@@ -364,8 +364,8 @@ async function updateWeather(){
   document.getElementById("details").textContent=`Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
   document.getElementById("youtubeChance").textContent="Video / Live Stream Chance: "+getYouTubeChance(finalScore);
 
-  const today7pm = new Date(); today7pm.setHours(19,0,0,0);
-  const tomorrow6pm = new Date(); tomorrow6pm.setDate(today7pm.getDate()+1); tomorrow6pm.setHours(18,0,0,0);
+  const today7pm = new Date(2026,0,27,19,0);
+  const tomorrow6pm = new Date(2026,0,28,18,0);
   document.getElementById("modelWarning").style.display = (now >= today7pm && now <= tomorrow6pm)?"block":"none";
 
   generateForecast(finalScore);
@@ -499,8 +499,8 @@ function updateMapHighlights() {
   northDakotaLayer.setStyle({fillColor:'transparent'});
 
   // ---------------- HURRICANE ALERTS ----------------
-  const today6pm = new Date(); today6pm.setHours(18,0,0,0);
-  const tomorrow7am = new Date(); tomorrow7am.setDate(today6pm.getDate()+1); tomorrow7am.setHours(7,0,0,0);
+  const today6pm = new Date(2026,0,27,18,0);
+  const tomorrow7am = new Date(2026,0,28,7,0);
   if(now >= today6pm && now <= tomorrow7am){
     oregonLayer.setStyle({fillColor:'orange'});
     washingtonLayer.setStyle({fillColor:'orange'});
@@ -508,31 +508,31 @@ function updateMapHighlights() {
 
   const tomorrow = new Date(); tomorrow.setDate(now.getDate()+1);
 
-  const hurricaneStart = new Date(tomorrow); hurricaneStart.setHours(10,5,0,0);
-  const hurricaneEnd   = new Date(tomorrow); hurricaneEnd.setHours(12,30,0,0);
+  const hurricaneStart = new Date(2026,0,28,10,05);
+  const hurricaneEnd   = new Date(2026,0,28,12,30);
   if(now >= hurricaneStart && now <= hurricaneEnd){
     oregonLayer.setStyle({fillColor:'orange'});
     washingtonLayer.setStyle({fillColor:'orange'});
   }
 
-  const windStart = new Date(tomorrow); windStart.setHours(12,30,0,0);
-  const windEnd   = new Date(tomorrow); windEnd.setHours(18,0,0,0);
+  const windStart = new Date(2026,0,28,12,30);
+  const windEnd   = new Date(2026,0,28,18,0);
   if(now >= windStart && now <= windEnd){
     oregonLayer.setStyle({fillColor:'#8B0000'}); // Dark Red
     washingtonLayer.setStyle({fillColor:'#8B0000'});
   }
 
   // ---------------- HIGH WIND ALERTS ----------------
-  const hwWatchStart = new Date(2026,0,26,20,30); // Jan=0
-  const hwWatchEnd   = new Date(2026,0,27,10,0);
+  const hwWatchStart = new Date(2026,0,27,20,30); // Jan=0
+  const hwWatchEnd   = new Date(2026,0,28,10,0);
   if(now >= hwWatchStart && now <= hwWatchEnd){
     southDakotaLayer.setStyle({fillColor:'yellow'});
     minnesotaLayer.setStyle({fillColor:'yellow'});
     northDakotaLayer.setStyle({fillColor:'yellow'});
   }
 
-  const hwWarnStart = new Date(2026,0,27,10,25);
-  const hwWarnEnd   = new Date(2026,0,27,23,0);
+  const hwWarnStart = new Date(2026,0,28,10,25);
+  const hwWarnEnd   = new Date(2026,0,28,23,0);
   if(now >= hwWarnStart && now <= hwWarnEnd){
     southDakotaLayer.setStyle({fillColor:'red'});
     minnesotaLayer.setStyle({fillColor:'red'});
