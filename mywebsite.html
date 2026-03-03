@@ -82,7 +82,7 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
   <div id="youtubeChance">Calculating video/live stream chance…</div>
 
   <div id="alerts">
-    <h3>National Weather Service Alerts (Oregon & Washington)</h3>
+    <h3>National Weather Service Alerts (USA)</h3>
     <ul id="alertsList" style="margin:0;padding-left:1.2rem;"></ul>
   </div>
 
@@ -124,7 +124,6 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
   </form>
 </section>
 
-  
 <footer>
   <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
 </footer>
@@ -136,10 +135,9 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 
 <script>
 // ---------------- CONFIG ----------------
-const LAT = 44.9778;
-const LON = -93.2650;
-const NWS_POINTS = `https://api.weather.gov/points/${LAT},${LON}`;
-const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
+let LAT = 44.9778;
+let LON = -93.2650;
+const NWS_ALERTS = "https://api.weather.gov/alerts/active";
 const API_KEY = "AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s";
 const CHANNEL_ID = "hy6rl";
 let weatherChart;
@@ -194,7 +192,7 @@ function combineAlertScores(scores){
   return Math.min(Math.sqrt(sumSquares),500);
 }
 
-// ---------------- FETCH NWS ALERTS + CUSTOM ----------------
+// ---------------- FETCH NWS ALERTS ----------------
 async function updateNWSAlerts() {
   try {
     const data = await fetch(NWS_ALERTS).then(r => r.json());
@@ -205,98 +203,7 @@ async function updateNWSAlerts() {
     const alertScores = [];
     let maxScore = 0;
     let focusAlert = null;
-    const now = new Date();
 
-    // ---------------- CUSTOM ALERTS ----------------
-    const tomorrow = new Date(2026,0,28,0,0);
-
-    // --- Hurricane Watch: 6 PM today → 7 AM tomorrow ---
-    const today6pm = new Date(2026,0,27,18,0);
-    const tomorrow7am = new Date(2026,0,28,7,0);
-    if (now >= today6pm && now <= tomorrow7am) {
-      alerts.push({
-        properties: {
-          event:"Hurricane Watch",
-          areaDesc:"Oregon & Washington",
-          sent: today6pm.toISOString(),
-          ends: tomorrow7am.toISOString(),
-          population: 7500000
-        }
-      });
-    }
-
-    // --- Hurricane Warning: 10:05 AM → 12:30 PM ---
-    const hurricaneStart = new Date(2026,0,28,10,5)
-    const hurricaneEnd   = new Date(2026,0,28,12,30)
-    if (now >= hurricaneStart && now <= hurricaneEnd) {
-      alerts.push({
-        properties: {
-          event:"Hurricane Warning",
-          areaDesc:"Oregon & Washington",
-          sent: hurricaneStart.toISOString(),
-          ends: hurricaneEnd.toISOString(),
-          population: 7500000
-        }
-      });
-    }
-
-    // --- Extreme Wind Warning: 12:30 PM → 6 PM ---
-    const windStart = new Date(2026,0,28,12,30)
-    const windEnd   = new Date(2026,0,28,18,0)
-    if (now >= windStart && now <= windEnd) {
-      alerts.push({
-        properties: {
-          event:"Extreme Wind Warning",
-          areaDesc:"Oregon & Washington",
-          sent: windStart.toISOString(),
-          ends: windEnd.toISOString(),
-          population: 7500000
-        }
-      });
-    }
-
-    // --- High Wind Watch: 8:30 PM 1/26/2026 → 10 AM 1/27/2026 ---
-    const hwWatchStart = new Date(2026,0,27,20,30); // Month is 0-based
-    const hwWatchEnd   = new Date(2026,0,28,10,0);
-    if (now >= hwWatchStart && now <= hwWatchEnd) {
-      ["South Dakota","Minnesota","North Dakota"].forEach(state => {
-        alerts.push({
-          properties: {
-            event: "High Wind Watch",
-            areaDesc: state,
-            sent: hwWatchStart.toISOString(),
-            ends: hwWatchEnd.toISOString(),
-            population: 1000000
-          }
-        });
-      });
-    }
-
-    // --- High Wind Warning: 10:25 AM 1/27/2026 → 11 PM 1/27/2026 ---
-    const hwWarnStart = new Date(2026,0,28,10,25);
-    const hwWarnEnd   = new Date(2026,0,28,23,0);
-    if (now >= hwWarnStart && now <= hwWarnEnd) {
-      ["South Dakota","Minnesota","North Dakota"].forEach(state => {
-        alerts.push({
-          properties: {
-            event: "High Wind Warning",
-            areaDesc: state,
-            sent: hwWarnStart.toISOString(),
-            ends: hwWarnEnd.toISOString(),
-            population: 1000000
-          }
-        });
-      });
-    }
-
-    // ---------------- FILTER TO RELEVANT STATES ----------------
-    alerts = alerts.filter(a => {
-      const area = a.properties.areaDesc.toLowerCase();
-      return area.includes("oregon") || area.includes("washington") || 
-             area.includes("south dakota") || area.includes("north dakota") || area.includes("minnesota");
-    });
-
-    // ---------------- CALCULATE ALERT SCORES ----------------
     alerts.forEach(a => {
       const severity = alertSeverityWeight(a.properties.event);
       const pop = a.properties.population || 1;
@@ -310,26 +217,23 @@ async function updateNWSAlerts() {
       const li = document.createElement("li");
       li.textContent = `${a.properties.event} — ${a.properties.areaDesc} — Score: ${Math.round(score)}`;
 
-      // highlight
-      if(a.properties.event.includes("Hurricane")) {
+      if(a.properties.event.toLowerCase().includes("hurricane")) {
         li.style.background="#f59e0b"; li.style.color="#fff"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
       }
-      if(a.properties.event.includes("Extreme Wind")) {
+      if(a.properties.event.toLowerCase().includes("extreme wind")) {
         li.style.background="#b91c1c"; li.style.color="#fff"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
       }
-      if(a.properties.event.includes("High Wind")) {
+      if(a.properties.event.toLowerCase().includes("high wind")) {
         li.style.background="yellow"; li.style.color="#000"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
       }
 
       list.appendChild(li);
     });
 
-    // ---------------- UPDATE GLOBAL SCORES ----------------
     window.NATIONAL_ALERT_SCORE = alerts.length ? combineAlertScores(alertScores) : 0;
     DYNAMIC_THRESHOLD = Math.max(window.NATIONAL_ALERT_SCORE,300);
     document.getElementById("thresholdValue").textContent = Math.round(DYNAMIC_THRESHOLD);
 
-    // ---------------- UPDATE FOCUS ALERT ----------------
     const locationBox = document.getElementById("activeLocation");
     if(focusAlert && maxScore >= 200){
       locationBox.style.display = "block";
@@ -345,12 +249,11 @@ async function updateNWSAlerts() {
   }
 }
 
-
 // ---------------- FETCH LOCAL WEATHER ----------------
 async function fetchLocalWeather(){
   try{
-    const p = await fetch(NWS_POINTS).then(r=>r.json());
-    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
+    const points = await fetch(`https://api.weather.gov/points/${LAT},${LON}`).then(r=>r.json());
+    const stations = await fetch(points.properties.observationStations).then(r=>r.json());
     const id = stations.features[0].properties.stationIdentifier;
     const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
     const d = obs.properties;
@@ -366,11 +269,6 @@ async function updateWeather(){
   const nwsScore = window.NATIONAL_ALERT_SCORE;
   let finalScore = Math.min(localScore*0.6+nwsScore*0.4,500);
 
-  const now = new Date();
-  const tomorrow10am = new Date(2026,0,28,10,0);
-  const tomorrow10_03am = new Date(2026,0,28,10,3);
-  if(now >= tomorrow10am && now <= tomorrow10_03am){finalScore=500;}
-
   const scoreEl = document.getElementById("score");
   const thresholdMsg = document.getElementById("thresholdMessage");
   scoreEl.textContent=Math.round(finalScore);
@@ -380,10 +278,6 @@ async function updateWeather(){
   document.getElementById("level").textContent=getLevel(finalScore);
   document.getElementById("details").textContent=`Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
   document.getElementById("youtubeChance").textContent="Video / Live Stream Chance: "+getYouTubeChance(finalScore);
-
-  const today7pm = new Date(2026,0,27,19,0);
-  const tomorrow6pm = new Date(2026,0,28,18,0);
-  document.getElementById("modelWarning").style.display = (now >= today7pm && now <= tomorrow6pm)?"block":"none";
 
   generateForecast(finalScore);
   updateMapHighlights(); // update map each weather update
@@ -456,114 +350,45 @@ async function fetchYouTubeLiveOrUploads() {
     }
   } catch (e) {
     console.error(e);
-    document.getElementById("ytLive").innerHTML = "<p>Error loading YouTube videos.</p>";
   }
 }
 
 // ---------------- MAP ----------------
-let map, oregonLayer, washingtonLayer;
-function initMap() {
-  map = L.map('alertMap').setView([45, -100], 5); // Center adjusted to show all states
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+let map,userMarker;
+function initMap(){
+  map = L.map('alertMap').setView([LAT,LON],4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'&copy; OpenStreetMap contributors'
   }).addTo(map);
-
-  // ---------------- WEST COAST ----------------
-  oregonLayer = L.polygon([
-    [46.2920, -124.5662],
-    [46.2920, -116.4630],
-    [42.0016, -116.4630],
-    [42.0016, -124.5662]
-  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
-
-  washingtonLayer = L.polygon([
-    [49.0024, -124.8489],
-    [49.0024, -116.9169],
-    [45.5435, -116.9169],
-    [45.5435, -124.8489]
-  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
-
-  // ---------------- HIGH WIND STATES ----------------
-  southDakotaLayer = L.polygon([
-    [45.9454, -104.0573],
-    [45.9454, -96.4361],
-    [42.4797, -96.4361],
-    [42.4797, -104.0573]
-  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
-
-  minnesotaLayer = L.polygon([
-    [49.3845, -97.2391],
-    [49.3845, -89.4891],
-    [43.4999, -89.4891],
-    [43.4999, -97.2391]
-  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
-
-  northDakotaLayer = L.polygon([
-    [49.0000, -104.0489],
-    [49.0000, -96.5546],
-    [45.9351, -96.5546],
-    [45.9351, -104.0489]
-  ], {color:'transparent', fillOpacity:0.4}).addTo(map);
+  userMarker = L.marker([LAT,LON]).addTo(map).bindPopup("Your Location").openPopup();
 }
-function updateMapHighlights() {
-  const now = new Date();
-
-  // Reset existing layers
-  oregonLayer.setStyle({fillColor:'transparent'});
-  washingtonLayer.setStyle({fillColor:'transparent'});
-  southDakotaLayer.setStyle({fillColor:'transparent'});
-  minnesotaLayer.setStyle({fillColor:'transparent'});
-  northDakotaLayer.setStyle({fillColor:'transparent'});
-
-  // ---------------- HURRICANE ALERTS ----------------
-  const today6pm = new Date(2026,0,27,18,0);
-  const tomorrow7am = new Date(2026,0,28,7,0);
-  if(now >= today6pm && now <= tomorrow7am){
-    oregonLayer.setStyle({fillColor:'orange'});
-    washingtonLayer.setStyle({fillColor:'orange'});
-  }
-
-  const tomorrow = new Date(2026,0,28,0,0);
-
-  const hurricaneStart = new Date(2026,0,28,10,05);
-  const hurricaneEnd   = new Date(2026,0,28,12,30);
-  if(now >= hurricaneStart && now <= hurricaneEnd){
-    oregonLayer.setStyle({fillColor:'orange'});
-    washingtonLayer.setStyle({fillColor:'orange'});
-  }
-
-  const windStart = new Date(2026,0,28,12,30);
-  const windEnd   = new Date(2026,0,28,18,0);
-  if(now >= windStart && now <= windEnd){
-    oregonLayer.setStyle({fillColor:'#8B0000'}); // Dark Red
-    washingtonLayer.setStyle({fillColor:'#8B0000'});
-  }
-
-  // ---------------- HIGH WIND ALERTS ----------------
-  const hwWatchStart = new Date(2026,0,27,20,30); // Jan=0
-  const hwWatchEnd   = new Date(2026,0,28,10,0);
-  if(now >= hwWatchStart && now <= hwWatchEnd){
-    southDakotaLayer.setStyle({fillColor:'yellow'});
-    minnesotaLayer.setStyle({fillColor:'yellow'});
-    northDakotaLayer.setStyle({fillColor:'yellow'});
-  }
-
-  const hwWarnStart = new Date(2026,0,28,10,25);
-  const hwWarnEnd   = new Date(2026,0,28,23,0);
-  if(now >= hwWarnStart && now <= hwWarnEnd){
-    southDakotaLayer.setStyle({fillColor:'red'});
-    minnesotaLayer.setStyle({fillColor:'red'});
-    northDakotaLayer.setStyle({fillColor:'red'});
-  }
+function updateMapHighlights(){
+  if(userMarker) userMarker.setLatLng([LAT,LON]);
 }
 
 // ---------------- INIT ----------------
-initMap();
-updateWeather();
-fetchYouTubeLiveOrUploads();
-setInterval(()=>{ updateWeather(); fetchYouTubeLiveOrUploads(); },300000);
-setTimeout(()=>location.reload(),120000);
+function init() {
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      LAT=pos.coords.latitude; LON=pos.coords.longitude;
+      updateWeather();
+      initMap();
+      fetchYouTubeLiveOrUploads();
+    },()=>{
+      updateWeather();
+      initMap();
+      fetchYouTubeLiveOrUploads();
+    });
+  } else {
+    updateWeather();
+    initMap();
+    fetchYouTubeLiveOrUploads();
+  }
+  setInterval(updateWeather,10*60*1000); // update every 10 min
+}
 
+init();
 </script>
+
 </body>
 </html>
