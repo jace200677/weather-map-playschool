@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jace's Website – Weather Center</title>
+<title>NOAA Weather Center</title>
 
 <style>
-:root {
-  --green:#1f4d2b;
-  --light:#f6f1e6;
-  --accent:#f5c542;
-  --danger:#b91c1c;
+:root{
+--green:#1f4d2b;
+--light:#f6f1e6;
+--accent:#f5c542;
+--danger:#b91c1c;
 }
 body{margin:0;font-family:system-ui;background:var(--light);color:#222}
 header{text-align:center;padding:2rem}
@@ -31,7 +31,7 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem;margin-
 <body>
 
 <header>
-<h1>🌪 Northwoods Playschool Weather Center</h1>
+<h1>🌪 NOAA-Based Weather Center</h1>
 </header>
 
 <nav>
@@ -42,7 +42,7 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem;margin-
 </nav>
 
 <section id="weather">
-<h2>Current Weather Score</h2>
+<h2>Current Weather Intensity</h2>
 <div class="card">
 <div style="font-size:2rem;font-weight:800" id="currentScore">--</div>
 <div id="currentDetails"></div>
@@ -51,7 +51,7 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem;margin-
 </section>
 
 <section id="sevenDay">
-<h2>7-Day Daily Outlook Score (DOS)</h2>
+<h2>7-Day Daily Outlook Score (NOAA)</h2>
 
 <div id="streamingModeBox" class="streaming-box off">
 Streaming Mode: <span id="streamingMode">Checking...</span>
@@ -68,204 +68,161 @@ Streaming Mode: <span id="streamingMode">Checking...</span>
 
 <section id="wishingWell">
 <h2>🌟 Wishing Well</h2>
-<p>Send a wish to the owner.</p>
-
 <form action="mailto:jacefink17@outlook.com" method="post" enctype="text/plain" style="max-width:500px;margin:auto;">
-<input type="text" name="name" placeholder="Your Name" required
-style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;margin-bottom:0.75rem;">
-<input type="text" name="wish" placeholder="Enter your wish here…" required
-style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;margin-bottom:0.75rem;">
-<button type="submit"
-style="padding:0.5rem 1rem;background:#f5c542;border:none;border-radius:8px;font-weight:700;cursor:pointer;">
+<input type="text" name="name" placeholder="Your Name" required style="width:100%;padding:0.5rem;margin-bottom:0.75rem;">
+<input type="text" name="wish" placeholder="Enter your wish here…" required style="width:100%;padding:0.5rem;margin-bottom:0.75rem;">
+<button type="submit" style="padding:0.5rem 1rem;background:#f5c542;border:none;font-weight:700;">
 Send Wish
 </button>
 </form>
 </section>
 
 <footer>
-© 2026 Northwoods Playschool
+Powered by NOAA & NWS API
 </footer>
 
 <script>
 
 // ---------------- CONFIG ----------------
+const LAT=44.9778;
+const LON=-93.2650;
+const NWS_POINTS=`https://api.weather.gov/points/${LAT},${LON}`;
+const ALERTS_URL=`https://api.weather.gov/alerts/active?point=${LAT},${LON}`;
+
 const API_KEY="YOUR_YOUTUBE_API_KEY";
 const CHANNEL_ID="YOUR_CHANNEL_ID";
 let isLiveNow=false;
 
-// ---------------- WEATHER SCORE ----------------
-function calculateWeatherScore(){
-    const temp=60+Math.random()*40;
-    const wind=Math.random()*40;
-    const humidity=30+Math.random()*70;
-
-    let score=0;
-    if(temp>=90||temp<=32)score+=120;
-    if(wind>=25)score+=150;
-    if(humidity>=90||humidity<=20)score+=50;
-
-    return Math.min(score+Math.random()*100,500);
+// ---------------- FETCH FORECAST ----------------
+async function fetchForecast(){
+const point=await fetch(NWS_POINTS).then(r=>r.json());
+const forecastURL=point.properties.forecast;
+const forecast=await fetch(forecastURL).then(r=>r.json());
+return forecast.properties.periods.slice(0,14);
 }
 
-// ---------------- DAILY OUTLOOK ----------------
-function calculateDailyOutlookScore(base){
-    const tropical=Math.random()*120;
-    const severe=Math.random()*150;
-    const flooding=Math.random()*100;
-    const winter=Math.random()*80;
-
-    const combined=Math.sqrt(
-        tropical*tropical+
-        severe*severe+
-        flooding*flooding+
-        winter*winter
-    );
-
-    const confidence=70+Math.random()*30;
-
-    return{
-        tropical,severe,flooding,winter,
-        combined:Math.min(combined,500),
-        confidence
-    };
+// ---------------- FETCH ALERTS ----------------
+async function fetchAlerts(){
+const alerts=await fetch(ALERTS_URL).then(r=>r.json());
+return alerts.features||[];
 }
 
-// ---------------- WEATHER INTENSITY ----------------
-function calculateWeatherIntensityScore(){
-    const official=Math.random()*200;
-    const population=Math.random()*100;
-    const cameras=Math.random()*60;
-    const stormReports=Math.random()*120;
-    const emergency=Math.random()*100;
-    const publicInterest=Math.random()*80;
-    const tropical=Math.random()*150;
+// ---------------- SCORE ALERTS ----------------
+function scoreAlerts(alerts){
+let score=0;
+alerts.forEach(a=>{
+const e=a.properties.event.toLowerCase();
+if(e.includes("tornado")||e.includes("hurricane"))score+=200;
+else if(e.includes("severe"))score+=150;
+else if(e.includes("flood"))score+=120;
+else if(e.includes("winter"))score+=100;
+else if(e.includes("wind"))score+=80;
+else score+=40;
+});
+return Math.min(score,500);
+}
 
-    const total=
-        official*0.25+
-        population*0.1+
-        cameras*0.05+
-        stormReports*0.15+
-        emergency*0.15+
-        publicInterest*0.1+
-        tropical*0.2;
+// ---------------- DAILY OUTLOOK SCORE ----------------
+function calculateDOS(period, alertScore){
+let score=0;
 
-    return Math.min(total,500);
+if(period.temperature>=95||period.temperature<=20)score+=120;
+if(period.windSpeed.includes("30"))score+=120;
+if(period.shortForecast.toLowerCase().includes("storm"))score+=150;
+if(period.shortForecast.toLowerCase().includes("snow"))score+=100;
+if(period.shortForecast.toLowerCase().includes("rain"))score+=80;
+
+score+=alertScore*0.5;
+
+return Math.min(score,500);
 }
 
 // ---------------- LIVE STREAM % ----------------
-function calculateLivePercent(score){
-    return Math.min(Math.round(score/500*100),100);
+function livePercent(score){
+return Math.round(score/500*100);
 }
 
 // ---------------- STREAMING MODE ----------------
-function updateStreamingMode(todayPercent){
-    const box=document.getElementById("streamingModeBox");
-    const text=document.getElementById("streamingMode");
+function updateStreamingMode(percent){
+const box=document.getElementById("streamingModeBox");
+const text=document.getElementById("streamingMode");
+box.classList.remove("off","standby","live");
 
-    box.classList.remove("off","standby","live");
-
-    if(isLiveNow){
-        box.classList.add("live");
-        text.textContent="LIVE";
-        return;
-    }
-
-    if(todayPercent>=60){
-        box.classList.add("standby");
-        text.textContent="STANDBY";
-    }else{
-        box.classList.add("off");
-        text.textContent="OFF";
-    }
+if(isLiveNow){
+box.classList.add("live");
+text.textContent="LIVE";
+return;
 }
 
-// ---------------- GENERATE 7 DAYS ----------------
-function generateSevenDay(baseScore){
-    const container=document.getElementById("sevenDayContainer");
-    container.innerHTML="";
-
-    for(let i=0;i<7;i++){
-        const date=new Date();
-        date.setDate(date.getDate()+i);
-
-        const outlook=calculateDailyOutlookScore(baseScore);
-        const wis=calculateWeatherIntensityScore();
-        const percent=calculateLivePercent(outlook.combined);
-
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`
-        <h3>${date.toDateString()}</h3>
-        <strong>DOS:</strong> ${Math.round(outlook.combined)} / 500<br>
-        <strong>WIS:</strong> ${Math.round(wis)} / 500<br>
-        <small>
-        Tropical: ${Math.round(outlook.tropical)} |
-        Severe: ${Math.round(outlook.severe)} |
-        Flooding: ${Math.round(outlook.flooding)} |
-        Winter: ${Math.round(outlook.winter)}
-        </small>
-        <br>
-        <small>Forecast Confidence: ${Math.round(outlook.confidence)}%</small>
-        <hr>
-        <strong>Live Stream Chance:</strong> ${percent}%
-        `;
-        container.appendChild(card);
-
-        if(i===0) updateStreamingMode(percent);
-    }
+if(percent>=60){
+box.classList.add("standby");
+text.textContent="STANDBY";
+}else{
+box.classList.add("off");
+text.textContent="OFF";
+}
 }
 
-// ---------------- UPDATE CURRENT ----------------
-function updateCurrent(){
-    const score=calculateWeatherScore();
-    const percent=calculateLivePercent(score);
+// ---------------- GENERATE 7 DAY ----------------
+async function generateSevenDay(){
+const periods=await fetchForecast();
+const alerts=await fetchAlerts();
+const alertScore=scoreAlerts(alerts);
 
-    document.getElementById("currentScore").textContent=Math.round(score)+"/500";
-    document.getElementById("currentDetails").textContent="Composite Weather Intensity Score";
-    document.getElementById("liveChanceNow").textContent="Live Stream Chance Today: "+percent+"%";
+const container=document.getElementById("sevenDayContainer");
+container.innerHTML="";
 
-    generateSevenDay(score);
+for(let i=0;i<periods.length;i+=2){
+const day=periods[i];
+const dos=calculateDOS(day,alertScore);
+const percent=livePercent(dos);
+
+const card=document.createElement("div");
+card.className="card";
+card.innerHTML=`
+<h3>${day.name}</h3>
+<strong>DOS:</strong> ${dos}/500<br>
+<strong>Temp:</strong> ${day.temperature}°${day.temperatureUnit}<br>
+<strong>Forecast:</strong> ${day.shortForecast}<br>
+<hr>
+<strong>Live Stream Chance:</strong> ${percent}%
+`;
+container.appendChild(card);
+
+if(i===0){
+document.getElementById("currentScore").textContent=dos+"/500";
+document.getElementById("currentDetails").textContent=day.shortForecast;
+document.getElementById("liveChanceNow").textContent="Live Chance Today: "+percent+"%";
+updateStreamingMode(percent);
+}
+}
 }
 
-// ---------------- YOUTUBE LIVE + UPLOADS ----------------
-async function checkYouTubeLive(){
-    try{
-        const liveData=await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`
-        ).then(r=>r.json());
+// ---------------- YOUTUBE LIVE ----------------
+async function checkYouTube(){
+const liveData=await fetch(
+`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`
+).then(r=>r.json());
 
-        const container=document.getElementById("ytContainer");
-        container.innerHTML="";
+const container=document.getElementById("ytContainer");
+container.innerHTML="";
 
-        if(liveData.items && liveData.items.length>0){
-            isLiveNow=true;
-            const id=liveData.items[0].id.videoId;
-            const iframe=document.createElement("iframe");
-            iframe.src=`https://www.youtube.com/embed/${id}?autoplay=1`;
-            container.appendChild(iframe);
-        }else{
-            isLiveNow=false;
-
-            const uploads=await fetch(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=3&order=date&type=video&key=${API_KEY}`
-            ).then(r=>r.json());
-
-            uploads.items.forEach(video=>{
-                const iframe=document.createElement("iframe");
-                iframe.src=`https://www.youtube.com/embed/${video.id.videoId}`;
-                container.appendChild(iframe);
-            });
-        }
-
-    }catch{
-        isLiveNow=false;
-    }
+if(liveData.items && liveData.items.length>0){
+isLiveNow=true;
+const id=liveData.items[0].id.videoId;
+const iframe=document.createElement("iframe");
+iframe.src=`https://www.youtube.com/embed/${id}?autoplay=1`;
+container.appendChild(iframe);
+}else{
+isLiveNow=false;
+container.innerHTML="<p>Channel is currently offline.</p>";
+}
 }
 
 // ---------------- INIT ----------------
 async function init(){
-    await checkYouTubeLive();
-    updateCurrent();
+await checkYouTube();
+await generateSevenDay();
 }
 
 init();
