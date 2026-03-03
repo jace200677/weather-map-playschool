@@ -3,27 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NOAA Weather Center</title>
+<title>USA NOAA Weather Center</title>
 
 <style>
 :root{
 --green:#1f4d2b;
 --light:#f6f1e6;
---accent:#f5c542;
 --danger:#b91c1c;
+--accent:#f59e0b;
 }
 body{margin:0;font-family:system-ui;background:var(--light);color:#222}
 header{text-align:center;padding:2rem}
 nav{background:var(--green);padding:1rem;text-align:center}
 nav a{color:#fff;margin:0 1rem;text-decoration:none;font-weight:600}
-section{max-width:1000px;margin:auto;padding:2rem}
+section{max-width:1100px;margin:auto;padding:2rem}
 h2{color:var(--green)}
 .card{background:#fff;padding:1rem;border-radius:16px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
 #sevenDayContainer{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
 .streaming-box{padding:1rem;border-radius:16px;text-align:center;font-weight:800;font-size:1.2rem}
 .off{background:#222;color:#fff}
-.standby{background:#f59e0b;color:#fff}
-.live{background:#b91c1c;color:#fff}
+.standby{background:var(--accent);color:#fff}
+.live{background:var(--danger);color:#fff}
 iframe{width:100%;height:315px;border:none;border-radius:12px;margin-top:1rem}
 footer{background:var(--green);color:#fff;text-align:center;padding:2rem;margin-top:2rem}
 </style>
@@ -31,27 +31,27 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem;margin-
 <body>
 
 <header>
-<h1>🌪 NOAA-Based Weather Center</h1>
+<h1>🇺🇸 United States NOAA Weather Center</h1>
 </header>
 
 <nav>
-<a href="#weather">Weather</a>
+<a href="#national">National Weather</a>
 <a href="#sevenDay">7-Day Outlook</a>
 <a href="#youtube">YouTube</a>
 <a href="#wishingWell">Wishing Well</a>
 </nav>
 
-<section id="weather">
-<h2>Current Weather Intensity</h2>
+<section id="national">
+<h2>National Weather Intensity</h2>
 <div class="card">
-<div style="font-size:2rem;font-weight:800" id="currentScore">--</div>
-<div id="currentDetails"></div>
+<div style="font-size:2rem;font-weight:800" id="nationalScore">--</div>
+<div id="nationalDetails"></div>
 <div id="liveChanceNow" style="margin-top:1rem;font-weight:700"></div>
 </div>
 </section>
 
 <section id="sevenDay">
-<h2>7-Day Daily Outlook Score (NOAA)</h2>
+<h2>7-Day National Outlook (NOAA Alerts Based)</h2>
 
 <div id="streamingModeBox" class="streaming-box off">
 Streaming Mode: <span id="streamingMode">Checking...</span>
@@ -78,61 +78,55 @@ Send Wish
 </section>
 
 <footer>
-Powered by NOAA & NWS API
+Data provided by NOAA / NWS API
 </footer>
 
 <script>
 
 // ---------------- CONFIG ----------------
-const LAT=44.9778;
-const LON=-93.2650;
-const NWS_POINTS=`https://api.weather.gov/points/${LAT},${LON}`;
-const ALERTS_URL=`https://api.weather.gov/alerts/active?point=${LAT},${LON}`;
-
+const ALERTS_URL="https://api.weather.gov/alerts/active?status=actual";
 const API_KEY="YOUR_YOUTUBE_API_KEY";
 const CHANNEL_ID="YOUR_CHANNEL_ID";
 let isLiveNow=false;
 
-// ---------------- FETCH FORECAST ----------------
-async function fetchForecast(){
-const point=await fetch(NWS_POINTS).then(r=>r.json());
-const forecastURL=point.properties.forecast;
-const forecast=await fetch(forecastURL).then(r=>r.json());
-return forecast.properties.periods.slice(0,14);
+// ---------------- FETCH NATIONAL ALERTS ----------------
+async function fetchNationalAlerts(){
+const data=await fetch(ALERTS_URL).then(r=>r.json());
+return data.features||[];
 }
 
-// ---------------- FETCH ALERTS ----------------
-async function fetchAlerts(){
-const alerts=await fetch(ALERTS_URL).then(r=>r.json());
-return alerts.features||[];
+// ---------------- ALERT SEVERITY WEIGHT ----------------
+function severityWeight(event){
+event=event.toLowerCase();
+if(event.includes("tornado")||event.includes("hurricane"))return 250;
+if(event.includes("extreme wind"))return 200;
+if(event.includes("severe thunderstorm"))return 180;
+if(event.includes("flood"))return 160;
+if(event.includes("blizzard"))return 170;
+if(event.includes("winter storm"))return 150;
+if(event.includes("wind"))return 120;
+return 60;
 }
 
-// ---------------- SCORE ALERTS ----------------
-function scoreAlerts(alerts){
-let score=0;
+// ---------------- NATIONAL WEATHER INTENSITY SCORE ----------------
+function calculateNationalScore(alerts){
+let total=0;
 alerts.forEach(a=>{
-const e=a.properties.event.toLowerCase();
-if(e.includes("tornado")||e.includes("hurricane"))score+=200;
-else if(e.includes("severe"))score+=150;
-else if(e.includes("flood"))score+=120;
-else if(e.includes("winter"))score+=100;
-else if(e.includes("wind"))score+=80;
-else score+=40;
+total+=severityWeight(a.properties.event);
 });
-return Math.min(score,500);
+return Math.min(total,500);
 }
 
 // ---------------- DAILY OUTLOOK SCORE ----------------
-function calculateDOS(period, alertScore){
+function calculateDailyScore(alerts){
 let score=0;
 
-if(period.temperature>=95||period.temperature<=20)score+=120;
-if(period.windSpeed.includes("30"))score+=120;
-if(period.shortForecast.toLowerCase().includes("storm"))score+=150;
-if(period.shortForecast.toLowerCase().includes("snow"))score+=100;
-if(period.shortForecast.toLowerCase().includes("rain"))score+=80;
-
-score+=alertScore*0.5;
+alerts.forEach(a=>{
+const event=a.properties.event.toLowerCase();
+if(event.includes("watch"))score+=40;
+if(event.includes("warning"))score+=80;
+if(event.includes("emergency"))score+=150;
+});
 
 return Math.min(score,500);
 }
@@ -163,42 +157,40 @@ text.textContent="OFF";
 }
 }
 
-// ---------------- GENERATE 7 DAY ----------------
+// ---------------- GENERATE 7 DAY NATIONAL ----------------
 async function generateSevenDay(){
-const periods=await fetchForecast();
-const alerts=await fetchAlerts();
-const alertScore=scoreAlerts(alerts);
-
+const alerts=await fetchNationalAlerts();
 const container=document.getElementById("sevenDayContainer");
 container.innerHTML="";
 
-for(let i=0;i<periods.length;i+=2){
-const day=periods[i];
-const dos=calculateDOS(day,alertScore);
+const nationalScore=calculateNationalScore(alerts);
+const dos=calculateDailyScore(alerts);
 const percent=livePercent(dos);
+
+document.getElementById("nationalScore").textContent=nationalScore+"/500";
+document.getElementById("nationalDetails").textContent=alerts.length+" Active NOAA Alerts Across USA";
+document.getElementById("liveChanceNow").textContent="National Live Stream Chance: "+percent+"%";
+
+updateStreamingMode(percent);
+
+for(let i=0;i<7;i++){
+const date=new Date();
+date.setDate(date.getDate()+i);
 
 const card=document.createElement("div");
 card.className="card";
 card.innerHTML=`
-<h3>${day.name}</h3>
+<h3>${date.toDateString()}</h3>
 <strong>DOS:</strong> ${dos}/500<br>
-<strong>Temp:</strong> ${day.temperature}°${day.temperatureUnit}<br>
-<strong>Forecast:</strong> ${day.shortForecast}<br>
+<strong>WIS:</strong> ${nationalScore}/500<br>
 <hr>
 <strong>Live Stream Chance:</strong> ${percent}%
 `;
 container.appendChild(card);
-
-if(i===0){
-document.getElementById("currentScore").textContent=dos+"/500";
-document.getElementById("currentDetails").textContent=day.shortForecast;
-document.getElementById("liveChanceNow").textContent="Live Chance Today: "+percent+"%";
-updateStreamingMode(percent);
-}
 }
 }
 
-// ---------------- YOUTUBE LIVE ----------------
+// ---------------- YOUTUBE LIVE CHECK ----------------
 async function checkYouTube(){
 const liveData=await fetch(
 `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`
