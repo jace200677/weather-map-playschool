@@ -3,192 +3,286 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jace's Website – USA Weather Score</title>
+<title>U.S. Severe Weather Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root{
-  --green:#1f4d2b;
-  --light:#f6f1e6;
-  --accent:#f5c542;
-  --danger:#b91c1c;
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
+  background-size:400% 400%;
+  animation:bgMove 15s ease infinite;
+  color:white;
 }
-body{margin:0;font-family:system-ui,sans-serif;background:var(--light);color:#2a2a2a}
-header{text-align:center;padding:2rem}
-nav{background:var(--green);padding:0.75rem;text-align:center}
-nav a{color:#fff;text-decoration:none;margin:0 1rem;font-weight:600}
-section{max-width:950px;margin:auto;padding:2rem 1rem}
-h2{color:var(--green)}
-.intensity{display:flex;justify-content:space-between;gap:1rem;background:#fff;padding:1.5rem;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.15);flex-wrap:wrap}
-.score{font-size:3rem;font-weight:800;color:var(--green)}
-.score.high{color:var(--danger)}
-.level{font-weight:700;padding:0.4rem 0.75rem;border-radius:999px;background:var(--accent)}
-#liveMode{margin-top:1rem;font-weight:700;text-align:center;padding:0.75rem;border-radius:12px;background:#ddd}
-.box{margin-top:1rem;background:#fff;padding:1rem;border-radius:16px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
-footer{background:var(--green);color:#fff;text-align:center;padding:2rem}
-</style>
+@keyframes bgMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+header{
+  text-align:center;
+  padding:2rem 1rem;
+}
+header h1{
+  font-size:2.2rem;
+  font-weight:800;
+  letter-spacing:1px;
+}
+
+.dashboard{
+  max-width:1200px;
+  margin:auto;
+  padding:2rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:1.5rem;
+}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(14px);
+  border-radius:20px;
+  padding:1.5rem;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  transition:0.3s ease;
+}
+.card:hover{
+  transform:translateY(-5px);
+}
+
+.score{
+  font-size:3.5rem;
+  font-weight:800;
+}
+
+.badge{
+  display:inline-block;
+  padding:0.4rem 0.9rem;
+  border-radius:999px;
+  font-weight:600;
+  margin-top:0.5rem;
+}
+
+.low{background:#16a34a;}
+.medium{background:#facc15;color:black;}
+.high{background:#f97316;}
+.extreme{background:#dc2626;}
+
+.section-title{
+  font-weight:700;
+  margin-bottom:1rem;
+  opacity:0.9;
+}
+
+ul{
+  list-style:none;
+  max-height:200px;
+  overflow:auto;
+}
+li{
+  padding:0.4rem 0;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+#videoChance{
+  font-size:1.2rem;
+  font-weight:700;
+  margin-top:1rem;
+}
+
+#liveMode{
+  margin-top:1rem;
+  padding:0.8rem;
+  border-radius:12px;
+  font-weight:700;
+  text-align:center;
+}
+
+footer{
+  text-align:center;
+  padding:2rem;
+  opacity:0.6;
+  font-size:0.9rem;
+}
+</style>
 </head>
+
 <body>
 
 <header>
-<h1>United States Weather Intensity</h1>
+<h1>🇺🇸 United States Severe Weather Dashboard</h1>
 </header>
 
-<section>
+<div class="dashboard">
 
-<div class="intensity">
-<div>
+<div class="card">
+<div class="section-title">Composite Weather Score</div>
 <div class="score" id="score">--</div>
-<div class="level" id="level">Loading...</div>
-<small>Composite U.S. Weather Score (0–500)</small><br>
-<small>Dynamic Threshold: <span id="thresholdValue">--</span></small>
-</div>
-<div>
-<p id="details"></p>
+<div id="levelBadge" class="badge">Loading...</div>
+<div style="margin-top:0.5rem;font-size:0.9rem;opacity:0.7">
+Dynamic Threshold: <span id="thresholdValue">--</span>
 </div>
 </div>
 
-<div class="box">
-Daily U.S. Severe Outlook Score:
-<strong><span id="dailyOutlookScore">--</span></strong>
+<div class="card">
+<div class="section-title">Daily Severe Outlook</div>
+<div class="score" id="dailyOutlookScore">--</div>
+<div style="opacity:0.7;font-size:0.9rem;margin-top:0.5rem">
+Based on SPC Day 1 Risk
+</div>
 </div>
 
+<div class="card">
+<div class="section-title">Video / Live Chance</div>
+<div id="videoChance">--</div>
 <div id="liveMode">Streaming Mode: --</div>
+</div>
 
-<div class="box">
-<h3>Active U.S. Alerts</h3>
+<div class="card">
+<div class="section-title">Active U.S. Alerts</div>
 <ul id="alertsList"></ul>
 </div>
 
-<div class="box">
-<h3>Projected Score</h3>
-<canvas id="weatherChart" height="120"></canvas>
+<div class="card" style="grid-column:1/-1">
+<div class="section-title">Projected Weather Score</div>
+<canvas id="weatherChart" height="100"></canvas>
 </div>
 
-</section>
+</div>
 
 <footer>
-© 2026 Northwoods Playschool – USA Only
+Powered by National U.S. Severe Weather Data · 2026
 </footer>
 
 <script>
 
-// ---------------- CONFIG ----------------
-const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
-const SPC_OUTLOOK = "https://www.spc.noaa.gov/products/outlook/day1otlk_cat.lyr.geojson";
+const NWS_ALERTS="https://api.weather.gov/alerts/active?status=actual";
+const SPC_OUTLOOK="https://www.spc.noaa.gov/products/outlook/day1otlk_cat.lyr.geojson";
 
+let NATIONAL_ALERT_SCORE=0;
+let DYNAMIC_THRESHOLD=300;
 let weatherChart;
-let NATIONAL_ALERT_SCORE = 0;
-let DYNAMIC_THRESHOLD = 300;
 
-// ---------------- LOCAL INTENSITY (U.S. average based model) ----------------
-function calculateBaseUSIntensity(){
-  // General national baseline
-  return Math.floor(Math.random()*100)+50;
+// LEVEL + COLOR
+function setBadge(score){
+  const badge=document.getElementById("levelBadge");
+  if(score>=400){
+    badge.textContent="Extreme Risk";
+    badge.className="badge extreme";
+  }else if(score>=300){
+    badge.textContent="High Risk";
+    badge.className="badge high";
+  }else if(score>=200){
+    badge.textContent="Moderate Risk";
+    badge.className="badge medium";
+  }else{
+    badge.textContent="Low Risk";
+    badge.className="badge low";
+  }
 }
 
-function getLevel(score){
-  if(score>=350) return "High";
-  if(score>=200) return "Moderate";
-  return "Low";
+// VIDEO CHANCE
+function getVideoChance(score,spc){
+  if(spc>=400||score>=400)
+    return {text:"🔥 EXTREME – LIVE Coverage Very Likely",color:"#dc2626"};
+  if(spc>=300||score>=300)
+    return {text:"⚠️ HIGH – Strong Live Potential",color:"#f97316"};
+  if(score>=200)
+    return {text:"🟡 MODERATE – Possible Stream",color:"#facc15"};
+  return {text:"🟢 LOW – Probably No Stream",color:"#16a34a"};
 }
 
-// ---------------- SPC OUTLOOK (USA ONLY) ----------------
-async function fetchSPCOutlookScore(){
+// SPC
+async function fetchSPC(){
   try{
     const data=await fetch(SPC_OUTLOOK).then(r=>r.json());
     let values=[];
     data.features.forEach(f=>{
-      const risk=f.properties.LABEL;
-      let v=0;
-      if(risk.includes("TSTM")) v=50;
-      else if(risk.includes("MRGL")) v=100;
-      else if(risk.includes("SLGT")) v=200;
-      else if(risk.includes("ENH")) v=300;
-      else if(risk.includes("MDT")) v=400;
-      else if(risk.includes("HIGH")) v=500;
-      values.push(v);
+      const r=f.properties.LABEL;
+      if(r.includes("TSTM")) values.push(50);
+      else if(r.includes("MRGL")) values.push(100);
+      else if(r.includes("SLGT")) values.push(200);
+      else if(r.includes("ENH")) values.push(300);
+      else if(r.includes("MDT")) values.push(400);
+      else if(r.includes("HIGH")) values.push(500);
     });
     return values.length?Math.max(...values):0;
   }catch{return 0;}
 }
 
-// ---------------- NWS ALERTS (USA ONLY FILTER) ----------------
-async function updateNWSAlerts(){
+// NWS
+async function fetchAlerts(){
   try{
     const data=await fetch(NWS_ALERTS).then(r=>r.json());
-    let alerts=data.features||[];
     const list=document.getElementById("alertsList");
     list.innerHTML="";
     let scores=[];
-
-    alerts.forEach(a=>{
-      if(a.properties.country !== "US") return;
-
-      const event=a.properties.event.toLowerCase();
-      let score=0;
-
-      if(event.includes("tornado")||event.includes("hurricane")) score=400;
-      else if(event.includes("severe thunderstorm")) score=250;
-      else if(event.includes("flood")) score=150;
-      else score=75;
-
-      scores.push(score);
-
+    data.features.forEach(a=>{
+      if(a.properties.country!=="US") return;
+      const e=a.properties.event.toLowerCase();
+      let s=0;
+      if(e.includes("tornado")||e.includes("hurricane")) s=400;
+      else if(e.includes("severe thunderstorm")) s=250;
+      else if(e.includes("flood")) s=150;
+      else s=75;
+      scores.push(s);
       const li=document.createElement("li");
       li.textContent=a.properties.event+" — "+a.properties.areaDesc;
       list.appendChild(li);
     });
-
     NATIONAL_ALERT_SCORE=scores.length?Math.max(...scores):0;
-
   }catch{NATIONAL_ALERT_SCORE=0;}
 }
 
-// ---------------- UPDATE WEATHER ----------------
+// UPDATE
 async function updateWeather(){
 
-  await updateNWSAlerts();
-  const spcScore=await fetchSPCOutlookScore();
-  document.getElementById("dailyOutlookScore").textContent=spcScore;
+  await fetchAlerts();
+  const spc=await fetchSPC();
 
-  const baseScore=calculateBaseUSIntensity();
+  document.getElementById("dailyOutlookScore").textContent=spc;
+
+  const base=Math.floor(Math.random()*100)+50;
 
   let finalScore=Math.min(
-    baseScore*0.3+
+    base*0.3+
     NATIONAL_ALERT_SCORE*0.4+
-    spcScore*0.3
+    spc*0.3
   ,500);
 
-  DYNAMIC_THRESHOLD=Math.max(spcScore,300);
+  DYNAMIC_THRESHOLD=Math.max(spc,300);
 
   document.getElementById("score").textContent=Math.round(finalScore);
-  document.getElementById("level").textContent=getLevel(finalScore);
   document.getElementById("thresholdValue").textContent=DYNAMIC_THRESHOLD;
-  document.getElementById("details").textContent="United States Severe Weather Monitoring Active";
 
-  const liveMode=document.getElementById("liveMode");
+  setBadge(finalScore);
 
-  if(spcScore>=400){
-    liveMode.textContent="Streaming Mode: HIGH RISK – LIKELY LIVE (USA)";
-    liveMode.style.background="red";
-    liveMode.style.color="white";
-  }
-  else if(spcScore>=200){
-    liveMode.textContent="Streaming Mode: STANDBY (USA)";
-    liveMode.style.background="orange";
-  }
-  else{
-    liveMode.textContent="Streaming Mode: OFF (USA)";
-    liveMode.style.background="#ddd";
+  const chance=getVideoChance(finalScore,spc);
+  const box=document.getElementById("videoChance");
+  box.textContent=chance.text;
+  box.style.color=chance.color;
+
+  const live=document.getElementById("liveMode");
+  if(spc>=400){
+    live.textContent="Streaming Mode: HIGH RISK – LIKELY LIVE";
+    live.style.background="#dc2626";
+  }else if(spc>=200){
+    live.textContent="Streaming Mode: STANDBY";
+    live.style.background="#f97316";
+  }else{
+    live.textContent="Streaming Mode: OFF";
+    live.style.background="#374151";
   }
 
-  generateForecast(finalScore);
+  generateChart(finalScore);
 }
 
-// ---------------- FORECAST ----------------
-function generateForecast(current){
+// CHART
+function generateChart(current){
   const ctx=document.getElementById("weatherChart");
   if(weatherChart) weatherChart.destroy();
   weatherChart=new Chart(ctx,{
@@ -196,25 +290,30 @@ function generateForecast(current){
     data:{
       labels:["Now","+10","+20","+30","+40","+50","+60"],
       datasets:[{
-        label:"USA Score",
+        label:"U.S. Score",
         data:[
           current,
+          current+Math.random()*40-20,
           current+Math.random()*50-25,
           current+Math.random()*60-30,
           current+Math.random()*70-35,
           current+Math.random()*80-40,
-          current+Math.random()*90-45,
-          current+Math.random()*100-50
+          current+Math.random()*90-45
         ],
-        borderColor:"green",
-        fill:true
+        borderColor:"#38bdf8",
+        fill:false
       }]
     },
-    options:{scales:{y:{beginAtZero:true,max:500}}}
+    options:{
+      plugins:{legend:{labels:{color:"white"}}},
+      scales:{
+        y:{beginAtZero:true,max:500,ticks:{color:"white"}},
+        x:{ticks:{color:"white"}}
+      }
+    }
   });
 }
 
-// ---------------- INIT ----------------
 updateWeather();
 setInterval(updateWeather,300000);
 
