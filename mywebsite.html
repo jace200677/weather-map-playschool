@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jace's Website – Weather & YouTube Stream</title>
+<title>Jace's website – Weather Score & YouTube Stream</title>
 <style>
 :root {
   --green: #1f4d2b;
@@ -24,7 +24,7 @@ h2{color:var(--green);margin-top:0;}
 .score{font-size:2.5rem;font-weight:800;color:var(--green);}
 .score.high{color:var(--danger);}
 .level{font-weight:700;padding:0.4rem 0.75rem;border-radius:999px;background:var(--accent);}
-#advisory{display:none;padding:1rem;margin-bottom:0.75rem;border-radius:16px;background:#b91c1c;color:#fff;font-weight:700;text-align:center;}
+#advisory{display:none;padding:1rem;margin-bottom:0.75rem;border-radius:16px;background:#danger;color:#fff;font-weight:700;text-align:center;}
 #activeLocation{display:none;margin-bottom:1.5rem;padding:0.75rem 1rem;border-radius:12px;background:#fff3cd;font-weight:700;color:#92400e;text-align:center;}
 #alerts{margin-top:1rem;background:#fff;padding:1rem;border-radius:16px;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 #youtubeChance{margin-top:1rem;background:#fff;padding:1rem;border-radius:16px;box-shadow:0 5px 15px rgba(0,0,0,0.1);font-weight:700;font-size:1.1rem;text-align:center;}
@@ -32,10 +32,11 @@ h2{color:var(--green);margin-top:0;}
 #thresholdNotice{font-weight:700;color:red;margin-top:0.5rem;text-align:center;}
 #modelWarning{display:none;padding:1rem;margin-bottom:1rem;border-radius:16px;background:#f59e0b;color:#fff;font-weight:700;text-align:center;}
 #alertMap{width:100%;height:400px;border-radius:12px;margin-top:1rem;}
-#streamMode{padding:1rem;margin:1rem auto;max-width:400px;text-align:center;font-weight:800;color:#fff;background:var(--green);border-radius:12px;}
 footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 .youtube-section iframe{width:100%;max-width:560px;height:315px;margin-bottom:1rem;border:none;border-radius:12px;}
 </style>
+
+<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
@@ -55,15 +56,14 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 
 <section id="about">
   <h2>About Jace's Website</h2>
-  <p>Jace's Website explores weather updates, YouTube streams, and a Wishing Well for sending your wishes.</p>
+  <p>Jace's Website is Explore weather updates, YouTube streams, and a special Wishing Well for sending your wishes.</p>
 </section>
 
 <section id="weather">
   <h2>Weather Safety & Intensity</h2>
 
-  <div id="streamMode">Stream Mode: OFF</div>
-  <div id="advisory">⚠️ Severe Weather Active in the USA</div>
-  <div id="modelWarning">Model warning messages here.</div>
+  <div id="advisory">⚠️ Severe Weather Active in the United States</div>
+  <div id="modelWarning">From 7 PM tonight to 6 PM tomorrow all playschool weather models percent as low as 0 percent. should 100% by 7pm tomorrow after 6pm tomorrow</div>
   <div id="activeLocation"></div>
 
   <div class="intensity">
@@ -110,10 +110,17 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 
 <section id="wishingWell">
   <h2>🌟 Wishing Well</h2>
+  <p>Send a wish to the owner. Once sent, your wish will be added to the Wishing Well along with a folded dollar.</p>
+
   <form action="mailto:jacefink17@outlook.com" method="post" enctype="text/plain" style="max-width:500px;margin:auto;">
-    <input type="text" name="name" placeholder="Your Name" required style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #ccc; margin-bottom:0.75rem;">
-    <input type="text" name="wish" placeholder="Enter your wish here…" required style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #ccc; margin-bottom:0.75rem;">
-    <button type="submit" style="padding:0.5rem 1rem; background:#f5c542; border:none; border-radius:8px; color:#000; font-weight:700; cursor:pointer;">Send Wish</button>
+    <input type="text" name="name" placeholder="Your Name" required
+           style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #ccc; margin-bottom:0.75rem;">
+    <input type="text" name="wish" placeholder="Enter your wish here…" required
+           style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #ccc; margin-bottom:0.75rem;">
+    <button type="submit"
+            style="padding:0.5rem 1rem; background:#f5c542; border:none; border-radius:8px; color:#000; font-weight:700; cursor:pointer;">
+      Send Wish
+    </button>
   </form>
 </section>
 
@@ -121,139 +128,270 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
   <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
 </footer>
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
-let weatherChart, DYNAMIC_THRESHOLD=300, NATIONAL_ALERT_SCORE=0, STREAM_MODE="OFF";
+// ---------------- CONFIG ----------------
+const LAT = 44.9778;
+const LON = -93.2650;
+const NWS_POINTS = `https://api.weather.gov/points/${LAT},${LON}`;
+const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
+const API_KEY = "AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s";
+const CHANNEL_ID = "UCJHzNTAtr8FK90YWe4Dqt3A";
+let weatherChart;
+let DYNAMIC_THRESHOLD = 0;
+window.NATIONAL_ALERT_SCORE = 0;
 
-// Stream mode display
-function updateStreamModeDisplay(){document.getElementById("streamMode").textContent="Stream Mode: "+STREAM_MODE;}
-
-// Fetch local weather from NWS
-async function fetchLocalWeather(lat=44.9778, lon=-93.2650){
-  try{
-    const p = await fetch(`https://api.weather.gov/points/${lat},${lon}`).then(r=>r.json());
-    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
-    const id = stations.features[0].properties.stationIdentifier;
-    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
-    const d = obs.properties;
-    return {temp:d.temperature.value*9/5+32, wind:d.windSpeed.value*2.23694, humidity:d.relativeHumidity.value, precip:(d.precipitationLastHour.value||0)*0.03937};
-  }catch{return {temp:70, wind:5, humidity:50, precip:0};}
-}
-
-// Calculate intensity
+// ---------------- WEATHER FUNCTIONS ----------------
 function calculateLocalIntensity(temp, wind, humidity, precip){
   let score=0;
-  if(temp>=90||temp<=32) score+=150; else if(temp>=80||temp<=40) score+=75;
-  if(wind>=25) score+=125; else if(wind>=15) score+=75;
+  if(temp>=90||temp<=32) score+=150;
+  else if(temp>=80||temp<=40) score+=75;
+  if(wind>=25) score+=125;
+  else if(wind>=15) score+=75;
   if(precip>0) score+=100;
   if(humidity>=90||humidity<=20) score+=50;
   return Math.min(score,500);
 }
+function getLevel(score){
+  if(score>=350)return"High";
+  if(score>=200)return"Moderate";
+  return"Low";
+}
+function getYouTubeChance(score){
+  if(score>=400)return"Yes – Perfect for streaming or posting!";
+  if(score>=300)return"Probably – Good weather for content.";
+  if(score>=150)return"Maybe – Moderate conditions.";
+  return"No / Unlikely – Avoid outdoor content.";
+}
 
-// Fetch NWS alerts (USA)
-async function fetchNWSAlerts(){
-  try{
-    const data=await fetch("https://api.weather.gov/alerts/active").then(r=>r.json());
-    const alerts=data.features||[];
-    NATIONAL_ALERT_SCORE=alerts.length;
+// ---------------- ALERT FUNCTIONS ----------------
+function alertSeverityWeight(event){
+  event = event.toLowerCase();
+  if(event.includes("tornado")||event.includes("hurricane")) return 5;
+  if(event.includes("blizzard")||event.includes("ice storm")) return 4;
+  if(event.includes("severe thunderstorm")) return 3;
+  if(event.includes("flood")||event.includes("high wind")) return 2;
+  if(event.includes("advisory")) return 1;
+  return 0;
+}
+function timeDecayScore(issueTime){
+  const now = new Date();
+  const issued = new Date(issueTime);
+  const hoursDiff = (now - issued)/1000/3600;
+  return Math.max(0, 1 - 0.1*hoursDiff);
+}
+function populationFactor(pop){
+  if(!pop) return 1;
+  return Math.log10(pop+1);
+}
+function combineAlertScores(scores){
+  const sumSquares = scores.reduce((acc,s)=>acc+s*s,0);
+  return Math.min(Math.sqrt(sumSquares),500);
+}
 
-    const severeUSA=alerts.some(a=>["tornado","hurricane","blizzard","severe thunderstorm","flood","ice storm"].some(s=>a.properties.event.toLowerCase().includes(s)));
-    if(STREAM_MODE!=="LIVE") STREAM_MODE=severeUSA?"STANDBY":"OFF";
-    updateStreamModeDisplay();
+// ---------------- FETCH NWS ALERTS ----------------
+async function updateNWSAlerts() {
+  try {
+    const data = await fetch(NWS_ALERTS).then(r => r.json());
+    let alerts = data.features || [];
+    const list = document.getElementById("alertsList");
+    list.innerHTML = "";
 
-    const list=document.getElementById("alertsList");
-    list.innerHTML="";
-    alerts.slice(0,15).forEach(a=>{
-      const li=document.createElement("li");
-      li.textContent=`${a.properties.event} — ${a.properties.areaDesc}`;
+    const alertScores = [];
+    let maxScore = 0;
+    let focusAlert = null;
+
+    alerts = alerts.filter(a => !!a.properties.areaDesc); // keep all US alerts
+
+    alerts.forEach(a => {
+      const severity = alertSeverityWeight(a.properties.event);
+      const pop = a.properties.population || 1;
+      const decay = timeDecayScore(a.properties.sent);
+      const score = severity * 50 * populationFactor(pop) * decay;
+      alertScores.push(score);
+
+      if(score > maxScore){ maxScore = score; focusAlert = a; }
+
+      const li = document.createElement("li");
+      li.textContent = `${a.properties.event} — ${a.properties.areaDesc} — Score: ${Math.round(score)}`;
+      if(a.properties.event.includes("Hurricane")) li.style.background="#f59e0b";
+      if(a.properties.event.includes("Extreme Wind")) li.style.background="#b91c1c";
+      if(a.properties.event.includes("High Wind")) li.style.background="yellow";
+      li.style.color="#fff"; li.style.padding="0.5rem"; li.style.borderRadius="8px";
+      if(a.properties.event.includes("High Wind")) li.style.color="#000";
+
       list.appendChild(li);
     });
 
-    document.getElementById("advisory").style.display=severeUSA?"block":"none";
-  }catch(e){console.error(e);}
+    window.NATIONAL_ALERT_SCORE = alerts.length ? combineAlertScores(alertScores) : 0;
+    DYNAMIC_THRESHOLD = Math.max(window.NATIONAL_ALERT_SCORE,300);
+    document.getElementById("thresholdValue").textContent = Math.round(DYNAMIC_THRESHOLD);
+
+    const locationBox = document.getElementById("activeLocation");
+    if(focusAlert && maxScore >= 200){
+      locationBox.style.display = "block";
+      locationBox.textContent = `Severe Weather Focus: ${focusAlert.properties.event} — ${focusAlert.properties.areaDesc}`;
+    } else locationBox.style.display = "none";
+
+  } catch(err){
+    console.error(err);
+    window.NATIONAL_ALERT_SCORE = 0;
+    DYNAMIC_THRESHOLD = 300;
+  }
 }
 
-// YouTube live or uploads
-async function fetchYouTubeLiveOrUploads(){
+// ---------------- FETCH LOCAL WEATHER ----------------
+async function fetchLocalWeather(){
   try{
-    const container=document.getElementById("ytLive"); container.innerHTML="";
-    const CHANNEL_ID="UCJHzNTAtr8FK90YWe4Dqt3A"; 
-    const API_KEY="AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ"; // replace with your YouTube API key
-
-    const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
-    if(liveData.items && liveData.items.length>0){STREAM_MODE="LIVE"; updateStreamModeDisplay();
-      liveData.items.forEach(video=>{
-        const iframe=document.createElement("iframe");
-        iframe.src=`https://www.youtube.com/embed/${video.id.videoId}?autoplay=1`;
-        iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-        iframe.allowFullscreen=true;
-        container.appendChild(iframe);
-      }); return;
-    }
-
-    const channel=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
-    const uploadsId=channel.items[0].contentDetails.relatedPlaylists.uploads;
-    const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
-    uploads.items.forEach(video=>{
-      const iframe=document.createElement("iframe");
-      iframe.src=`https://www.youtube.com/embed/${video.snippet.resourceId.videoId}`;
-      iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-      iframe.allowFullscreen=true;
-      container.appendChild(iframe);
-    });
-  }catch(e){console.error(e); container.innerHTML="<p>Error loading YouTube videos.</p>";}
+    const p = await fetch(NWS_POINTS).then(r=>r.json());
+    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
+    const id = stations.features[0].properties.stationIdentifier;
+    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
+    const d = obs.properties;
+    return {temp:d.temperature.value*9/5+32,wind:d.windSpeed.value*2.23694,humidity:d.relativeHumidity.value,precip:(d.precipitationLastHour.value||0)*0.03937};
+  }catch{return {temp:70,wind:0,humidity:50,precip:0};}
 }
 
-// Update weather UI
+// ---------------- UPDATE WEATHER & UI ----------------
 async function updateWeather(){
   const obs = await fetchLocalWeather();
-  await fetchNWSAlerts();
-  await fetchYouTubeLiveOrUploads();
-
+  await updateNWSAlerts();
   let localScore = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
-  let finalScore = Math.min(localScore*0.6 + NATIONAL_ALERT_SCORE*0.4*50,500);
+  const nwsScore = window.NATIONAL_ALERT_SCORE;
+  let finalScore = Math.min(localScore*0.6+nwsScore*0.4,500);
 
-  document.getElementById("score").textContent = Math.round(finalScore);
-  document.getElementById("level").textContent = finalScore>=350?"High":finalScore>=200?"Moderate":"Low";
-  document.getElementById("details").textContent = `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
-  document.getElementById("youtubeChance").textContent = "Video / Live Stream Chance: " + STREAM_MODE;
-  document.getElementById("thresholdMessage").style.display = finalScore>=DYNAMIC_THRESHOLD?"inline":"none";
+  const scoreEl = document.getElementById("score");
+  const thresholdMsg = document.getElementById("thresholdMessage");
+  scoreEl.textContent=Math.round(finalScore);
+  if(finalScore>=DYNAMIC_THRESHOLD){scoreEl.classList.add("high");thresholdMsg.style.display="inline";}
+  else{scoreEl.classList.remove("high");thresholdMsg.style.display="none";}
+
+  document.getElementById("level").textContent=getLevel(finalScore);
+  document.getElementById("details").textContent=`Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
 
   generateForecast(finalScore);
+  updateMapHighlights();
+  updateStreamingStatus();
 }
 
-// Forecast chart
+// ---------------- FORECAST CHART ----------------
 function generateForecast(currentScore){
   const labels=[],obsData=[],projData=[],thresholdLine=[];
-  const now=new Date();
+  const now = new Date();
   for(let i=-60;i<=30;i++){
-    const t=new Date(now.getTime()+i*60000);
+    const t = new Date(now.getTime() + i*60000);
     labels.push(`${t.getHours()}:${t.getMinutes().toString().padStart(2,'0')}`);
-    if(i<=0) obsData.push(Math.max(currentScore-Math.random()*50,0));
-    else projData.push(Math.max(currentScore+Math.random()*100-50,0));
+    if(i<=0) obsData.push(Math.max(currentScore - Math.random()*50,0));
+    else projData.push(Math.max(currentScore + (Math.random()*100-50),0));
     thresholdLine.push(DYNAMIC_THRESHOLD);
   }
-  const ctx=document.getElementById('weatherChart').getContext('2d');
+  const mergedObs = obsData.concat(Array(projData.length-1).fill(null));
+  const mergedProj = Array(obsData.length-1).fill(null).concat(projData);
+
+  const ctx = document.getElementById('weatherChart').getContext('2d');
   if(weatherChart) weatherChart.destroy();
-  weatherChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[
-    {label:'Observed',data:obsData,borderColor:'green',fill:false,tension:0.3},
-    {label:'Projected',data:projData,borderColor:'orange',fill:true,tension:0.3},
-    {label:'Threshold',data:thresholdLine,borderColor:'red',borderDash:[5,5],fill:false,tension:0.1,pointRadius:0}
-  ]},options:{scales:{y:{beginAtZero:true,max:500}}}});
-  document.getElementById("thresholdNotice").textContent=projData.some(s=>s>DYNAMIC_THRESHOLD)?`⚠️ Threshold Exceeded!`:`Forecast within safe range`;
+  weatherChart = new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'Observed',data:mergedObs,borderColor:'green',fill:false,tension:0.3},
+      {label:'Projected',data:mergedProj,borderColor:'orange',fill:true,tension:0.3},
+      {label:`Threshold`,data:thresholdLine,borderColor:'red',borderDash:[5,5],fill:false,tension:0.1,pointRadius:0}
+    ]},
+    options:{scales:{y:{beginAtZero:true,max:500}}}
+  });
+
+  const exceeded = projData.some(s=>s>DYNAMIC_THRESHOLD);
+  document.getElementById("thresholdNotice").textContent = exceeded?`⚠️ Threshold Exceeded!`:`Forecast within safe range`;
 }
 
-// Init map
-let map;
-function initMap(){
-  map=L.map('alertMap').setView([37.8,-95],4);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+// ---------------- YOUTUBE ----------------
+async function fetchYouTubeLiveOrUploads() {
+  try {
+    const liveData = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`
+    ).then(r => r.json());
+
+    const container = document.getElementById("ytLive");
+    container.innerHTML = "";
+
+    if (liveData.items && liveData.items.length > 0) {
+      liveData.items.forEach(video => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${video.id.videoId}?autoplay=1`;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
+      });
+    } else {
+      const channel = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`
+      ).then(r => r.json());
+      const uploadsId = channel.items[0].contentDetails.relatedPlaylists.uploads;
+      const uploads = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`
+      ).then(r => r.json());
+
+      uploads.items.forEach(video => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${video.snippet.resourceId.videoId}`;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById("ytLive").innerHTML = "<p>Error loading YouTube videos.</p>";
+  }
 }
 
-initMap();
+// ---------------- STREAMING MODE ----------------
+async function updateStreamingStatus() {
+  const container = document.getElementById("youtubeChance");
+  let severeWeather = window.NATIONAL_ALERT_SCORE >= 1;
+
+  const liveData = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`
+  ).then(r => r.json());
+
+  if(liveData.items && liveData.items.length > 0){
+    container.textContent = "Streaming Mode: LIVE 🎥";
+  } else if(severeWeather){
+    container.textContent = "Streaming Mode: STANDBY ⚠️";
+  } else {
+    container.textContent = "Streaming Mode: OFF ✅";
+  }
+}
+
+// ---------------- LEAFLET MAP ----------------
+let map = L.map('alertMap').setView([LAT,LON],4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19,attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
+let alertLayer = L.layerGroup().addTo(map);
+
+async function updateMapHighlights(){
+  alertLayer.clearLayers();
+  const data = await fetch(NWS_ALERTS).then(r => r.json());
+  data.features.forEach(a=>{
+    if(!a.geometry) return;
+    const coords = a.geometry.coordinates;
+    const latlngs = coords[0].map(c=>[c[1],c[0]]);
+    const poly = L.polygon(latlngs,{color:'red',fillOpacity:0.3}).addTo(alertLayer);
+    poly.bindPopup(`${a.properties.event}<br>${a.properties.areaDesc}`);
+  });
+}
+
+// ---------------- AUTO REFRESH ----------------
 updateWeather();
-setInterval(updateWeather,300000);
+fetchYouTubeLiveOrUploads();
+setInterval(updateWeather, 5*60*1000); // every 5 mins
+setInterval(fetchYouTubeLiveOrUploads, 10*60*1000); // every 10 mins
 </script>
+
 </body>
 </html>
