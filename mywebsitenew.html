@@ -1,1 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jace's Website – Weather Score & YouTube Stream</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+:root{
+  --green:#0b1f3a;
+  --light:#f4f6f9;
+  --accent:#f5c542;
+  --orange:#f59e0b;
+  --danger:#b91c1c;
+}
+body{margin:0;font-family:system-ui;background:var(--light);color:#222;}
+header{text-align:center;padding:2rem 1rem;}
+header img{max-width:320px;width:100%;}
+nav{background:var(--green);padding:.8rem;text-align:center;}
+nav a{color:#fff;text-decoration:none;margin:0 1rem;font-weight:600;}
+section{max-width:1100px;margin:auto;padding:2.5rem 1.25rem;}
+h2{margin-top:0;color:var(--green);}
+footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;margin-top:2rem;}
+
+#liveBanner{
+  background:#b91c1c;
+  color:#fff;
+  text-align:center;
+  font-weight:800;
+  font-size:1.3rem;
+  padding:1rem;
+  display:none;
+}
+
+.dashboard{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+  background:#fff;
+  padding:2rem;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.15);
+}
+
+.score{font-size:3rem;font-weight:900;}
+.score.high{color:var(--danger);}
+.badge{padding:.4rem .8rem;border-radius:999px;font-weight:700;}
+#liveMode{margin-top:1rem;padding:.8rem;border-radius:12px;font-weight:700;text-align:center;}
+
+#advisory{
+  display:none;
+  padding:1rem;
+  border-radius:14px;
+  background:#b91c1c;
+  color:#fff;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:1rem;
+}
+
+#alerts,#youtubeChance{
+  background:#fff;
+  padding:1rem;
+  border-radius:16px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  margin-top:1rem;
+}
+
+#alertMap{height:450px;border-radius:14px;margin-top:1rem;}
+
+.youtube-section iframe{
+  width:100%;
+  max-width:700px;
+  height:400px;
+  border:none;
+  border-radius:14px;
+  margin-bottom:1rem;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Jace's Website</h1>
+</header>
+
+<div id="liveBanner">🔴 LIVE SEVERE WEATHER COVERAGE</div>
+
+<nav>
+  <a href="#weather">Weather</a>
+  <a href="#mapSection">Map</a>
+  <a href="#youtube">Live</a>
+  <a href="#wishingWell">Wishing Well</a>
+</nav>
+
+<section id="weather">
+<h2>Live Weather Dashboard</h2>
+
+<div id="advisory">⚠️ Severe Weather Active in the United States</div>
+
+<div class="dashboard">
+  <div>
+    <div class="score" id="score">--</div>
+    <div class="badge" id="level">Loading</div>
+    <div>Dynamic Threshold: <span id="thresholdValue">--</span></div>
+    <div id="liveMode">Streaming Mode: --</div>
+  </div>
+  <div>
+    <p id="details"></p>
+  </div>
+</div>
+
+<div id="youtubeChance">Calculating stream chance…</div>
+
+<div id="alerts">
+<h3>Active U.S. Weather Alerts</h3>
+<ul id="alertsList"></ul>
+</div>
+
+<canvas id="weatherChart" style="margin-top:2rem;"></canvas>
+
+</section>
+
+<section id="mapSection">
+<h2>Live Weather Alert Map</h2>
+<div id="alertMap"></div>
+</section>
+
+<section id="youtube">
+<h2>Live Coverage & Recent Broadcasts</h2>
+<div id="ytLive" class="youtube-section"></div>
+</section>
+
+<section id="wishingWell">
+<h2>🌟 Wishing Well</h2>
+<form action="mailto:jacefink17@outlook.com" method="post" enctype="text/plain" style="max-width:500px;margin:auto;">
+<input type="text" name="name" placeholder="Your Name" required style="width:100%;padding:.5rem;margin-bottom:.5rem;">
+<input type="text" name="wish" placeholder="Enter your wish…" required style="width:100%;padding:.5rem;margin-bottom:.5rem;">
+<button type="submit" style="padding:.5rem 1rem;background:#f5c542;border:none;font-weight:700;">Send Wish</button>
+</form>
+</section>
+
+<footer>
+© 2026 Jace's Website
+</footer>
+
+<script>
+// CONFIG
+const LAT=44.9778;
+const LON=-93.2650;
+const NWS_POINTS=`https://api.weather.gov/points/${LAT},${LON}`;
+const NWS_ALERTS="https://api.weather.gov/alerts/active?status=actual";
+const API_KEY="YOUR_YOUTUBE_API_KEY";
+const CHANNEL_ID="UCJHzNTAtr8FK90YWe4Dqt3A";
+
+let weatherChart,map,DYNAMIC_THRESHOLD=300;
+window.NATIONAL_ALERT_SCORE=0;
+window.IS_YT_LIVE=false;
+
+// WEATHER SCORE
+function calculateScore(temp,wind,humidity){
+let s=0;
+if(temp>=90||temp<=32)s+=150;
+if(wind>=25)s+=150;
+if(humidity>=90||humidity<=20)s+=100;
+return Math.min(s,500);
+}
+function getLevel(score){
+if(score>=350)return"High";
+if(score>=200)return"Moderate";
+return"Low";
+}
+
+// ALERTS
+async function updateAlerts(){
+const data=await fetch(NWS_ALERTS).then(r=>r.json());
+const alerts=data.features||[];
+const list=document.getElementById("alertsList");
+list.innerHTML="";
+let scores=[];
+alerts.forEach(a=>{
+const event=a.properties.event.toLowerCase();
+let sev=0;
+if(event.includes("tornado"))sev=5;
+else if(event.includes("severe"))sev=3;
+else if(event.includes("flood"))sev=2;
+const score=sev*80;
+scores.push(score);
+
+const li=document.createElement("li");
+li.textContent=a.properties.event+" — "+a.properties.areaDesc;
+list.appendChild(li);
+
+if(a.geometry){
+L.geoJSON(a.geometry,{
+style:{color:"#b91c1c",weight:2,fillOpacity:.3}
+}).addTo(map);
+}
+});
+window.NATIONAL_ALERT_SCORE=scores.reduce((a,b)=>a+b,0);
+DYNAMIC_THRESHOLD=Math.max(window.NATIONAL_ALERT_SCORE,300);
+document.getElementById("thresholdValue").textContent=DYNAMIC_THRESHOLD;
+
+document.getElementById("advisory").style.display=
+window.NATIONAL_ALERT_SCORE>0?"block":"none";
+}
+
+// LOCAL WEATHER
+async function fetchWeather(){
+try{
+const p=await fetch(NWS_POINTS).then(r=>r.json());
+const s=await fetch(p.properties.observationStations).then(r=>r.json());
+const id=s.features[0].properties.stationIdentifier;
+const obs=await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
+const d=obs.properties;
+return{
+temp:d.temperature.value*9/5+32,
+wind:d.windSpeed.value*2.23694,
+humidity:d.relativeHumidity.value
+};
+}catch{return{temp:70,wind:5,humidity:50};}
+}
+
+// UPDATE DASHBOARD
+async function updateWeather(){
+map.eachLayer(layer=>{
+if(layer instanceof L.GeoJSON)map.removeLayer(layer);
+});
+await updateAlerts();
+const w=await fetchWeather();
+const local=calculateScore(w.temp,w.wind,w.humidity);
+const final=Math.min(local*.6+window.NATIONAL_ALERT_SCORE*.4,500);
+
+const scoreEl=document.getElementById("score");
+scoreEl.textContent=Math.round(final);
+scoreEl.className="score"+(final>=DYNAMIC_THRESHOLD?" high":"");
+
+document.getElementById("level").textContent=getLevel(final);
+document.getElementById("details").textContent=
+`Temp ${w.temp.toFixed(1)}°F · Wind ${w.wind.toFixed(1)} mph · Humidity ${w.humidity}%`;
+
+document.getElementById("youtubeChance").textContent=
+final>=300?"High chance of LIVE coverage":
+final>=150?"Possible coverage":
+"Low chance of coverage";
+
+const liveMode=document.getElementById("liveMode");
+if(window.IS_YT_LIVE){
+liveMode.textContent="Streaming Mode: LIVE";
+liveMode.style.background="#b91c1c";
+document.getElementById("liveBanner").style.display="block";
+}else if(window.NATIONAL_ALERT_SCORE>0){
+liveMode.textContent="Streaming Mode: STANDBY";
+liveMode.style.background="#f59e0b";
+document.getElementById("liveBanner").style.display="none";
+}else{
+liveMode.textContent="Streaming Mode: OFF";
+liveMode.style.background="#ddd";
+document.getElementById("liveBanner").style.display="none";
+}
+
+generateChart(final);
+}
+
+// CHART
+function generateChart(score){
+const ctx=document.getElementById("weatherChart").getContext("2d");
+if(weatherChart)weatherChart.destroy();
+weatherChart=new Chart(ctx,{
+type:"line",
+data:{
+labels:["Now","+15","+30","+45","+60"],
+datasets:[
+{label:"Score",data:[score,score+20,score-30,score+40,score-10],borderColor:"blue",fill:false},
+{label:"Threshold",data:[DYNAMIC_THRESHOLD,DYNAMIC_THRESHOLD,DYNAMIC_THRESHOLD,DYNAMIC_THRESHOLD,DYNAMIC_THRESHOLD],borderColor:"red",borderDash:[5,5]}
+]},
+options:{scales:{y:{beginAtZero:true,max:500}}}
+});
+}
+
+// YOUTUBE
+async function updateYouTube(){
+window.IS_YT_LIVE=false;
+const container=document.getElementById("ytLive");
+container.innerHTML="";
+const live=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
+if(live.items&&live.items.length>0){
+window.IS_YT_LIVE=true;
+live.items.forEach(v=>{
+const iframe=document.createElement("iframe");
+iframe.src=`https://www.youtube.com/embed/${v.id.videoId}?autoplay=1&mute=1`;
+container.appendChild(iframe);
+});
+}else{
+const channel=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
+const uploadsId=channel.items[0].contentDetails.relatedPlaylists.uploads;
+const vids=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=3&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
+vids.items.forEach(v=>{
+const iframe=document.createElement("iframe");
+iframe.src=`https://www.youtube.com/embed/${v.snippet.resourceId.videoId}`;
+container.appendChild(iframe);
+});
+}
+}
+
+// MAP INIT
+function initMap(){
+map=L.map("alertMap").setView([LAT,LON],5);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+}
+
+// INIT
+async function init(){
+initMap();
+await updateYouTube();
+await updateWeather();
+setInterval(updateWeather,300000);
+setInterval(updateYouTube,120000);
+}
+init();
+</script>
+
+</body>
+</html>
