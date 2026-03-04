@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jace's website – Weather Score & YouTube Stream</title>
+<title>Jace's Website – Weather & YouTube Stream</title>
 <style>
 :root {
   --green: #1f4d2b;
@@ -36,7 +36,6 @@ h2{color:var(--green);margin-top:0;}
 footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 .youtube-section iframe{width:100%;max-width:560px;height:315px;margin-bottom:1rem;border:none;border-radius:12px;}
 </style>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
@@ -125,7 +124,7 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-let weatherChart,DYNAMIC_THRESHOLD=300,NATIONAL_ALERT_SCORE=0,STREAM_MODE="OFF";
+let weatherChart, DYNAMIC_THRESHOLD=300, NATIONAL_ALERT_SCORE=0, STREAM_MODE="OFF";
 
 // Update Stream Mode display
 function updateStreamModeDisplay(){document.getElementById("streamMode").textContent="Stream Mode: "+STREAM_MODE;}
@@ -136,6 +135,7 @@ async function fetchNWSAlerts(){
     const data=await fetch("https://api.weather.gov/alerts/active").then(r=>r.json());
     const alerts=data.features||[];
     NATIONAL_ALERT_SCORE=alerts.length;
+
     const severeUSA=alerts.some(a=>["tornado","hurricane","blizzard","severe thunderstorm","flood","ice storm"].some(s=>a.properties.event.toLowerCase().includes(s)));
     if(STREAM_MODE!=="LIVE") STREAM_MODE=severeUSA?"STANDBY":"OFF";
     updateStreamModeDisplay();
@@ -158,11 +158,11 @@ async function fetchYouTubeLiveOrUploads(){
     const container=document.getElementById("ytLive");
     container.innerHTML="";
     const CHANNEL_ID="hy6rl"; // your channel
-    const API_KEY="AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace with real key
+    const API_KEY="AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ"; // replace with your YouTube API key
 
-    // Live check
     const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
-    if(liveData.items && liveData.items.length>0){STREAM_MODE="LIVE";updateStreamModeDisplay();
+    if(liveData.items && liveData.items.length>0){
+      STREAM_MODE="LIVE"; updateStreamModeDisplay();
       liveData.items.forEach(video=>{
         const iframe=document.createElement("iframe");
         iframe.src=`https://www.youtube.com/embed/${video.id.videoId}?autoplay=1`;
@@ -173,7 +173,6 @@ async function fetchYouTubeLiveOrUploads(){
       return;
     }
 
-    // Latest uploads if not live
     const channel=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
     const uploadsId=channel.items[0].contentDetails.relatedPlaylists.uploads;
     const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
@@ -184,11 +183,11 @@ async function fetchYouTubeLiveOrUploads(){
       iframe.allowFullscreen=true;
       container.appendChild(iframe);
     });
-  }catch(e){console.error(e);container.innerHTML="<p>Error loading YouTube videos.</p>";}
+  }catch(e){console.error(e); container.innerHTML="<p>Error loading YouTube videos.</p>";}
 }
 
 // Weather intensity score
-function calculateLocalIntensity(temp,wind,humidity,precip){
+function calculateLocalIntensity(temp, wind, humidity, precip){
   let score=0;
   if(temp>=90||temp<=32) score+=150; else if(temp>=80||temp<=40) score+=75;
   if(wind>=25) score+=125; else if(wind>=15) score+=75;
@@ -213,7 +212,6 @@ async function updateWeather(){
   document.getElementById("thresholdMessage").style.display=finalScore>=DYNAMIC_THRESHOLD?"inline":"none";
 
   generateForecast(finalScore);
-  updateMapHighlights();
 }
 
 // Forecast chart
@@ -246,9 +244,6 @@ let map;
 function initMap(){
   map=L.map('alertMap').setView([37.8,-95],4);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-}
-function updateMapHighlights(){
-  // Optional: highlight states with alerts
 }
 
 initMap();
