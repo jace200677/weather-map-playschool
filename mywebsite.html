@@ -126,10 +126,32 @@ footer{background:var(--green);color:#fff;text-align:center;padding:2rem 1rem;}
 <script>
 let weatherChart, DYNAMIC_THRESHOLD=300, NATIONAL_ALERT_SCORE=0, STREAM_MODE="OFF";
 
-// Update Stream Mode display
+// Stream mode display
 function updateStreamModeDisplay(){document.getElementById("streamMode").textContent="Stream Mode: "+STREAM_MODE;}
 
-// Fetch NWS alerts for all USA
+// Fetch local weather from NWS
+async function fetchLocalWeather(lat=44.9778, lon=-93.2650){
+  try{
+    const p = await fetch(`https://api.weather.gov/points/${lat},${lon}`).then(r=>r.json());
+    const stations = await fetch(p.properties.observationStations).then(r=>r.json());
+    const id = stations.features[0].properties.stationIdentifier;
+    const obs = await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json());
+    const d = obs.properties;
+    return {temp:d.temperature.value*9/5+32, wind:d.windSpeed.value*2.23694, humidity:d.relativeHumidity.value, precip:(d.precipitationLastHour.value||0)*0.03937};
+  }catch{return {temp:70, wind:5, humidity:50, precip:0};}
+}
+
+// Calculate intensity
+function calculateLocalIntensity(temp, wind, humidity, precip){
+  let score=0;
+  if(temp>=90||temp<=32) score+=150; else if(temp>=80||temp<=40) score+=75;
+  if(wind>=25) score+=125; else if(wind>=15) score+=75;
+  if(precip>0) score+=100;
+  if(humidity>=90||humidity<=20) score+=50;
+  return Math.min(score,500);
+}
+
+// Fetch NWS alerts (USA)
 async function fetchNWSAlerts(){
   try{
     const data=await fetch("https://api.weather.gov/alerts/active").then(r=>r.json());
@@ -152,25 +174,22 @@ async function fetchNWSAlerts(){
   }catch(e){console.error(e);}
 }
 
-// Check if YouTube is live
+// YouTube live or uploads
 async function fetchYouTubeLiveOrUploads(){
   try{
-    const container=document.getElementById("ytLive");
-    container.innerHTML="";
-    const CHANNEL_ID="hy6rl"; // your channel
+    const container=document.getElementById("ytLive"); container.innerHTML="";
+    const CHANNEL_ID="UCJHzNTAtr8FK90YWe4Dqt3A"; 
     const API_KEY="AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ"; // replace with your YouTube API key
 
     const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
-    if(liveData.items && liveData.items.length>0){
-      STREAM_MODE="LIVE"; updateStreamModeDisplay();
+    if(liveData.items && liveData.items.length>0){STREAM_MODE="LIVE"; updateStreamModeDisplay();
       liveData.items.forEach(video=>{
         const iframe=document.createElement("iframe");
         iframe.src=`https://www.youtube.com/embed/${video.id.videoId}?autoplay=1`;
         iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
         iframe.allowFullscreen=true;
         container.appendChild(iframe);
-      });
-      return;
+      }); return;
     }
 
     const channel=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
@@ -186,30 +205,20 @@ async function fetchYouTubeLiveOrUploads(){
   }catch(e){console.error(e); container.innerHTML="<p>Error loading YouTube videos.</p>";}
 }
 
-// Weather intensity score
-function calculateLocalIntensity(temp, wind, humidity, precip){
-  let score=0;
-  if(temp>=90||temp<=32) score+=150; else if(temp>=80||temp<=40) score+=75;
-  if(wind>=25) score+=125; else if(wind>=15) score+=75;
-  if(precip>0) score+=100;
-  if(humidity>=90||humidity<=20) score+=50;
-  return Math.min(score,500);
-}
-
-// Update weather
+// Update weather UI
 async function updateWeather(){
-  const obs={temp:70,wind:5,humidity:50,precip:0};
+  const obs = await fetchLocalWeather();
   await fetchNWSAlerts();
   await fetchYouTubeLiveOrUploads();
 
-  let localScore=calculateLocalIntensity(obs.temp,obs.wind,obs.humidity,obs.precip);
-  let finalScore=Math.min(localScore*0.6+NATIONAL_ALERT_SCORE*0.4*50,500);
+  let localScore = calculateLocalIntensity(obs.temp, obs.wind, obs.humidity, obs.precip);
+  let finalScore = Math.min(localScore*0.6 + NATIONAL_ALERT_SCORE*0.4*50,500);
 
-  document.getElementById("score").textContent=Math.round(finalScore);
-  document.getElementById("level").textContent=finalScore>=350?"High":finalScore>=200?"Moderate":"Low";
-  document.getElementById("details").textContent=`Local: ${obs.temp}°F · Wind ${obs.wind} mph · Humidity ${obs.humidity}%`;
-  document.getElementById("youtubeChance").textContent="Video / Live Stream Chance: "+STREAM_MODE;
-  document.getElementById("thresholdMessage").style.display=finalScore>=DYNAMIC_THRESHOLD?"inline":"none";
+  document.getElementById("score").textContent = Math.round(finalScore);
+  document.getElementById("level").textContent = finalScore>=350?"High":finalScore>=200?"Moderate":"Low";
+  document.getElementById("details").textContent = `Local: ${obs.temp.toFixed(1)}°F · Wind ${obs.wind.toFixed(1)} mph · Humidity ${obs.humidity}%`;
+  document.getElementById("youtubeChance").textContent = "Video / Live Stream Chance: " + STREAM_MODE;
+  document.getElementById("thresholdMessage").style.display = finalScore>=DYNAMIC_THRESHOLD?"inline":"none";
 
   generateForecast(finalScore);
 }
@@ -227,19 +236,15 @@ function generateForecast(currentScore){
   }
   const ctx=document.getElementById('weatherChart').getContext('2d');
   if(weatherChart) weatherChart.destroy();
-  weatherChart=new Chart(ctx,{
-    type:'line',
-    data:{labels:labels,datasets:[
-      {label:'Observed',data:obsData,borderColor:'green',fill:false,tension:0.3},
-      {label:'Projected',data:projData,borderColor:'orange',fill:true,tension:0.3},
-      {label:'Threshold',data:thresholdLine,borderColor:'red',borderDash:[5,5],fill:false,tension:0.1,pointRadius:0}
-    ]},
-    options:{scales:{y:{beginAtZero:true,max:500}}}
-  });
+  weatherChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[
+    {label:'Observed',data:obsData,borderColor:'green',fill:false,tension:0.3},
+    {label:'Projected',data:projData,borderColor:'orange',fill:true,tension:0.3},
+    {label:'Threshold',data:thresholdLine,borderColor:'red',borderDash:[5,5],fill:false,tension:0.1,pointRadius:0}
+  ]},options:{scales:{y:{beginAtZero:true,max:500}}}});
   document.getElementById("thresholdNotice").textContent=projData.some(s=>s>DYNAMIC_THRESHOLD)?`⚠️ Threshold Exceeded!`:`Forecast within safe range`;
 }
 
-// Map
+// Init map
 let map;
 function initMap(){
   map=L.map('alertMap').setView([37.8,-95],4);
