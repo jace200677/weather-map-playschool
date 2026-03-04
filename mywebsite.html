@@ -261,8 +261,9 @@ async function fetchYouTubeLiveOrUploads() {
   try {
     const container = document.getElementById("ytLive");
     container.innerHTML = "";
-
-    const liveData = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
+    const API_KEY0 = "AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ";
+    const CHANNEL_ID0 = "UCJHzNTAtr8FK90YWe4Dqt3A";
+    const liveData = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID0}&eventType=live&type=video&key=${API_KEY0}`).then(r=>r.json());
     if(liveData.items && liveData.items.length>0){
       liveData.items.forEach(video=>{
         const iframe=document.createElement("iframe");
@@ -272,9 +273,9 @@ async function fetchYouTubeLiveOrUploads() {
         container.appendChild(iframe);
       });
     } else {
-      const channel = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
+      const channel = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID0}&key=${API_KEY0}`).then(r=>r.json());
       const uploadsId = channel.items[0].contentDetails.relatedPlaylists.uploads;
-      const uploads = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
+      const uploads = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY0}`).then(r=>r.json());
       uploads.items.forEach(video=>{
         const iframe=document.createElement("iframe");
         iframe.src=`https://www.youtube.com/embed/${video.snippet.resourceId.videoId}`;
