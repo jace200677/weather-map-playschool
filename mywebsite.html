@@ -296,7 +296,7 @@ async function fetchYouTubeLiveOrUploads(){
   try{
     const container=document.getElementById("ytLive");
     container.innerHTML="";
-    const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
+    const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCJHzNTAtr8FK90YWe4Dqt3A&eventType=live&type=video&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`).then(r=>r.json());
     if(liveData.items && liveData.items.length>0){
       document.getElementById("liveMode").textContent="Streaming Mode: LIVE";
       liveData.items.forEach(video=>{
@@ -307,9 +307,9 @@ async function fetchYouTubeLiveOrUploads(){
         container.appendChild(iframe);
       });
     } else {
-      const channelData=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`).then(r=>r.json());
+      const channelData=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=UCJHzNTAtr8FK90YWe4Dqt3A&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`).then(r=>r.json());
       const uploadsId=channelData.items[0].contentDetails.relatedPlaylists.uploads;
-      const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=${API_KEY}`).then(r=>r.json());
+      const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`).then(r=>r.json());
       uploads.items.forEach(video=>{
         const iframe=document.createElement("iframe");
         iframe.src=`https://www.youtube.com/embed/${video.snippet.resourceId.videoId}`;
