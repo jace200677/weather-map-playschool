@@ -292,33 +292,60 @@ function generateForecast(currentScore){
 }
 
 // ---------------- YOUTUBE LIVE / UPLOADS ----------------
-async function fetchYouTubeLiveOrUploads(){
-  try{
-    const container=document.getElementById("ytLive");
-    container.innerHTML="";
-    const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCJHzNTAtr8FK90YWe4Dqt3A&eventType=live&type=video&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`).then(r=>r.json());
-    if(liveData.items && liveData.items.length>0){
-      document.getElementById("liveMode").textContent="Streaming Mode: LIVE";
-      liveData.items.forEach(video=>{
-        const iframe=document.createElement("iframe");
-        iframe.src=`https://www.youtube.com/embed/${video.id.videoId}?autoplay=1`;
-        iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-        iframe.allowFullscreen=true;
+async function fetchYouTubeLiveOrUploads() {
+  try {
+    const container = document.getElementById("ytLive");
+    container.innerHTML = "";
+
+    const liveData = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCJHzNTAtr8FK90YWe4Dqt3A&eventType=live&type=video&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`
+    ).then(r => r.json());
+
+    console.log("Live data:", liveData);
+
+    if (liveData.items && liveData.items.length > 0) {
+      document.getElementById("liveMode").textContent = "Streaming Mode: LIVE";
+
+      liveData.items.forEach(video => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${video.id.videoId}?autoplay=1&mute=1`;
+        iframe.width = "560";
+        iframe.height = "315";
+        iframe.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
         container.appendChild(iframe);
       });
     } else {
-      const channelData=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=UCJHzNTAtr8FK90YWe4Dqt3A&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`).then(r=>r.json());
-      const uploadsId=channelData.items[0].contentDetails.relatedPlaylists.uploads;
-      const uploads=await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`).then(r=>r.json());
-      uploads.items.forEach(video=>{
-        const iframe=document.createElement("iframe");
-        iframe.src=`https://www.youtube.com/embed/${video.snippet.resourceId.videoId}`;
-        iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-        iframe.allowFullscreen=true;
+      document.getElementById("liveMode").textContent = "Streaming Mode: OFF";
+
+      const channelData = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=UCJHzNTAtr8FK90YWe4Dqt3A&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`
+      ).then(r => r.json());
+
+      const uploadsId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
+
+      const uploads = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=5&playlistId=${uploadsId}&key=AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ`
+      ).then(r => r.json());
+
+      console.log("Uploads:", uploads);
+
+      uploads.items.forEach(video => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${video.snippet.resourceId.videoId}?autoplay=0`;
+        iframe.width = "560";
+        iframe.height = "315";
+        iframe.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
         container.appendChild(iframe);
       });
     }
-  }catch(e){console.error("YouTube error",e);document.getElementById("ytLive").innerHTML="<p>Error loading videos</p>";}
+  } catch (e) {
+    console.error("YouTube error", e);
+    document.getElementById("ytLive").innerHTML = "<p>Error loading videos</p>";
+  }
 }
 
 // ---------------- MAP ----------------
