@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,7 +5,7 @@
     <link rel="icon" type="image/png" href="/r-fav.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0b1f3a" />
-    <title>jaces weather website</title>
+    <title>jaces website</title>
     <meta name="description" content="Official home of Ryan Hall, Y&#39;all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates." />
     <meta name="author" content="Ryan Hall" />
     <meta name="keywords" content="Ryan Hall, Ryan Hall Y&#39;all, severe weather, live weather coverage, forecasts, storm tracking, radar tools" />
@@ -36,8 +35,45 @@
     <meta name="twitter:creator" content="@ryanhallyall" />
 
     <!-- Structured Data -->
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Ryan Hall, Y'all","description":"Official home of Ryan Hall, Y'all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates.","url":"https://ryanhallyall.com","inLanguage":"en-US","publisher":{"@type":"Organization","name":"Ryan Hall, Y'all","url":"https://ryanhallyall.com","logo":"https://ryanhallyall.com/og-image.png"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://ryanhallyall.com/og-image.png"}}</script>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ryanhallyall.com"},{"@type":"ListItem","position":2,"name":"Home","item":"https://ryanhallyall.com"}]}</script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Ryan Hall, Y'all",
+        "description": "Official home of Ryan Hall, Y'all — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates.",
+        "url": "https://ryanhallyall.com",
+        "inLanguage": "en-US",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Ryan Hall, Y'all",
+          "url": "https://ryanhallyall.com",
+          "logo": "https://ryanhallyall.com/og-image.png"
+        },
+        "primaryImageOfPage": {
+          "@type": "ImageObject",
+          "url": "https://ryanhallyall.com/og-image.png"
+        }
+      }
+
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://ryanhallyall.com"
+        }, {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Home",
+          "item": "https://ryanhallyall.com"
+        }]
+      }
+
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
 
@@ -68,6 +104,20 @@
 
   <body>
     <div id="root"></div>
-        <script>window.addEventListener('load',function(){function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"bf6c8d7b8029be814d2314253dfbe472"})})})</script>
+    <script>
+      window.addEventListener('load', function() {
+        function loadScript(a) {
+          var b = document.getElementsByTagName("head")[0],
+            c = document.createElement("script");
+          c.type = "text/javascript", c.src = "https://tracker.metricool.com/resources/be.js", c.onreadystatechange = a, c.onload = a, b.appendChild(c)
+        }
+        loadScript(function() {
+          beTracker.t({
+            hash: "bf6c8d7b8029be814d2314253dfbe472"
+          })
+        })
+      })
+
+    </script>
   </body>
 </html>
