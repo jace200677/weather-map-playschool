@@ -158,7 +158,7 @@ async function fetchYouTubeLiveOrUploads(){
     const container=document.getElementById("ytLive");
     container.innerHTML="";
     const CHANNEL_ID="hy6rl"; // your channel
-    const API_KEY="YOUR_API_KEY"; // replace with real key
+    const API_KEY="AIzaSyB2E1ZSsDgmOE6kliazjHZMGgpFjxJ0K6s"; // replace with real key
 
     // Live check
     const liveData=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json());
