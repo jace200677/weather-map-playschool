@@ -159,12 +159,11 @@ Powered by National U.S. Severe Weather Data · 2026
 </footer>
 
 <script>
+const NWS_ALERTS = "https://api.weather.gov/alerts/active?status=actual";
+const SPC_OUTLOOK = "https://www.spc.noaa.gov/products/outlook/day1otlk_cat.lyr.geojson";
 
-const NWS_ALERTS="https://api.weather.gov/alerts/active?status=actual";
-const SPC_OUTLOOK="https://www.spc.noaa.gov/products/outlook/day1otlk_cat.lyr.geojson";
-
-let NATIONAL_ALERT_SCORE=0;
-let DYNAMIC_THRESHOLD=300;
+let NATIONAL_ALERT_SCORE = 0;
+let DYNAMIC_THRESHOLD = 300;
 let weatherChart;
 
 // LEVEL + COLOR
@@ -240,42 +239,39 @@ async function fetchAlerts(){
 
 // UPDATE
 async function updateWeather(){
-
   await fetchAlerts();
-  const spc=await fetchSPC();
+  const spc = await fetchSPC();
 
-  document.getElementById("dailyOutlookScore").textContent=spc;
+  document.getElementById("dailyOutlookScore").textContent = spc;
 
-  const base=Math.floor(Math.random()*100)+50;
+  // ✅ Deterministic composite score
+  const finalScore = Math.min(
+    NATIONAL_ALERT_SCORE * 0.5 + spc * 0.5,
+    500
+  );
 
-  let finalScore=Math.min(
-    base*0.3+
-    NATIONAL_ALERT_SCORE*0.4+
-    spc*0.3
-  ,500);
+  DYNAMIC_THRESHOLD = Math.max(spc, 300);
 
-  DYNAMIC_THRESHOLD=Math.max(spc,300);
-
-  document.getElementById("score").textContent=Math.round(finalScore);
-  document.getElementById("thresholdValue").textContent=DYNAMIC_THRESHOLD;
+  document.getElementById("score").textContent = Math.round(finalScore);
+  document.getElementById("thresholdValue").textContent = DYNAMIC_THRESHOLD;
 
   setBadge(finalScore);
 
-  const chance=getVideoChance(finalScore,spc);
-  const box=document.getElementById("videoChance");
-  box.textContent=chance.text;
-  box.style.color=chance.color;
+  const chance = getVideoChance(finalScore, spc);
+  const box = document.getElementById("videoChance");
+  box.textContent = chance.text;
+  box.style.color = chance.color;
 
-  const live=document.getElementById("liveMode");
-  if(spc>=400){
-    live.textContent="Streaming Mode: HIGH RISK – LIKELY LIVE";
-    live.style.background="#dc2626";
-  }else if(spc>=200){
-    live.textContent="Streaming Mode: STANDBY";
-    live.style.background="#f97316";
+  const live = document.getElementById("liveMode");
+  if(spc >= 400){
+    live.textContent = "Streaming Mode: HIGH RISK – LIKELY LIVE";
+    live.style.background = "#dc2626";
+  }else if(spc >= 200){
+    live.textContent = "Streaming Mode: STANDBY";
+    live.style.background = "#f97316";
   }else{
-    live.textContent="Streaming Mode: OFF";
-    live.style.background="#374151";
+    live.textContent = "Streaming Mode: OFF";
+    live.style.background = "#374151";
   }
 
   generateChart(finalScore);
@@ -285,21 +281,17 @@ async function updateWeather(){
 function generateChart(current){
   const ctx=document.getElementById("weatherChart");
   if(weatherChart) weatherChart.destroy();
-  weatherChart=new Chart(ctx,{
+
+  // Deterministic projection: gradual increase toward max 500
+  const projection = Array.from({length:7}, (_,i) => Math.min(current + i*10, 500));
+
+  weatherChart = new Chart(ctx,{
     type:'line',
     data:{
       labels:["Now","+10","+20","+30","+40","+50","+60"],
       datasets:[{
         label:"U.S. Score",
-        data:[
-          current,
-          current+Math.random()*40-20,
-          current+Math.random()*50-25,
-          current+Math.random()*60-30,
-          current+Math.random()*70-35,
-          current+Math.random()*80-40,
-          current+Math.random()*90-45
-        ],
+        data:projection,
         borderColor:"#38bdf8",
         fill:false
       }]
@@ -315,8 +307,7 @@ function generateChart(current){
 }
 
 updateWeather();
-setInterval(updateWeather,300000);
-
+setInterval(updateWeather, 300000); // refresh every 5 minutes
 </script>
 </body>
 </html>
