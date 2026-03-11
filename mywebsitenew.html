@@ -186,18 +186,47 @@ let NATIONAL_ALERT_SCORE = 0
 // ALERT SEVERITY
 
 function alertSeverityWeight(event){
-  event = event.toLowerCase();
 
-  if(event.includes("tornado emergency")) return 80;
-  if(event.includes("tornado warning")) return 40;
-  if(event.includes("severe thunderstorm warning")) return 25;
-  if(event.includes("flash flood warning")) return 20;
-  if(event.includes("hurricane warning")) return 70;
-  if(event.includes("blizzard warning")) return 35;
-  if(event.includes("high wind warning")) return 10;
-  if(event.includes("fire weather")) return 5;
+event = event.toLowerCase();
 
-  return 2;
+const weights = {
+
+"tornado warning":120,
+"tornado watch":80,
+
+"severe thunderstorm warning":60,
+"severe thunderstorm watch":40,
+"extreme wind warning":90,
+
+"flash flood warning":70,
+"flash flood watch":40,
+"flood warning":30,
+"flood watch":20,
+
+"blizzard warning":70,
+"ice storm warning":70,
+"winter storm warning":50,
+"snow squall warning":45,
+"winter weather advisory":20,
+
+"high wind warning":35,
+"wind advisory":15,
+
+"red flag warning":25,
+"fire weather watch":15,
+
+"hurricane warning":120,
+"hurricane watch":90,
+"tropical storm warning":60,
+"storm surge warning":100
+
+};
+
+for (const key in weights){
+if(event.includes(key)) return weights[key];
+}
+
+return 5; // default low weight
 }
 
 // COVERAGE
