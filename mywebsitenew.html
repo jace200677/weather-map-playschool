@@ -1,544 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8" />
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/playschool-fav.png" />
 
-<title>Jace Weather Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0b1f3a" />
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<title>Playschool | Severe Weather Coverage & Forecasts</title>
 
-<style>
+<meta name="description"
+content="Official home of Playschool — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates." />
 
-:root{
---primary:#00ffff;
---danger:#ff0044;
---card:#111;
---bg:#050505;
+<meta name="author" content="Playschool" />
+
+<meta name="keywords"
+content="Playschool, severe weather, weather forecasts, storm tracking, radar tools" />
+
+<meta name="robots"
+content="index, follow, max-image-preview:large" />
+
+<link rel="canonical"
+href="https://playschool.com" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url"
+content="https://playschool.com" />
+
+<meta property="og:title"
+content="Playschool" />
+
+<meta property="og:description"
+content="Official home of Playschool — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates." />
+
+<meta property="og:image"
+content="https://playschool.com/og-image.png" />
+
+<meta property="og:site_name"
+content="Playschool" />
+
+<!-- Twitter -->
+<meta name="twitter:card"
+content="summary_large_image" />
+
+<meta name="twitter:title"
+content="Playschool" />
+
+<meta name="twitter:description"
+content="Official home of Playschool — live severe weather coverage, expert forecasts, radar tools, preparedness tips, and community updates." />
+
+<meta name="twitter:image"
+content="https://playschool.com/og-image.png" />
+
+<meta name="twitter:site"
+content="@playschool" />
+
+<meta name="twitter:creator"
+content="@playschool" />
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"WebPage",
+ "name":"Playschool",
+ "description":"Official home of Playschool",
+ "url":"https://playschool.com",
+ "publisher":{
+   "@type":"Organization",
+   "name":"Playschool",
+   "url":"https://playschool.com",
+   "logo":"https://playschool.com/logo.png"
+ }
 }
+</script>
 
-body{
-margin:0;
-background:var(--bg);
-font-family:Inter;
-color:#0ff;
-}
-
-header{
-padding:2.5rem;
-text-align:center;
-background:linear-gradient(90deg,#0ff,#00f,#0ff);
-color:white;
-}
-
-nav{
-display:flex;
-justify-content:center;
-gap:2rem;
-background:#111;
-padding:1rem;
-}
-
-nav a{
-color:#0ff;
-text-decoration:none;
-font-weight:600;
-}
-
-section{
-max-width:1000px;
-margin:auto;
-padding:2rem 1rem;
-}
-
-.card{
-background:var(--card);
-padding:1.5rem;
-border-radius:14px;
-margin-bottom:1.5rem;
-box-shadow:0 0 20px rgba(0,255,255,0.15);
-}
-
-.score{
-font-family:Orbitron;
-font-size:3rem;
-}
-
-.score.high{
-color:var(--danger);
-}
-
-.level{
-font-weight:bold;
-padding:6px 12px;
-border-radius:999px;
-background:#0ff;
-color:black;
-display:inline-block;
-margin-top:8px;
-}
-
-#alertMap{
-height:420px;
-border-radius:12px;
-}
-
-canvas{
-max-height:300px;
-}
-
-footer{
-background:#111;
-text-align:center;
-padding:2rem;
-}
-
-</style>
 </head>
 
 <body>
 
-<header>
-<h1>Jace Weather Dashboard</h1>
-</header>
+<div id="root">
+<main>
+<article>
+
+<p>Playschool</p>
+
+<h1>Playschool</h1>
+
+<p>
+Official home of Playschool — live severe weather
+coverage, expert forecasts, radar tools,
+preparedness tips, and community updates.
+</p>
+
+<figure>
+<img
+src="/og-image.png"
+alt="Playschool severe weather coverage">
+</figure>
 
 <nav>
-<a href="#weather">Weather</a>
-<a href="#map">Map</a>
-<a href="#youtube">YouTube</a>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/blog">Blog</a></li>
+<li><a href="/weather">Weather</a></li>
+<li><a href="/warnings">Warning Center</a></li>
+</ul>
 </nav>
 
-<section id="weather">
-
-<h2>Weather Score</h2>
-
-<div class="card">
-
-<div class="score" id="score">--</div>
-
-<div class="level" id="level">Loading</div>
-
-<p id="description"></p>
-
-<p id="details"></p>
-
+</article>
+</main>
 </div>
-
-<div class="card">
-
-<h3>Active Weather Alerts</h3>
-
-<ul id="alertsList"></ul>
-
-</div>
-
-<div class="card">
-
-<h3>Weather Score Forecast</h3>
-
-<canvas id="chart"></canvas>
-
-</div>
-
-</section>
-
-<section id="map">
-
-<h2>Weather Alert Map</h2>
-
-<div id="alertMap"></div>
-
-</section>
-
-<section id="youtube">
-
-<h2>YouTube Live</h2>
-
-<div id="ytLive"></div>
-
-</section>
-
-<footer>
-2026 Neon Weather Dashboard
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-
-/* LOCATION */
-
-const LAT = 44.9778
-const LON = -93.2650
-
-const ALERT_URL="https://api.weather.gov/alerts/active"
-const NWS_POINTS=`https://api.weather.gov/points/${LAT},${LON}`
-
-let chart
-
-/* ALERT SEVERITY */
-
-function alertSeverity(event){
-
-event=event.toLowerCase()
-
-const weights={
-
-"tornado warning":80,
-"tornado watch":40,
-
-"severe thunderstorm warning":35,
-"severe thunderstorm watch":20,
-
-"flash flood warning":35,
-"flash flood watch":20,
-
-"blizzard warning":40,
-"winter storm warning":30,
-"ice storm warning":40,
-
-"snow squall warning":25,
-"winter weather advisory":10,
-
-"high wind warning":20,
-"wind advisory":8,
-
-"hurricane warning":100,
-"hurricane watch":60,
-"tropical storm warning":40,
-"storm surge warning":70
-
-}
-
-for(const k in weights){
-
-if(event.includes(k)) return weights[k]
-
-}
-
-return 5
-
-}
-
-/* TIME DECAY */
-
-function timeDecay(time){
-
-const now=new Date()
-const issued=new Date(time)
-
-const hours=(now-issued)/3600000
-
-return Math.max(.25,1-hours*.08)
-
-}
-
-/* COMBINE ALERT SCORES */
-
-function combineScores(scores){
-
-let sum=0
-
-scores.forEach(s=>{
-
-sum+=s*s
-
-})
-
-return Math.sqrt(sum)
-
-}
-
-/* COVERAGE */
-
-function coverageScore(area){
-
-const states=area.split(",")
-
-return Math.min(states.length*5,50)
-
-}
-
-/* LOCAL WEATHER */
-
-function calculateLocalIntensity(temp,wind,humidity,precip){
-
-let score=0
-
-if(temp>=95||temp<=10) score+=10
-else if(temp>=85||temp<=25) score+=5
-
-if(wind>=40) score+=15
-else if(wind>=25) score+=8
-
-if(precip>0.5) score+=12
-else if(precip>0.1) score+=6
-
-if(humidity>=95||humidity<=15) score+=5
-
-return score
-
-}
-
-/* FETCH ALERTS */
-
-async function updateAlerts(){
-
-const res=await fetch(ALERT_URL)
-
-const data=await res.json()
-
-const list=document.getElementById("alertsList")
-
-list.innerHTML=""
-
-let scores=[]
-let coverage=0
-let count=0
-
-data.features.forEach(alert=>{
-
-const event=alert.properties.event
-const area=alert.properties.areaDesc
-const time=alert.properties.sent
-
-const sev=alertSeverity(event)
-const decay=timeDecay(time)
-
-scores.push(sev*decay)
-
-coverage+=coverageScore(area)
-
-count++
-
-const li=document.createElement("li")
-
-li.textContent=event+" — "+area
-
-list.appendChild(li)
-
-})
-
-coverage=Math.min(coverage,50)
-
-const alertImpact=combineScores(scores)
-
-return{alertImpact,coverage,count}
-
-}
-
-/* LOCAL WEATHER */
-
-async function getLocalWeather(){
-
-try{
-
-const p=await fetch(NWS_POINTS).then(r=>r.json())
-
-const stations=await fetch(p.properties.observationStations).then(r=>r.json())
-
-const id=stations.features[0].properties.stationIdentifier
-
-const obs=await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json())
-
-const d=obs.properties
-
-return{
-
-temp:d.temperature.value*9/5+32,
-wind:d.windSpeed.value*2.23694,
-humidity:d.relativeHumidity.value,
-precip:(d.precipitationLastHour.value||0)*0.039
-
-}
-
-}
-
-catch{
-
-return{temp:70,wind:5,humidity:50,precip:0}
-
-}
-
-}
-
-/* FINAL SCORE */
-
-function computeScore(local,alerts,coverage,count){
-
-let score=
-
-(alerts*0.6)+
-(local*0.15)+
-(coverage*0.15)+
-(count*0.1)
-
-return Math.min(score,200)
-
-}
-
-/* LEVELS */
-
-function getLevel(score){
-
-if(score>150) return ["Extreme","Potentially historic weather event."]
-if(score>120) return ["Major Outbreak","Major severe weather outbreak."]
-if(score>90) return ["Full Coverage","Severe weather across multiple areas."]
-if(score>70) return ["Going Live","Significant weather events underway."]
-if(score>50) return ["Watching Closely","Notable weather developing."]
-if(score>30) return ["Monitoring","Some weather activity happening."]
-return ["Quiet","Routine weather across the country."]
-
-}
-
-/* UPDATE WEATHER */
-
-async function updateWeather(){
-
-const local=await getLocalWeather()
-
-const alertData=await updateAlerts()
-
-const localScore=calculateLocalIntensity(local.temp,local.wind,local.humidity,local.precip)
-
-const finalScore=computeScore(localScore,alertData.alertImpact,alertData.coverage,alertData.count)
-
-document.getElementById("score").textContent=Math.round(finalScore)
-
-const level=getLevel(finalScore)
-
-document.getElementById("level").textContent=level[0]
-
-document.getElementById("description").textContent=level[1]
-
-document.getElementById("details").textContent=
-`Temp ${local.temp.toFixed(1)}°F | Wind ${local.wind.toFixed(1)} mph | Humidity ${local.humidity}%`
-
-generateChart(finalScore)
-
-}
-
-/* CHART */
-
-function generateChart(current){
-
-const labels=[]
-const data=[]
-
-for(let i=0;i<60;i++){
-
-labels.push(i)
-
-data.push(Math.max(current+(Math.random()*30-15),0))
-
-}
-
-const ctx=document.getElementById("chart")
-
-if(chart) chart.destroy()
-
-chart=new Chart(ctx,{
-
-type:"line",
-
-data:{
-
-labels:labels,
-
-datasets:[
-
-{label:"Weather Score",data:data,borderColor:"cyan",tension:.3}
-
-]
-
-},
-
-options:{
-
-scales:{y:{min:0,max:200}}
-
-}
-
-})
-
-}
-
-/* MAP */
-
-const map=L.map("alertMap").setView([LAT,LON],4)
-
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map)
-
-async function updateMap(){
-
-const data=await fetch(ALERT_URL).then(r=>r.json())
-
-data.features.forEach(a=>{
-
-if(a.geometry){
-
-const coords=a.geometry.coordinates[0]
-
-coords.forEach(c=>{
-
-L.circle([c[1],c[0]],{
-
-radius:15000,
-color:"red"
-
-}).addTo(map)
-
-})
-
-}
-
-})
-
-}
-
-/* YOUTUBE */
-
-const API_KEY="AIzaSyBHLdxart5m9Rf7VQicCFb8J1oFFEyy0bQ"
-const CHANNEL="UCJHzNTAtr8FK90YWe4Dqt3A"
-
-async function loadYouTube(){
-
-try{
-
-const live=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL}&eventType=live&type=video&key=${API_KEY}`).then(r=>r.json())
-
-const container=document.getElementById("ytLive")
-
-if(live.items.length){
-
-container.innerHTML=`<iframe width="100%" height="315" src="https://www.youtube.com/embed/${live.items[0].id.videoId}?autoplay=1" allowfullscreen></iframe>`
-
-}
-
-}
-
-catch{}
-
-}
-
-/* REFRESH */
-
-async function refresh(){
-
-await updateWeather()
-await updateMap()
-await loadYouTube()
-
-}
-
-refresh()
-
-setInterval(refresh,60000)
-
-</script>
 
 </body>
 </html>
