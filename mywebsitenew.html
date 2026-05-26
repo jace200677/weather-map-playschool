@@ -116,7 +116,7 @@ const may26Start = new Date("2026-05-26T17:45:00");
 const may26End   = new Date("2026-05-26T23:59:59");
 
 const maintenanceStart = new Date("2026-05-27T00:00:00");
-const maintenanceEnd   = new Date("2026-06-01T23:59:59");
+const maintenanceEnd   = new Date("2026-06-30T23:59:59");
 
 function showNotice(message) {
     const noticeDiv = document.createElement("div");
@@ -129,12 +129,12 @@ function showNotice(message) {
 
 // Pre-maintenance warning (May 26 evening window)
 if (now >= may26Start && now <= may26End) {
-    showNotice("⚠️ Notice: Maintenance will begin on May 27, 2026 and continue through June 1, 2026.");
+    showNotice("⚠️ Notice: Maintenance will begin on May 27, 2026 and continue through June 30, 2026.");
 }
 
 // Active maintenance period (May 27 – June 1)
 else if (now >= maintenanceStart && now <= maintenanceEnd) {
-    showNotice("🔧 Maintenance is currently in place. Services may be unavailable or limited until June 1, 2026.");
+    showNotice("🔧 Maintenance is currently in place. Services may be unavailable or limited until June 30, 2026.");
 }
 
 </script>
