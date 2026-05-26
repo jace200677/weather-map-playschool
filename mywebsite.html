@@ -134,16 +134,31 @@ body.notice-active{padding-top:3.5rem;} /* leave space for banner */
 // ---------------- SITE NOTICE ----------------
 const today = new Date();
 const noticeStart = new Date("2026-03-18T00:00:00");
-if(today >= noticeStart){
+const maintenanceStart = new Date("2026-05-27T00:00:00");
+const maintenanceEnd = new Date("2026-06-01T23:59:59");
+
+// Helper to show notice
+function showNotice(html) {
     const noticeDiv = document.createElement("div");
     noticeDiv.className = "notice-banner";
-    noticeDiv.innerHTML = `
-      ⚠️ Notice: After March 22nd, 2026 this website will not work. 
-      Visit the new site here: 
-      <a href="https://jace200677.github.io/weather-map-playschool/mywebsitenew.html" target="_blank">New Website</a>
-    `;
+    noticeDiv.innerHTML = html;
+
     document.body.prepend(noticeDiv);
     document.body.classList.add("notice-active");
+}
+
+// 1) NEW SITE NOTICE (hidden during maintenance)
+const isInMaintenance =
+    today >= maintenanceStart && today <= maintenanceEnd;
+
+if (today >= noticeStart && !isInMaintenance) {
+    showNotice(`
+      ⚠️ Notice: After March 22nd, 2026 this website will not work. 
+      Visit the new site here:
+      <a href="https://jace200677.github.io/weather-map-playschool/mywebsitenew.html" target="_blank">
+        New Website
+      </a>
+    `);
 }
 
 // ---------------- CONFIG ----------------
