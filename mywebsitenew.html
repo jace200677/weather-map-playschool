@@ -109,16 +109,15 @@ padding:2rem;
 <a href="#map">Map</a>
 <a href="#youtube">YouTube</a>
 </nav>
+<script>
 const now = new Date();
 
-// Helper dates
 const may26Start = new Date("2026-05-26T17:45:00");
 const may26End   = new Date("2026-05-26T23:59:59");
 
 const maintenanceStart = new Date("2026-05-27T00:00:00");
 const maintenanceEnd   = new Date("2026-06-01T23:59:59");
 
-// Create banner function
 function showNotice(message) {
     const noticeDiv = document.createElement("div");
     noticeDiv.className = "notice-banner";
@@ -128,16 +127,18 @@ function showNotice(message) {
     document.body.classList.add("notice-active");
 }
 
-// 1) Pre-maintenance warning (May 26, 5:45 PM → 11:59 PM)
+// Pre-maintenance warning (May 26 evening window)
 if (now >= may26Start && now <= may26End) {
     showNotice("⚠️ Notice: Maintenance will begin on May 27, 2026 and continue through June 1, 2026.");
 }
 
-// 2) Active maintenance period (May 27 → June 1)
+// Active maintenance period (May 27 – June 1)
 else if (now >= maintenanceStart && now <= maintenanceEnd) {
     showNotice("🔧 Maintenance is currently in place. Services may be unavailable or limited until June 1, 2026.");
 }
 
+</script>
+    
 <section id="weather">
 
 <h2>Weather Score</h2>
