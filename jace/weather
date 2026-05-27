@@ -55,15 +55,15 @@
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Rajdhani:wght@500;600;700&amp;display=swap" />
 
-    <script type="module" crossorigin src="assets/index-D2i2AxNb.js"></script>
+        <script type="module" crossorigin href="https://jace200677.github.io/weather-map-playschool/jace/assets/index-D2i2AxNb.js"></script>
 
-    <link rel="modulepreload" crossorigin href="assets/vendor-ui-BSORjtUF.js">
+    <link rel="modulepreload" crossorigin href="https://jace200677.github.io/weather-map-playschool/jace/assets/vendor-ui-BSORjtUF.js">
 
-    <link rel="modulepreload" crossorigin href="assets/vendor-query-DT1POrNa.js">
+    <link rel="modulepreload" crossorigin href="https://jace200677.github.io/weather-map-playschool/jace/assets/vendor-query-DT1POrNa.js">
 
-    <link rel="modulepreload" crossorigin href="assets/vendor-react-ByBTAsej.js">
+    <link rel="modulepreload" crossorigin href="https://jace200677.github.io/weather-map-playschool/jace/assets/vendor-react-ByBTAsej.js">
 
-    <link rel="stylesheet" crossorigin href="assets/index-WnClxeG6.css">
+    <link rel="stylesheet" crossorigin href="https://jace200677.github.io/weather-map-playschool/jace/assets/index-WnClxeG6.css">
   </head>
 
   <body>
