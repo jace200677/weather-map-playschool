@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+<!-- Mirrored from ryanhallyall.com/weather by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 27 May 2026 21:40:20 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="r-fav.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1f3a" />
+    <title>Current Weather Situation | Ryan Hall, Y&#39;all</title>
+    <meta name="description" content="Live national weather overview with outlook summaries, warnings, scanner insights, and recent history rollups from the Ryan Hall, Y&#39;all team." />
+    <meta name="author" content="Ryan Hall" />
+    <meta name="keywords" content="current weather situation, severe weather summary, outlooks, warnings, weather intelligence, Ryan Hall Y&#39;all" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="weather" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="weather" />
+    <meta property="og:title" content="Current Weather Situation" />
+    <meta property="og:description" content="Live national weather overview with outlook summaries, warnings, scanner insights, and recent history rollups from the Ryan Hall, Y&#39;all team." />
+    <meta property="og:image" content="og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Ryan Hall, Y&#39;all current weather situation" />
+    <meta property="og:site_name" content="Ryan Hall, Y'all" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="weather" />
+    <meta name="twitter:title" content="Current Weather Situation" />
+    <meta name="twitter:description" content="Live national weather overview with outlook summaries, warnings, scanner insights, and recent history rollups from the Ryan Hall, Y&#39;all team." />
+    <meta name="twitter:image" content="og-image.png" />
+    <meta name="twitter:image:alt" content="Ryan Hall, Y&#39;all current weather situation" />
+    <meta name="twitter:site" content="@ryanhallyall" />
+    <meta name="twitter:creator" content="@ryanhallyall" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Current Weather Situation","description":"Live national weather overview with outlook summaries, warnings, scanner insights, and recent history rollups from the Ryan Hall, Y'all team.","url":"https://ryanhallyall.com/weather","inLanguage":"en-US","publisher":{"@type":"Organization","name":"Ryan Hall, Y'all","url":"https://ryanhallyall.com","logo":"https://ryanhallyall.com/og-image.png"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://ryanhallyall.com/og-image.png"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ryanhallyall.com"},{"@type":"ListItem","position":2,"name":"Weather","item":"https://ryanhallyall.com/weather"}]}</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+
+    <link rel="preconnect" href="https://storage.googleapis.com/" crossorigin />
+
+    <link rel="preconnect" href="https://i.ytimg.com/" crossorigin />
+
+    <link rel="preconnect" href="https://geocoding-api.open-meteo.com/" crossorigin />
+
+    <link rel="preconnect" href="https://api.mapbox.com/" crossorigin />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Rajdhani:wght@500;600;700&amp;display=swap" />
+
+    <script type="module" crossorigin src="assets/index-D2i2AxNb.js"></script>
+
+    <link rel="modulepreload" crossorigin href="assets/vendor-ui-BSORjtUF.js">
+
+    <link rel="modulepreload" crossorigin href="assets/vendor-query-DT1POrNa.js">
+
+    <link rel="modulepreload" crossorigin href="assets/vendor-react-ByBTAsej.js">
+
+    <link rel="stylesheet" crossorigin href="assets/index-WnClxeG6.css">
+  </head>
+
+  <body>
+    <div id="root">
+      <main data-static-seo="true">
+        <article>
+          <p>Ryan Hall, Y&#39;all</p>
+          <h1>Current Weather Situation</h1>
+          <p>Live national weather overview with outlook summaries, warnings, scanner insights, and recent history rollups from the Ryan Hall, Y&#39;all team.</p>
+          <figure><img src="og-image.png" alt="Ryan Hall, Y&#39;all current weather situation" loading="eager" decoding="async" /></figure>
+          <nav aria-label="Related pages"><ul><li><a href="index.html">Home</a></li><li><a href="blog">Blog</a></li><li><a href="weather">Weather</a></li><li><a href="warnings">Warning Center</a></li></ul></nav>
+          <p><a href="weather">https://ryanhallyall.com/weather</a></p>
+        </article>
+      </main>
+    </div>
+        <script>window.addEventListener('load',function(){function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="../tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"bf6c8d7b8029be814d2314253dfbe472"})})})</script>
+  </body>
+
+<!-- Mirrored from ryanhallyall.com/weather by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 27 May 2026 21:40:20 GMT -->
+</html>
