@@ -316,46 +316,86 @@ return score
 
 async function updateAlerts(){
 
-const res=await fetch(ALERT_URL)
+    try{
 
-const data=await res.json()
+        // USA-only check
+        const geo = await fetch("https://ipapi.co/json/")
+            .then(r => r.json());
 
-const list=document.getElementById("alertsList")
+        if(geo.country_code !== "US"){
 
-list.innerHTML=""
+            const list = document.getElementById("alertsList");
 
-let scores=[]
-let coverage=0
-let count=0
+            if(list){
+                list.innerHTML = "";
 
-data.features.forEach(alert=>{
+                const li = document.createElement("li");
+                li.textContent =
+                    "Weather alerts are available only in the United States.";
+                list.appendChild(li);
+            }
 
-const event=alert.properties.event
-const area=alert.properties.areaDesc
-const time=alert.properties.sent
+            return{
+                alertImpact: 0,
+                coverage: 0,
+                count: 0
+            };
+        }
 
-const sev=alertSeverity(event)
-const decay=timeDecay(time)
+        const res = await fetch(ALERT_URL);
+        const data = await res.json();
 
-scores.push(sev*decay)
+        const list = document.getElementById("alertsList");
 
-coverage+=coverageScore(area)
+        list.innerHTML = "";
 
-count++
+        let scores = [];
+        let coverage = 0;
+        let count = 0;
 
-const li=document.createElement("li")
+        data.features.forEach(alert => {
 
-li.textContent=event+" — "+area
+            const event = alert.properties.event;
+            const area = alert.properties.areaDesc;
+            const time = alert.properties.sent;
 
-list.appendChild(li)
+            const sev = alertSeverity(event);
+            const decay = timeDecay(time);
 
-})
+            scores.push(sev * decay);
 
-coverage=Math.min(coverage,50)
+            coverage += coverageScore(area);
 
-const alertImpact=combineScores(scores)
+            count++;
 
-return{alertImpact,coverage,count}
+            const li = document.createElement("li");
+
+            li.textContent = event + " — " + area;
+
+            list.appendChild(li);
+
+        });
+
+        coverage = Math.min(coverage, 50);
+
+        const alertImpact = combineScores(scores);
+
+        return{
+            alertImpact,
+            coverage,
+            count
+        };
+
+    }
+    catch{
+
+        return{
+            alertImpact: 0,
+            coverage: 0,
+            count: 0
+        };
+
+    }
 
 }
 
@@ -363,34 +403,60 @@ return{alertImpact,coverage,count}
 
 async function getLocalWeather(){
 
-try{
+    try{
 
-const p=await fetch(NWS_POINTS).then(r=>r.json())
+        // Block non-USA users
+        const geo = await fetch("https://ipapi.co/json/").then(r => r.json());
 
-const stations=await fetch(p.properties.observationStations).then(r=>r.json())
+        if(geo.country_code !== "US"){
+            throw new Error("Outside USA");
+        }
 
-const id=stations.features[0].properties.stationIdentifier
+        const p = await fetch(NWS_POINTS).then(r => r.json());
 
-const obs=await fetch(`https://api.weather.gov/stations/${id}/observations/latest`).then(r=>r.json())
+        const stations = await fetch(
+            p.properties.observationStations
+        ).then(r => r.json());
 
-const d=obs.properties
+        const id =
+            stations.features[0].properties.stationIdentifier;
 
-return{
+        const obs = await fetch(
+            `https://api.weather.gov/stations/${id}/observations/latest`
+        ).then(r => r.json());
 
-temp:d.temperature.value*9/5+32,
-wind:d.windSpeed.value*2.23694,
-humidity:d.relativeHumidity.value,
-precip:(d.precipitationLastHour.value||0)*0.039
+        const d = obs.properties;
 
-}
+        return{
+            country: "US",
+            temp: d.temperature.value != null
+                ? d.temperature.value * 9/5 + 32
+                : 70,
 
-}
+            wind: d.windSpeed.value != null
+                ? d.windSpeed.value * 2.23694
+                : 5,
 
-catch{
+            humidity: d.relativeHumidity.value ?? 50,
 
-return{temp:70,wind:5,humidity:50,precip:0}
+            precip: d.precipitationLastHour.value != null
+                ? d.precipitationLastHour.value * 0.0393701
+                : 0
+        };
 
-}
+    }
+    catch{
+
+        // Fallback values
+        return{
+            country: "US",
+            temp: 70,
+            wind: 5,
+            humidity: 50,
+            precip: 0
+        };
+
+    }
 
 }
 
@@ -413,14 +479,28 @@ return Math.min(score,200)
 
 function getLevel(score){
 
-if(score>150) return ["Extreme","Potentially historic weather event."]
-if(score>120) return ["Major Outbreak","Major severe weather outbreak."]
-if(score>90) return ["Full Coverage","Severe weather across multiple areas."]
-if(score>70) return ["Going Live","Significant weather events underway."]
-if(score>50) return ["Watching Closely","Notable weather developing."]
-if(score>30) return ["Monitoring","Some weather activity happening."]
-return ["Quiet","Routine weather across the country."]
+    if(score >= 250)
+        return ["Historic","Potentially historic event."];
 
+    if(score >= 150)
+        return ["Extreme","Extreme national weather event."];
+
+    if(score >= 120)
+        return ["Major Event","Major event level, such as widespread damaging severe weather, a significant snowstorm, or a hurricane landfall."];
+
+    if(score >= 90)
+        return ["High Risk","Serious multi-area or high-impact weather. The team will likely go live if conditions keep lining up."];
+
+    if(score >= 70)
+        return ["Going Live","Significant weather is active. Live coverage becomes much more likely."];
+
+    if(score >= 50)
+        return ["Standby","Notable weather is underway or developing. Standby becomes more likely."];
+
+    if(score >= 30)
+        return ["Watching","Some active weather somewhere in the country. The team is watching."];
+
+    return ["Quiet","Mostly quiet nationally. Routine weather overall."];
 }
 
 /* UPDATE WEATHER */
