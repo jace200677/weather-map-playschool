@@ -462,114 +462,46 @@ async function getLocalWeather(){
 
 /* FINAL SCORE */
 
-function computeScore({
-    local = 0,
-    coverage = 0,
-    activeWarnings = [],
-    simultaneousEvents = 0,
-    populationAffected = 0
-}) {
+function computeScore(alerts){
 
-    let score = 0;
+let total = 0
 
-    // --- Base environmental factors ---
-    score += local * 0.12;
-    score += coverage * 0.10;
+alerts.forEach(alert => {
 
-    // --- Population scaling ---
-    // logarithmic so huge cities don't instantly max score
-    const populationScore =
-        Math.log10(Math.max(populationAffected, 1)) * 8;
+let weight = 0
 
-    score += populationScore;
+const event = alert.event || ""
+const tags = (alert.tags || []).join(" ")
 
-    // --- Simultaneous weather systems ---
-    score += simultaneousEvents * 3;
+if(event.includes("Tornado")) weight = 45
+else if(event.includes("Severe Thunderstorm")) weight = 20
+else if(event.includes("Flash Flood")) weight = 15
+else weight = 8
 
-    // --- Warning analysis ---
-    activeWarnings.forEach(warning => {
+// PDS / Emergency boosts
+if(tags.includes("PDS")) weight *= 1.5
+if(tags.includes("Tornado Emergency")) weight *= 2
 
-        let weight = 0;
+// population factor
+const population = alert.population || 50000
+const popFactor = Math.log10(population + 1)
 
-        // Storm type weighting
-        switch (warning.type) {
+// coverage factor
+const coverage = alert.coverage || 1
 
-            case "TORNADO":
-                weight = 35;
-                break;
+// freshness decay
+const minutesOld =
+(Date.now() - new Date(alert.sent).getTime()) / 60000
 
-            case "SEVERE_THUNDERSTORM":
-                weight = 18;
-                break;
+const decay = Math.max(0.4, 1 - (minutesOld / 180))
 
-            case "FLASH_FLOOD":
-                weight = 14;
-                break;
+total += weight * popFactor * coverage * decay
+})
 
-            case "FLOOD":
-                weight = 8;
-                break;
+// simultaneous event bonus
+total *= 1 + (alerts.length * 0.015)
 
-            case "WINTER_STORM":
-                weight = 12;
-                break;
-
-            case "HURRICANE":
-                weight = 50;
-                break;
-
-            default:
-                weight = 5;
-                break;
-        }
-
-        // Severity multiplier
-        switch (warning.severity) {
-
-            case "EXTREME":
-                weight *= 2.0;
-                break;
-
-            case "SEVERE":
-                weight *= 1.5;
-                break;
-
-            case "MODERATE":
-                weight *= 1.15;
-                break;
-        }
-
-        // Enhanced tags
-        if (warning.tags?.includes("PDS"))
-            weight *= 1.5;
-
-        if (warning.tags?.includes("TORNADO_EMERGENCY"))
-            weight *= 2.5;
-
-        if (warning.tags?.includes("DESTRUCTIVE"))
-            weight *= 1.35;
-
-        // Population inside warning polygon
-        const popBoost =
-            Math.log10(Math.max(warning.population || 1, 1));
-
-        weight += popBoost * 4;
-
-        score += weight;
-    });
-
-    // --- Active warning count bonus ---
-    score += activeWarnings.length * 1.25;
-
-    // --- Soft cap compression above 150 ---
-    if (score > 150) {
-        score =
-            150 +
-            Math.sqrt(score - 150) * 6;
-    }
-
-    // Final clamp
-    return Math.min(Math.round(score), 300);
+return Math.min(Math.round(total), 200)
 }
 /* LEVELS */
 
