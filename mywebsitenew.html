@@ -462,17 +462,91 @@ async function getLocalWeather(){
 
 /* FINAL SCORE */
 
-function computeScore(local,alerts,coverage,count){
+function computeScore({
+    warnings = [],
+    populationAffected = 0,
+    simultaneousEvents = 0
+}) {
 
-let score=
+    let score = 0;
 
-(alerts*0.6)+
-(local*0.15)+
-(coverage*0.15)+
-(count*0.1)
+    warnings.forEach(warning => {
 
-return Math.min(score,200)
+        let base = 0;
 
+        // Storm type weighting
+        switch (warning.type) {
+
+            case "Tornado Warning":
+                base = 25;
+                break;
+
+            case "Tornado Emergency":
+                base = 60;
+                break;
+
+            case "Severe Thunderstorm Warning":
+                base = 10;
+                break;
+
+            case "Flash Flood Warning":
+                base = 8;
+                break;
+
+            case "Blizzard Warning":
+                base = 15;
+                break;
+
+            case "Hurricane Warning":
+                base = 40;
+                break;
+
+            default:
+                base = 5;
+        }
+
+        // Severity weighting
+        switch (warning.severity) {
+
+            case "Extreme":
+                base *= 2.0;
+                break;
+
+            case "Severe":
+                base *= 1.5;
+                break;
+
+            case "Moderate":
+                base *= 1.2;
+                break;
+        }
+
+        // Enhanced tags
+        if (warning.tags?.includes("PDS"))
+            base *= 1.75;
+
+        if (warning.tags?.includes("Tornado Emergency"))
+            base *= 2.5;
+
+        // Radar confirmed tornado
+        if (warning.tags?.includes("Confirmed"))
+            base *= 1.4;
+
+        // Population scaling
+        const popFactor =
+            Math.log10((warning.population || 1000) + 1);
+
+        score += base * popFactor;
+    });
+
+    // National population impact
+    score += Math.log10(populationAffected + 1) * 8;
+
+    // Multiple simultaneous outbreaks
+    score += simultaneousEvents * 4;
+
+    // Clamp
+    return Math.min(Math.round(score), 250);
 }
 
 /* LEVELS */
