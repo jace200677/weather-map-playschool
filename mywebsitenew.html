@@ -462,88 +462,114 @@ async function getLocalWeather(){
 
 /* FINAL SCORE */
 
-function computeScore(local, warnings, populationAffected, simultaneousEvents) {
+function computeScore({
+    local = 0,
+    coverage = 0,
+    activeWarnings = [],
+    simultaneousEvents = 0,
+    populationAffected = 0
+}) {
 
     let score = 0;
 
-    warnings.forEach(warning => {
+    // --- Base environmental factors ---
+    score += local * 0.12;
+    score += coverage * 0.10;
+
+    // --- Population scaling ---
+    // logarithmic so huge cities don't instantly max score
+    const populationScore =
+        Math.log10(Math.max(populationAffected, 1)) * 8;
+
+    score += populationScore;
+
+    // --- Simultaneous weather systems ---
+    score += simultaneousEvents * 3;
+
+    // --- Warning analysis ---
+    activeWarnings.forEach(warning => {
 
         let weight = 0;
 
         // Storm type weighting
         switch (warning.type) {
 
-            case "Tornado Warning":
-                weight = 25;
+            case "TORNADO":
+                weight = 35;
                 break;
 
-            case "Tornado Emergency":
-                weight = 60;
+            case "SEVERE_THUNDERSTORM":
+                weight = 18;
                 break;
 
-            case "Severe Thunderstorm Warning":
-                weight = 10;
+            case "FLASH_FLOOD":
+                weight = 14;
                 break;
 
-            case "Flash Flood Warning":
+            case "FLOOD":
                 weight = 8;
                 break;
 
-            case "Blizzard Warning":
-                weight = 15;
+            case "WINTER_STORM":
+                weight = 12;
                 break;
 
-            case "Hurricane Warning":
-                weight = 40;
+            case "HURRICANE":
+                weight = 50;
                 break;
 
             default:
                 weight = 5;
+                break;
         }
 
-        // Severity weighting
+        // Severity multiplier
         switch (warning.severity) {
 
-            case "Extreme":
+            case "EXTREME":
                 weight *= 2.0;
                 break;
 
-            case "Severe":
+            case "SEVERE":
                 weight *= 1.5;
                 break;
 
-            case "Moderate":
-                weight *= 1.2;
+            case "MODERATE":
+                weight *= 1.15;
                 break;
         }
 
         // Enhanced tags
         if (warning.tags?.includes("PDS"))
-            weight *= 1.75;
+            weight *= 1.5;
 
-        if (warning.tags?.includes("Tornado Emergency"))
+        if (warning.tags?.includes("TORNADO_EMERGENCY"))
             weight *= 2.5;
 
-        if (warning.tags?.includes("Confirmed"))
-            weight *= 1.4;
+        if (warning.tags?.includes("DESTRUCTIVE"))
+            weight *= 1.35;
 
-        // Population factor
-        const popFactor =
-            Math.log10((warning.population || 1000) + 1);
+        // Population inside warning polygon
+        const popBoost =
+            Math.log10(Math.max(warning.population || 1, 1));
 
-        score += weight * popFactor;
+        weight += popBoost * 4;
+
+        score += weight;
     });
 
-    // Local weather contribution
-    score += local * 0.15;
+    // --- Active warning count bonus ---
+    score += activeWarnings.length * 1.25;
 
-    // National population affected
-    score += Math.log10(populationAffected + 1) * 8;
+    // --- Soft cap compression above 150 ---
+    if (score > 150) {
+        score =
+            150 +
+            Math.sqrt(score - 150) * 6;
+    }
 
-    // Simultaneous events contribution
-    score += simultaneousEvents * 4;
-
-    return Math.min(Math.round(score), 250);
+    // Final clamp
+    return Math.min(Math.round(score), 300);
 }
 /* LEVELS */
 
