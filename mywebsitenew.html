@@ -110,6 +110,38 @@ padding:2rem;
 <a href="#youtube">YouTube</a>
 </nav>
 <script>
+(function () {
+    const now = new Date();
+
+    const container = document.getElementById("ytLive");
+    if (!container) return;
+
+    const notice = document.createElement("div");
+    notice.className = "card";
+    notice.id = "liveNotice";
+
+    notice.innerHTML = `
+        <h3>📺 Live Coverage Notice</h3>
+        <p>
+            Severe weather is possible in Minnesota tomorrow. Forecast details
+            are still being monitored and coverage plans may change.
+        </p>
+        <p>
+            <strong>Thursday Coverage:</strong><br>
+            Playbot will be taking over operations Thursday while Jace attends meetings.
+        </p>
+    `;
+
+    container.parentNode.insertBefore(notice, container);
+
+    // optional auto-hide after June 4, 2026
+    const endDate = new Date("2026-06-04T23:59:59");
+    if (now > endDate) {
+        notice.remove();
+    }
+})();
+</script>
+<script>
 const now = new Date();
 
 const may26Start = new Date("2026-05-26T17:45:00");
