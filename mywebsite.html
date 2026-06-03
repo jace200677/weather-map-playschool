@@ -126,7 +126,29 @@ body.notice-active{padding-top:3.5rem;} /* leave space for banner */
 <footer>
   <small>© 2026 Northwoods Playschool · Learning through nature 🌲</small>
 </footer>
+<script>
+(function () {
+    const now = new Date();
 
+    const noticeStart = new Date("2026-06-02T00:00:00");
+    const showEnd = new Date("2026-06-05T23:59:59");
+
+    if (now < noticeStart || now > showEnd) return;
+
+    const notice = document.createElement("div");
+    notice.className = "notice-banner";
+
+    notice.innerHTML = `
+        📺 Video Notice: Severe weather is possible in Minnesota tomorrow.
+        Coverage may activate depending on conditions. 
+        <br>
+        🤖 Thursday Update: Playbot will take over coverage Thursday due to meetings.
+    `;
+
+    document.body.prepend(notice);
+    document.body.classList.add("notice-active");
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
